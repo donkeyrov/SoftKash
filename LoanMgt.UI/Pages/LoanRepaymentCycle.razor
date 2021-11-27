@@ -1,0 +1,224 @@
+﻿@page "/loanrepaymentcycle"
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inherits OwningComponentBase<RepaymentCycleRpository>
+
+<h3>Loan Repayment Cycles</h3>
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div>
+        Below enter the number of days or select manual dates for the Repayment Cycle. This will be available to choose in the Add Loan page.
+    </div>
+    <br/>
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary oi oi-plus" @onclick="()=>openModal(true)"> Add New Record</button>
+    </div>
+
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog modal-dialog2 modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @if (repaymentCycle.RepaymentCycleId > 0)
+                        {
+                            <h5 class="modal-title">Edit Repayment Cycle</h5>
+                        }
+                        else
+                        {
+                            <h5 class="modal-title">Add New Repayment Cycle</h5>
+                        }
+
+                    </div>
+                    <EditForm Model="repaymentCycle" OnValidSubmit="@Process">
+                        <div class="modal-body modal-body2">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div class="row col-lg-12 col-md-12">
+                                <div class="col-lg-4 col-md-4">
+                                    <label>Repayment Cycle Name</label>
+                                </div>
+                                <div class="col-lg-7 col-md-7">
+                                    <InputText @bind-Value="repaymentCycle.Name" placeholder="Name" id="repaymentcyclename" name="repaymentcyclename" class="form-control" />
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row col-lg-12 col-md-12">
+                                <div class="col-lg-4 col-md-4">
+                                    <label>Repayment Type</label>
+                                </div>
+                                <div class="col-lg-8 col-md-8">
+                                    <div class="row">
+                                        <SfRadioButton Label="I want Repayment Cycle to be every x number of days" Name="applyRepaymentType" Value="False" @bind-Checked="@applyRepaymentType"></SfRadioButton>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <SfRadioButton Label="I want Repayment Cycle to have fixed dates every month" Name="applyRepaymentType" Value="True" @bind-Checked="@applyRepaymentType"></SfRadioButton>
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row col-lg-12 col-md-12">
+                                <div class="col-lg-4 col-md-4">
+                                    <label>Repayment Cycle Every</label>
+                                </div>
+                                <div class="col-lg-7 col-md-7">
+                                    <InputNumber @bind-Value="repaymentCycle.NumberOfDays" placeholder="Days" id="numberofdays" name="repaymentcyclename" class="form-control" />
+                                </div>
+                                <div class="col-lg-1 col-md-1">
+                                    <b>Days</b>
+                                </div>
+                            </div>
+
+                        
+                            <br />
+                            <div class="row col-lg-12 col-md-12">
+                                <div class="col-lg-4 col-md-4">
+                                    <label>Select Manual Dates</label>
+                                </div>
+                                <div class="col-lg-7 col-md-7">
+                                    <InputDate @bind-Value="repaymentCycle.ManualDate" placeholder="Days" id="manualdate" name="manualdate" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@repaymentCycles" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridColumns>
+                        <GridColumn Field=@nameof(repaymentCycle.Name) HeaderText="Name"></GridColumn>
+                        <GridColumn Field=@nameof(repaymentCycle.NumberOfDays) HeaderText="Number of Days"></GridColumn>
+                        <GridColumn Field=@nameof(repaymentCycle.ManualDate) HeaderText="Manual Date"></GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.RepaymentCycle);
+                                    <SfButton @onclick="@(() => EditRecord(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.RepaymentCycle);
+                                    <SfButton @onclick="@(() => ShowDelete(rType))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(repaymentCycle))">
+    @childContent
+</Dialog>
+@code {
+    private LoanMgt.SHARED.RepaymentCycle repaymentCycle = new LoanMgt.SHARED.RepaymentCycle();
+    private IEnumerable<LoanMgt.SHARED.RepaymentCycle> repaymentCycles { get; set; } = new List<LoanMgt.SHARED.RepaymentCycle>();
+
+    private bool showModal = false;
+    private string title = "Default Title";
+    private string childContent = "Default Message";
+    private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+    private int repaymentTypeId = 0;
+    public string applyRepaymentType { get; set; } = "False";
+    private bool popup = false;
+
+    protected override void OnInitialized()
+    {
+        repaymentCycles = Service.GetAll();
+
+    }
+
+    protected void Process()
+    {
+        closeModal();
+
+        if (applyRepaymentType == "False")
+        {
+            repaymentCycle.FixedDays = true;
+            repaymentCycle.FixedDates = false;
+        }
+        else
+        {
+            repaymentCycle.FixedDays = false;
+            repaymentCycle.FixedDates = true;
+        }
+
+        if (string.IsNullOrEmpty(repaymentCycle.RepaymentCycleId.ToString()) || repaymentCycle.RepaymentCycleId == 0)
+        {
+            repaymentCycle.CreatedDate = DateTime.Now;
+            repaymentCycle.CreatedBy = "USER";
+            Service.Add(repaymentCycle);
+            toastService.ShowSuccess("Loan repayment Cycle has been created", "System Information");
+        }
+        else
+        {
+            Service.Update(repaymentCycle);
+            toastService.ShowInfo("Loan repayment Cycle has been updated!", "System Information");
+        }
+
+        repaymentCycle = new LoanMgt.SHARED.RepaymentCycle();
+        repaymentCycles = Service.GetAll();
+    }
+
+    private void ShowDelete(LoanMgt.SHARED.RepaymentCycle rType)
+    {
+        repaymentTypeId = rType.RepaymentCycleId;
+        repaymentCycle = rType;
+        modalType = Component.ModalTypes.Delete;
+        title = "Delete Record";
+        childContent = "Do You Want To Delete This Record(" + repaymentCycle.Name + ")?";
+        showModal = true;
+    }
+
+    protected void EditRecord(LoanMgt.SHARED.RepaymentCycle rType)
+    {
+        repaymentCycle = rType;
+        applyRepaymentType = repaymentCycle.FixedDays == true ? "False" : "True";
+        openModal();
+    }
+
+    protected void DeletetRecord(LoanMgt.SHARED.RepaymentCycle rType)
+    {
+        showModal = false;
+        Service.Remove(rType);
+
+        repaymentTypeId = 0;
+        repaymentCycle = new LoanMgt.SHARED.RepaymentCycle();
+        repaymentCycles = Service.GetAll();
+
+        toastService.ShowWarning("Loan repayment cycle has been Deleted", "System Information");
+    }
+
+    void openModal(bool reset = false)
+    {
+        if (reset == true)
+            repaymentCycle = new SHARED.RepaymentCycle();
+
+        popup = true;
+    }
+
+    void closeModal()
+    {
+        popup = false;
+    }
+}

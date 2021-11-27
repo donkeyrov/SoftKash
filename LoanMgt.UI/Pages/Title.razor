@@ -1,0 +1,179 @@
+﻿@page "/title"
+@using LoanMgt.SHARED;
+@using LoanMgt.UI.Repositories;
+@using LoanMgt.UI.Components;
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inherits OwningComponentBase<TitleRepository>
+
+<h3>Salutation Titles</h3>
+
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary" @onclick="() => openModal(true)">Add New Record</button>
+    </div>
+
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog modal-dialog-centered ">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @if (objtitle.TitleId > 0)
+                        {
+                            <h5 class="modal-title">Edit Title</h5>
+                        }
+                        else
+                        {
+                            <h5 class="modal-title">Add New Title</h5>
+                        }
+                    </div>
+                    <EditForm Model="objtitle" OnValidSubmit="@Process">
+                        <div class="modal-body ">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div>
+                                <div class="space">
+                                    <label for="titlecode">Title Code</label>
+                                    <InputText @bind-Value="objtitle.Code" placeholder="Title Code" id="titlecode" name="titlecode" class="form-control" />
+                                </div>
+                                <div class="space">
+                                    <label for="genderdescription">Title Description</label>
+                                    <InputText @bind-Value="objtitle.Description" placeholder="Title Description" id="titledescription" name="titledescription" class="form-control" />
+
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+
+<div class="col-lg-12 control-section">
+    <div class="content-wrapper">
+        <div class="row">
+            <SfGrid DataSource="@titles" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                <GridColumns>
+                    <GridColumn Field=@nameof(objtitle.Code) HeaderText="Title Code"></GridColumn>
+                    <GridColumn Field=@nameof(objtitle.Description) HeaderText="Description"></GridColumn>
+                    <GridColumn>
+                        <Template>
+                            @{
+                                var rType = (context as LoanMgt.SHARED.Title);
+                                <SfButton @onclick="@(() => EditRecord(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                            }
+                        </Template>
+                    </GridColumn>
+                    <GridColumn>
+                        <Template>
+                            @{
+                                var rType = (context as LoanMgt.SHARED.Title);
+                                <SfButton @onclick="@(() => ShowDelete(rType))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                            }
+                        </Template>
+                    </GridColumn>
+                </GridColumns>
+            </SfGrid>
+        </div>
+    </div>
+</div>
+</div>
+    <Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+            OnClickCallback="@(()=> DeletetRecord(objtitle))">
+        @childContent
+    </Dialog>
+
+    @code {
+
+        private LoanMgt.SHARED.Title objtitle = new LoanMgt.SHARED.Title();
+        private IEnumerable<LoanMgt.SHARED.Title> titles { get; set; } = new List<LoanMgt.SHARED.Title>();
+
+        private bool showModal = false;
+        private string title = "Default Title";
+        private string childContent = "Default Message";
+        private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+        private int titleId = 0;
+        private bool popup = false;
+
+        protected override void OnInitialized()
+        {
+            titles = Service.GetAll();
+
+        }
+
+        protected void Process()
+        {
+            closeModal();
+
+            if (string.IsNullOrEmpty(objtitle.TitleId.ToString()) || objtitle.TitleId == 0)
+            {
+                objtitle.CreatedDate = DateTime.Now;
+                objtitle.CreatedBy = "USER";
+                Service.Add(objtitle);
+                toastService.ShowSuccess("title has been created", "System Information");
+            }
+            else
+            {
+                Service.Update(objtitle);
+                toastService.ShowInfo("Title has been updated!", "System Information");
+            }
+
+            objtitle = new LoanMgt.SHARED.Title();
+            titles = Service.GetAll();
+        }
+
+        private void ShowDelete(LoanMgt.SHARED.Title oTitle)
+        {
+            titleId = oTitle.TitleId;
+            objtitle = oTitle;// Service.Get(id);
+            modalType = Component.ModalTypes.Delete;
+            title = "Delete Record";
+            childContent = "Do You Want To Delete This Record(" + objtitle.Description + ")?";
+            showModal = true;
+        }
+
+        protected void EditRecord(LoanMgt.SHARED.Title oTitle)
+        {
+            objtitle = oTitle;// Service.Get(id);
+            openModal();
+        }
+
+        protected void DeletetRecord(LoanMgt.SHARED.Title oTitle)
+        {
+            showModal = false;
+            Service.Remove(oTitle);
+
+            titleId = 0;
+            objtitle = new LoanMgt.SHARED.Title();
+            titles = Service.GetAll();
+
+            toastService.ShowWarning("Title has been Deleted", "System Information");
+        }
+
+        void openModal(bool reset = false)
+        {
+            if (reset)
+                objtitle = new SHARED.Title();
+
+            popup = true;
+        }
+
+        void closeModal()
+        {
+            popup = false;
+        }
+
+    }

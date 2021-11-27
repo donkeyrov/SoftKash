@@ -1,0 +1,126 @@
+﻿@page "/addloanfees"
+@page "/addloanfees/{feeId:int}"
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inherits OwningComponentBase<FeeRepository>
+
+<h3>Add Loan Fees</h3>
+
+<div class="admin-link">
+    <NavLink href="/branch">Back to Branches</NavLink>
+</div>
+
+<div class="blue-top new-border">
+    <EditForm Model="fee" OnValidSubmit="@Process">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4 text-right"
+                 014">
+                <labe5l>Name</labe5l>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <InputText @bind-Value="fee.Name" placeholder="Fee Name" id="feename" name="feename" class="form-control" />
+            </div>
+        </div>
+        <br />
+        <div class="gray new-border2">
+            <p>If you select fixed amount, then you will need to enter exact value of loan fee when you add a loan. But, if you select percentage % based, loan fee will be calculated as a percentage of the principal and/or interest amount of the loan.</p>
+        </div>
+        <br />
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4 text-right"">
+                <label>Fee Calculation</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <div class="row space">
+                    <SfRadioButton TChecked="bool" Label="I want Fee to be a fixed amount" Name="feetype" Value="False" @bind-Checked="fee.Fixedamount"></SfRadioButton>
+                </div>
+                <div class="row space">
+                    <SfRadioButton TChecked="bool" Label="I want Fee to be percentage % based" Name="feetype" Value="True" @bind-Checked="fee.PercentageBased"></SfRadioButton>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4 text-right">
+                <label>Calculate Fee percentage % of</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <div class="row space">
+                    <SfRadioButton TChecked="bool" Label="Total Loan Due Principal Amount" Name="applyHoliday" Value="False" @bind-Checked="fee.CalculateOnDuePrincipalAmount"></SfRadioButton>
+                </div>
+                <div class="row space">
+                    <SfRadioButton TChecked="bool" Label="Total Loan Due Interest Amount" Name="applyHoliday" Value="True" @bind-Checked="fee.CalculateOnDueInterestamount"></SfRadioButton>
+                </div>
+                <div class="row space">
+                    <SfRadioButton TChecked="bool" Label="Total Loan Due Principal and Interest Amount" Name="applyHoliday" Value="True" @bind-Checked="fee.CalculateOnDuePricipalAndInterest"></SfRadioButton>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="gray new-border2">
+            <p>Deductable Fees is a fee that is deducted from the principal amount of the loan. For example if you give a loan for 1000 and the deductable fee is 100, the fee would be deducted from 1000 and remaining amount of 900 would be given to borrower. But the borrower still has to pay back the 1000. These fees are not added on top of the loan. If you want the fee to be charged on top of the loan, do not check the below box.</p>
+        </div>
+        <br />
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4 text-right"">
+                <label>Deductable Fees</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <SfCheckBox Label="Deduct Fee from Principal Amount?" @bind-Checked="fee.DeductFromPrincipalAmount"></SfCheckBox>
+            </div>
+        </div>
+
+
+        <hr />
+        <div class="text-right pace-md">
+            <button type="submit" class="btn btn-info">Submit</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public int feeId { get; set; } = 0;    
+    private LoanMgt.SHARED.Fee fee = new LoanMgt.SHARED.Fee();    
+    private string stringChecked = "False";
+    private string saturdayChecked = "False";
+    private string sundayChecked = "False";
+    private string nextCycle = "False";
+
+
+    protected override void OnInitialized()
+    {
+        if (feeId > 0)
+        {
+            fee = Service.Get(feeId);
+            
+        }
+        else
+        {
+            fee = new SHARED.Fee();
+        }
+    }
+
+    protected void Process()
+    {
+        fee.CreatedDate = DateTime.Now;
+        fee.CreatedBy = "user";
+
+        if (fee.FeeId == 0)
+        {
+            Service.Add(fee);
+        }
+        else
+        {
+            Service.Update(fee);
+        }
+
+        toastService.ShowSuccess("Loan Fee has been created", "System Information");
+        UriHelper.NavigateTo("/loanfees");
+    }
+
+}

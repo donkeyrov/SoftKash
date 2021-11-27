@@ -1,0 +1,187 @@
+﻿@page "/addbranchholidays/{branchId:int}"
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inject BranchRepository branchRepo;
+@inherits OwningComponentBase<BranchHolidayRepository>
+
+<h3>Add Branch Holiday Dates</h3>
+<div class="admin-link">
+    <NavLink href="/branch">Back to Branches</NavLink>
+</div>
+<div class="orange-top new-border3">
+     @if (branch != null) 
+     { 
+         <h3>Branch : @branch.Name  </h3>
+     }
+    <br/>
+    Add the branch holiday dates below. When you add a new loan, the loan schedule will skip the branch holiday dates.
+    <br />
+    Loan schedule dates will be automatically set to the next day that is not a holiday or the next repayment cycle. By default, only new loans added in the branch will be affected by the below holiday dates. However, you can apply the below holidays to existing loans by selecting Yes for Update Schedule Dates in Existing Loans.
+</div>
+
+<div class="blue-top new-border">
+    <EditForm Model="branchHoliday" OnValidSubmit="@Process">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="gray new-border2">
+            <h5>Set The Branch Holiday Dates</h5>
+        </div>
+
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4">
+                <label>Select Holiday Dates</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <SfCalendar TValue="DateTime?" IsMultiSelection=true @bind-Values="@MultipleValues"></SfCalendar>
+            </div>
+        </div>
+        <div class="row col-lg-12 col-md-12 pace-sm">
+            <div class="col-lg-4 col-md-4">
+                <label>Is Friday a Branch Holiday?</label>
+            </div>
+            <div class="col-lg-8 col-md-8">    
+                <SfRadioButton Label="No" Name="fridayHoliday" Value="False" @bind-Checked="stringChecked"  @onchange="(()=> { branchHoliday.FridayBranchHoliday = false; })"></SfRadioButton>
+                <SfRadioButton Label="Yes" Name="fridayHoliday" Value="True" @bind-Checked="stringChecked" @onchange="(()=> { branchHoliday.FridayBranchHoliday = true; })"></SfRadioButton>
+            </div>
+        </div>
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4">
+                <label>Is Saturday a Branch Holiday?</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <SfRadioButton Label="No" Name="saturdayHoliday" Value="False"  @bind-Checked="@saturdayChecked" ></SfRadioButton>
+                <SfRadioButton Label="Yes" Name="saturdayHoliday" Value="True" @bind-Checked="@saturdayChecked" ></SfRadioButton>
+            </div>
+        </div>
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4">
+                <label>Is Sunday a Branch Holiday?</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <SfRadioButton Label="No" Name="sundayHoliday" Value="False" @bind-Checked="@sundayChecked" ></SfRadioButton>
+                <SfRadioButton Label="Yes" Name="sundayHoliday" Value="True" @bind-Checked="@sundayChecked" ></SfRadioButton>
+            </div>
+        </div>
+
+        <div class="gray new-border2 pace-md">
+            <h5>How should Branch Holidays be applied?:</h5>
+        </div>
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4">
+                <label>Set Branch Holidays in the Loan Schedule to</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <div class="row">
+                    <SfRadioButton Label="Next day that is not a holiday" Name="applyHoliday" Value="False" @bind-Checked="@nextCycle" ></SfRadioButton>
+                </div>
+                <div class="row">
+                    <SfRadioButton Label="Next Repayment Cycle" Name="applyHoliday" Value="True" @bind-Checked="@nextCycle" ></SfRadioButton>
+                </div>
+            </div>
+        </div>
+        <hr />
+        <div class="text-right pace-md">
+            <button type="submit" class="btn btn-info">Submit</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public int branchId { get; set; } = 0;
+    public DateTime[] MultipleValues { get; set; }
+    private LoanMgt.SHARED.Branch branch = new LoanMgt.SHARED.Branch();
+    private LoanMgt.SHARED.BranchHoliday branchHoliday = new LoanMgt.SHARED.BranchHoliday();
+    private string stringChecked = "False";
+    private string saturdayChecked = "False";
+    private string sundayChecked = "False";
+    private string nextCycle = "False";
+
+
+    protected override void OnInitialized()
+    {
+        if (branchId > 0)
+        {
+            branch = branchRepo.Get(branchId);
+            branchHoliday = Service.GetByBranchId(branchId);
+
+            if (branchHoliday == null)
+            {
+                branchHoliday = new SHARED.BranchHoliday();
+            }
+            else
+            {
+                List<DateTime> myDate = new List<DateTime>();
+
+                string[] dates = branchHoliday.HolidayDates.Split("|");
+                foreach (var item in dates)
+                {
+                    myDate.Add(Convert.ToDateTime(item));
+                    //MultipleValues.Append<DateTime>(Convert.ToDateTime(item) );
+                }
+
+                MultipleValues = myDate.ToArray();
+                stringChecked = branchHoliday.FridayBranchHoliday.ToString();
+                saturdayChecked = branchHoliday.SaturdayBranchHoliday.ToString();
+                sundayChecked = branchHoliday.SundayBranchHoliday.ToString();
+                nextCycle = branchHoliday.NextDayThatIsNotHoliday == true ? "False" : "True";
+            }
+
+        }
+        else
+        {
+            branch = new SHARED.Branch();
+        }
+    }
+
+    protected void Process()
+    {
+        if(MultipleValues == null || MultipleValues.Count() == 0)
+        {
+            toastService.ShowError("No Holiday Date Selected... Can Not Continue", "System Information");
+            return;
+        }
+
+        branchHoliday.FridayBranchHoliday = Convert.ToBoolean(stringChecked);
+        branchHoliday.SaturdayBranchHoliday = Convert.ToBoolean(saturdayChecked);
+        branchHoliday.SundayBranchHoliday = Convert.ToBoolean(sundayChecked);
+        branchHoliday.CreatedDate = DateTime.Now;
+        branchHoliday.CreatedBy = "user";
+        branchHoliday.BranchId = branch.BranchId;
+        branchHoliday.HolidayDates = "";
+
+        if(nextCycle == "False")
+        {
+            branchHoliday.NextDayThatIsNotHoliday = true;
+            branchHoliday.NextRepaymentCycle = false;
+        }
+        else
+        {
+            branchHoliday.NextDayThatIsNotHoliday = false;
+            branchHoliday.NextRepaymentCycle = true;
+        }
+
+        foreach (var item in MultipleValues)
+        {
+            branchHoliday.HolidayDates += item.ToShortDateString() + "|";
+        }
+        branchHoliday.HolidayDates = branchHoliday.HolidayDates.Substring(0, branchHoliday.HolidayDates.Length - 1);
+
+        if(branchHoliday.BranchHolidayId == 0)
+        {
+            Service.Add(branchHoliday);
+        }
+        else
+        {
+            Service.Update(branchHoliday);
+        }
+
+        toastService.ShowSuccess("Branch Holiday Dates have been created", "System Information");
+        UriHelper.NavigateTo("/branchholidays");
+    }
+
+ }
+
+

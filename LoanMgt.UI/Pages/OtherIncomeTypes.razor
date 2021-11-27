@@ -1,0 +1,167 @@
+﻿@page "/otherincometypes"
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inherits OwningComponentBase<OtherIncomeTypeRepository>
+
+<h3>Other Income Types</h3>
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary oi oi-plus" @onclick="()=>openModal(true)"> Add New Record</button>
+    </div>
+
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @if (otherIncomeType.OtherIncomeTypeId > 0)
+                        {
+                            <h5 class="modal-title">Edit Other Income Type</h5>
+                        }
+                        else
+                        {
+                            <h5 class="modal-title">Add New Other Income Type</h5>
+                        }
+
+                    </div>
+                    <EditForm Model="otherIncomeType" OnValidSubmit="@Process">
+                        <div class="modal-body">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div>
+                                <div class="space">
+                                    <label for="otherincometypename">Name</label>
+                                    <InputText @bind-Value="otherIncomeType.Name" placeholder="Other Income Type Name" id="otherincometypename" name="otherincometypename" class="form-control" />
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@otherIncomeTypes" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridColumns>
+                        <GridColumn Field=@nameof(otherIncomeType.Name) HeaderText="Name"></GridColumn>
+
+                        <GridColumn MaxWidth="70">
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.OtherIncomeType);
+                                    <SfButton @onclick="@(() => EditRecord(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn MaxWidth="70">
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.OtherIncomeType);
+                                    <SfButton @onclick="@(() => ShowDelete(rType))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(otherIncomeType))">
+    @childContent
+</Dialog>
+@code {
+    private LoanMgt.SHARED.OtherIncomeType otherIncomeType = new LoanMgt.SHARED.OtherIncomeType();
+    private IEnumerable<LoanMgt.SHARED.OtherIncomeType> otherIncomeTypes { get; set; } = new List<LoanMgt.SHARED.OtherIncomeType>();
+
+    private bool showModal = false;
+    private string title = "Default Title";
+    private string childContent = "Default Message";
+    private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+    private int otherIncomeTypeId = 0;
+    private bool popup = false;
+
+    protected override void OnInitialized()
+    {
+        otherIncomeTypes = Service.GetAll();
+    }
+
+    protected void Process()
+    {
+        closeModal();
+
+        if (string.IsNullOrEmpty(otherIncomeType.OtherIncomeTypeId.ToString()) || otherIncomeType.OtherIncomeTypeId == 0)
+        {
+            otherIncomeType.CreatedDate = DateTime.Now;
+            otherIncomeType.CreatedBy = "USER";
+
+            Service.Add(otherIncomeType);
+            toastService.ShowSuccess("Other income type has been created", "System Information");
+        }
+        else
+        {
+            Service.Update(otherIncomeType);
+            toastService.ShowInfo("Other Income type has been updated!", "System Information");
+        }
+
+        otherIncomeType = new LoanMgt.SHARED.OtherIncomeType();
+        otherIncomeTypes = Service.GetAll();
+    }
+
+    private void ShowDelete(LoanMgt.SHARED.OtherIncomeType rType)
+    {
+        otherIncomeTypeId = rType.OtherIncomeTypeId;
+        otherIncomeType = rType;
+        modalType = Component.ModalTypes.Delete;
+        title = "Delete Record";
+        childContent = "Do You Want To Delete This Record(" + otherIncomeType.Name + ")?";
+        showModal = true;
+    }
+
+    protected void EditRecord(LoanMgt.SHARED.OtherIncomeType rType)
+    {
+        otherIncomeType = rType;
+        openModal();
+    }
+
+    protected void DeletetRecord(LoanMgt.SHARED.OtherIncomeType rType)
+    {
+        showModal = false;
+        Service.Remove(rType);
+
+        otherIncomeTypeId = 0;
+        otherIncomeType = new LoanMgt.SHARED.OtherIncomeType();
+        otherIncomeTypes = Service.GetAll();
+
+        toastService.ShowWarning("Other income type has been Deleted", "System Information");
+    }
+
+    void openModal(bool reset = false)
+    {
+        if (reset == true)
+            otherIncomeType = new SHARED.OtherIncomeType();
+
+        popup = true;
+    }
+
+    void closeModal()
+    {
+        popup = false;
+    }
+}

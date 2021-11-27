@@ -1,0 +1,185 @@
+﻿@page "/currency"
+@using LoanMgt.SHARED;
+@using LoanMgt.UI.Repositories;
+@using LoanMgt.UI.Components;
+@using LoanMgt.UI.Pages;
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inherits OwningComponentBase<CurrencyRepository>
+
+<h3>Currencies</h3>
+
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary" @onclick="() => openModal(true)">Add New Record</button>
+    </div>
+
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog  modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @if (objCurrency.CurrencyId > 0)
+                        {
+                            <h5 class="modal-title">Edit Currency</h5>
+                        }
+                        else
+                        {
+                            <h5 class="modal-title">Add New Currency</h5>
+                        }
+                    </div>
+                    <EditForm Model="objCurrency" OnValidSubmit="@Process">
+                        <div class="modal-body ">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div>
+                                <div class="space">
+                                    <label for="currencycode">Currency Code</label>
+                                    <InputText @bind-Value="objCurrency.CurrencyCode" placeholder="Currency Code" id="currencycode" name="currencycode" class="form-control" />
+                                </div>
+                                <div class="space">
+                                    <label for="currencysymbol">Currency Symbol</label>
+                                    <InputText @bind-Value="objCurrency.CurrencySymbol" placeholder="Currency Symbol" id="currencysymbol" name="Currency Symbol" class="form-control" />
+
+                                </div>
+                                <div class="space">
+                                    <label for="currencyname">Currency Name</label>
+                                    <InputText @bind-Value="objCurrency.CurrencyName" placeholder="Currency Name" id="currencyname" name="Currency Name" class="form-control" />
+
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@currencies" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridColumns>
+                        <GridColumn Field=@nameof(objCurrency.CurrencyCode) HeaderText="Currency Code" TextAlign="TextAlign.Left" Width="70"></GridColumn>
+                        <GridColumn Field=@nameof(objCurrency.CurrencySymbol) HeaderText="Currency Symbol" Width="70"></GridColumn>
+                        <GridColumn Field=@nameof(objCurrency.CurrencyName) HeaderText="Currency Name" Width="150"></GridColumn>
+                        <GridColumn Width="30">
+                            <Template>
+                                @{ 
+                                    var curr = (context as LoanMgt.SHARED.Currency);
+                                    <SfButton @ref="EditBtnResolved" @onclick="@(() => EditRecord(curr))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                 }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn Width="35">
+                            <Template>
+                                @{ 
+                                    var curr = (context as LoanMgt.SHARED.Currency);
+                                    <SfButton @onclick="@(() => ShowDelete(curr))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                 }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+    <Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+            OnClickCallback="@(()=> DeletetRecord(objCurrency))">
+        @childContent
+    </Dialog>
+
+    @code {
+        private LoanMgt.SHARED.Currency objCurrency = new LoanMgt.SHARED.Currency();
+        private IEnumerable<LoanMgt.SHARED.Currency> currencies { get; set; } = new List<LoanMgt.SHARED.Currency>();
+
+        private bool showModal = false;
+        private string title = "Default Currency";
+        private string childContent = "Default Message";
+        private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+        private int currencyId = 0;
+        private bool popup = false;
+        SfButton EditBtnResolved;
+
+        protected override void OnInitialized()
+        {
+            currencies = Service.GetAll();
+
+        }
+
+        protected void Process()
+        {
+            closeModal();
+
+            if (string.IsNullOrEmpty(objCurrency.CurrencyId.ToString()) || objCurrency.CurrencyId == 0)
+            {
+                objCurrency.DateCreated = DateTime.Now;
+                objCurrency.CreatedBy = "USER";
+                Service.Add(objCurrency);
+                toastService.ShowSuccess("Currency has been created", "System Information");
+            }
+            else
+            {
+                Service.Update(objCurrency);
+                toastService.ShowInfo("Currency has been updated!", "System Information");
+            }
+
+            objCurrency = new LoanMgt.SHARED.Currency();
+            currencies = Service.GetAll();
+        }
+
+        private void ShowDelete(LoanMgt.SHARED.Currency curr)
+        {
+            currencyId = curr.CurrencyId;
+            objCurrency = curr;// Service.Get(id);
+            modalType = Component.ModalTypes.Delete;
+            title = "Delete Record";
+            childContent = "Do You Want To Delete This Record(" + objCurrency.CurrencyName + ")?";
+            showModal = true;
+        }
+
+        protected void EditRecord(LoanMgt.SHARED.Currency curr)
+        {
+            objCurrency = curr;// Service.Get(id);
+            openModal();
+        }
+
+        protected void DeletetRecord(LoanMgt.SHARED.Currency curr)
+        {
+            showModal = false;
+            Service.Remove(curr);
+
+            currencyId = 0;
+            objCurrency = new LoanMgt.SHARED.Currency();
+            currencies = Service.GetAll();
+
+            toastService.ShowWarning("Currency has been Deleted", "System Information");
+        }
+
+        void openModal(bool reset = false)
+        {
+            if (reset)
+                objCurrency = new SHARED.Currency();
+
+            popup = true;
+        }
+
+        void closeModal()
+        {
+            popup = false;
+        }
+    }

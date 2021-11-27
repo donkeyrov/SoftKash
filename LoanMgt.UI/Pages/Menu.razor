@@ -1,0 +1,211 @@
+﻿@page "/menu"
+@using LoanMgt.SHARED;
+@using LoanMgt.UI.Repositories;
+@using LoanMgt.UI.Components;
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inherits OwningComponentBase<MenuRepository>
+
+<h3>System Menu</h3>
+
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary" @onclick="()=>openModal(1)">Add New Record</button>
+    </div>
+
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog modal-dialog2 modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add New Menu Item</h5>
+                    </div>
+                    <EditForm Model="menu" OnValidSubmit="@Process">
+                        <div class="modal-body modal-body2">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div>
+                                <div class="space">
+                                    <label for="menuname">Menu Name</label>
+                                    <InputText @bind-Value="menu.Name" placeholder="Menu Name" id="menuname" name="menuname" class="form-control" />
+                                </div>
+                                <div class="space">
+                                    <label for="parentmenu">Parent Menu</label>
+                                    <InputSelectNumber @bind-Value="menu.ParentMenuId" placeholder="Parent Menu" id="parentmenu" name="parentmenu" class="form-control">
+                                        @foreach (var pmenu in pMenus)
+                                        {
+                                            <option value="@pmenu.MenuId">@pmenu.Name</option>
+                                            <option disabled class="superscript">&nbsp;@pmenu.SubText</option>
+                                        }
+                                    </InputSelectNumber>
+                                </div>
+                                <div class="space">
+                                    <label for="subtext">Sub Text</label>
+                                    <InputText @bind-Value="menu.SubText" placeholder="Menu Sub Text" id="subtext" name="subtext" class="form-control" />
+                                </div>
+                                <div class="row col-md-12 col-lg-12 space">
+                                    <div class="col=md-6 col-lg-6">
+                                        <label for="target">Target</label>
+                                        <InputSelect @bind-Value="menu.Target" placeholder="Target" id="target" name="target" class="form-control">
+                                            <option value="_Self">Default Window</option>
+                                            <option value="_Blank">New Window</option>
+                                        </InputSelect>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6">
+                                        <label for="menuurl">Page Name</label>
+                                        <InputText @bind-Value="menu.MenuURL" placeholder="Page Name" id="menuurl" name="menuurl" class="form-control" />
+                                    </div>
+
+                                </div>
+
+                                <div class="row col-md-12 col-lg-12 space">
+                                    <div class="col-md-6 col-lg-6">
+                                        <label for="order">Menu Order</label>
+                                        <InputNumber @bind-Value="menu.Order" placeholder="Menu Order" id="order" name="order" class="form-control" />
+                                    </div>
+                                    <div class="col-md-6 col-lg-6">
+                                        <label for="iconname">Icon Name</label>
+                                        <InputText @bind-Value="menu.IconName" placeholder="Icon Name" id="isonname" name="isonname" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="space">
+                                    <label for="active">Active</label>
+                                    <InputCheckbox @bind-Value="menu.Active" placeholder="Menu iS Active" id="active" name="active" />
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@menus" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridColumns>
+                        <GridColumn Field=@nameof(menu.Name) HeaderText="Name"></GridColumn>
+                        <GridColumn Field=@nameof(menu.SubText) HeaderText="Sub Text"></GridColumn>
+                        <GridColumn Field=@nameof(menu.MenuURL) HeaderText="URL"></GridColumn>
+                        <GridColumn Field=@nameof(menu.IconName) HeaderText="Icon Name"></GridColumn>
+                        <GridColumn Field=@nameof(menu.Active) HeaderText="Status"></GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.Menu);
+                                    <SfButton @onclick="@(() => EditMenu(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.Menu);
+                                    <SfButton @onclick="@(() => ShowDelete(rType))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetMenu(menu))">
+    @childContent
+</Dialog>
+
+    @code {
+
+        private LoanMgt.SHARED.Menu menu = new LoanMgt.SHARED.Menu();
+        private IEnumerable<LoanMgt.SHARED.Menu> menus { get; set; } = new List<LoanMgt.SHARED.Menu>();
+        private IEnumerable<LoanMgt.SHARED.Menu> pMenus { get; set; } = new List<LoanMgt.SHARED.Menu>();
+        private bool showModal = false;
+        private string title = "Default Title";
+        private string childContent = "Default Message";
+        private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+        private int MenuId = 0;
+        private bool popup = false;
+
+        protected override void OnInitialized()
+        {
+            menus = Service.GetAll();
+            pMenus = Service.GetAll().Where(m => m.Active == true);
+        }
+
+        protected void Process()
+        {
+            closeModal();
+
+            if (string.IsNullOrEmpty(menu.MenuId.ToString()) || menu.MenuId == 0)
+            {
+                Service.Add(menu);
+                toastService.ShowSuccess("Menu has been created", "System Information");
+            }
+            else
+            {
+                Service.Update(menu);
+                toastService.ShowInfo("Menu has been updated!", "System Information");
+            }
+
+            menu = new SHARED.Menu();
+            pMenus = Service.GetAll().Where(m => m.Active == true);
+            menus = Service.GetAll();
+        }
+
+        private void ShowDelete(LoanMgt.SHARED.Menu oMenu)
+        {
+            MenuId = oMenu.MenuId;
+            menu = oMenu;// Service.Get(id);
+            modalType = Component.ModalTypes.Delete;
+            title = "Delete Record";
+            childContent = "Do You Want To Delete This Record(" + menu.Name + ")?";
+            showModal = true;
+        }
+
+        protected void EditMenu(LoanMgt.SHARED.Menu oMenu)
+        {
+            menu = oMenu;// Service.Get(id);
+            openModal();
+            //menus = Service.GetAllMenus();
+        }
+
+        protected void DeletetMenu(LoanMgt.SHARED.Menu oMenu)
+        {
+            showModal = false;
+            Service.Remove(oMenu);
+
+            MenuId = 0;
+            menu = new SHARED.Menu();
+            menus = Service.GetAll();
+            pMenus = Service.GetAll().Where(m => m.Active == true);
+            toastService.ShowWarning("Menu has been Deleted", "System Information");
+        }
+
+        void openModal(int action = 0)
+        {
+            if (action == 1)
+                menu = new SHARED.Menu();
+
+            popup = true;
+        }
+
+        void closeModal()
+        {
+            popup = false;
+        }
+    }

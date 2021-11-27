@@ -1,0 +1,288 @@
+﻿@page "/admin"
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+
+<h3>Admin Panel</h3>
+
+<div class="row col-lg-12 col-md-12">
+    <div class="col-lg-4 col-md-4">
+        <h5 class="bold">Settings</h5>
+        <p>
+            <NavLink href="/accountsettings">
+                <span>Account Settings</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/apisettings">
+                <span>API Settings</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/menu">
+                <span>System Menu</span>
+            </NavLink>
+        </p>
+    </div>
+    <div class="col-lg-4 col-md-4">
+        <h5 class="bold">Manage Staff</h5>
+        <p>
+            <NavLink href="/staff">
+                <span>Staff</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/staffroles">
+                <span>Staff Roles and Permissions</span>
+            </NavLink>
+        </p>
+    </div>
+    <div class="col-lg-4 col-md-4">
+        <h5 class="bold">Loans</h5>
+        <p>
+            <NavLink href="/loanproducts">
+                <span>Loan Products</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/loandisbursedby">
+                <span>Loan Disbursed By</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/loanpenaltysettings">
+                <span>Loan Penalty Settings</span>
+            </NavLink>            
+        </p>
+        <p>
+            <NavLink href="/loanfees">
+                <span>Loan Fees</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/loanrepaymentcycle">
+                <span>Loan Repayment Cycles</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/loanremindersettings">
+                <span>Loan Reminder Settings</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/loantemplates">
+                <span>Loan Templates: Applications/Agreements</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/bulkupdateloanschedules">
+                <span>Bulk Update Loan Schedules</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/bulkupdateloanmaturity">
+                <span>Bulk Update Loans with Extend Loans After Maturity</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/loanstatusapprovals">
+                <span>Manage Loan Status and Approvals</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/adjustinterestinmiddle">
+                <span>Adjust Interest Rates in Middle</span>
+            </NavLink>
+        </p>
+    </div>
+</div>
+<hr />
+<div class="row col-lg-12 col-md-12">
+    <div class="col-lg-4 col-md-4">
+        <h5 class="bold">Manage Branches</h5>
+        <p>
+            <NavLink href="/branch">
+                <span>Branches</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/branchholidays">
+                <span>Branch Holidays</span>
+            </NavLink>
+        </p>
+    </div>
+    <div class="col-lg-4 col-md-4">
+        <h5 class="bold">Borrowers</h5>
+        <p>
+            <NavLink href="/downloadstatments">
+                <span>Download Statements/Schedules</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/formatborrowerreports">
+                <span>Format Borrower Reports</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/renameborrowerreports">
+                <span>Rename Borrower Reports</span>
+            </NavLink>            
+        </p>
+        <p>
+            <NavLink href="/manageloanofficers">
+                <span>Manage Loan Officers</span>
+            </NavLink>            
+        </p>
+        <p>
+            <NavLink href="/inviteborrowersettings">
+                <span>Invite Borrower Settings</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/updateborrowersloanofficers">
+                <span>Bulk Update Borrowers With Loan Officers</span>
+            </NavLink>            
+        </p>
+    </div>
+    <div class="col-lg-4 col-md-4">
+        <h5 class="bold">Repayments</h5>
+        <p>
+            <NavLink href="/loanrepaymentmethods">
+                <span>Loan Repayment Methods</span>
+            </NavLink>            
+        </p>
+        <p>
+            <NavLink href="/managecollectors">
+                <span>Manage Collectors</span>
+            </NavLink>
+        </p>
+    </div>
+</div>
+<hr />
+<div class="row col-lg-12 col-md-12">
+    <div class="col-lg-4 col-md-4">
+        <h5 class="bold">Collateral</h5>
+        <p>
+            <NavLink href="/collateraltypes">
+                <span>Collateral Types</span>
+            </NavLink>
+        </p>
+    </div>
+    <div class="col-lg-4 col-md-4">
+        <h5 class="bold">Bulk Uploads</h5>
+        <p>
+            <NavLink href="/borrowersfromcsv">
+                <span>Upload Borrowers from CSV file</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/loansfromcsv">
+                <span>Upload Loans from CSV file</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/repaymentsfromcsv">
+                <span>Upload Repayments from CSV file</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/expensesfromcsv">
+                <span>Upload Expenses from CSV file</span>
+            </NavLink>
+        </p>
+        <p>Upload Savings Account from CSV file</p>
+        <p>Upload Savings Transactions from CSV file</p>
+        <p>
+            <NavLink href="/loanschedulefromcsv">
+                <span>Upload Loan Schedule from CSV file</span>
+            </NavLink>
+        </p>
+    </div>
+    <div class="col-lg-4 col-md-4">
+        <h5 class="bold">Other Income</h5>
+        <p>
+            <NavLink href="/otherincometypes">
+                <span>Other Income Types</span>
+            </NavLink>
+        </p>
+    </div>
+</div>
+<hr />
+<div class="row col-lg-12 col-md-12">
+    <div class="col-lg-4 col-md-4">
+        <h5 class="bold">Asset Management</h5>
+        <p>
+            <NavLink href="/assetmanagementtypes">
+                <span>Asset Management Types</span>
+            </NavLink>
+        </p>
+    </div>
+    <div class="col-lg-4 col-md-4">
+        <h5 class="bold">Email Settings</h5>
+        <p>Email Accounts</p>
+        <p>Email Templates</p>
+        <p>Auto Send Emails</p>
+        <p>Collection Sheets - Email Template</p>
+        <p>Email Logs</p>
+    </div>
+    <div class="col-lg-4 col-md-4">
+        <h5 class="bold">Savings</h5>
+        <p>Saving Products</p>
+        <p>Saving Fees</p>
+        <p>Saving Transactions Types</p>
+    </div>
+</div>
+<hr />
+<div class="row col-lg-12 col-md-12">
+    <div class="col-lg-4 col-md-4">
+        <h5 class="bold">E-Signatures</h5>
+        <p>E-Signature Settings</p>
+        <p>Email Templates for E-Signature</p>
+        <p>E-Signature Email Logs</p>
+    </div>
+    <div class="col-lg-4 col-md-4">
+        <h5 class="bold">Investors</h5>
+        <p>Investor Products</p>
+        <p>Loan Investment Products</p>
+        <p>Investor Fees</p>
+        <p>Format Investor Reports</p>
+        <p>Invite Investor Settings</p>
+        <p>Investor Transaction Types</p>
+    </div>
+    <div class="col-lg-4 col-md-4">
+        <h5 class="bold">Others</h5>
+        <p>
+            <NavLink href="/currency">
+                <span>Currencies</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/country">
+                <span>Countries</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/province">
+                <span>Provinces</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/town">
+                <span>Towns</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/gender">
+                <span>Gender</span>
+            </NavLink>
+        </p>
+        <p>
+            <NavLink href="/title">
+                <span>Title</span>
+            </NavLink>
+        </p>
+    </div>
+</div>
+@code {
+
+}

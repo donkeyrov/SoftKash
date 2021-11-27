@@ -1,0 +1,95 @@
+﻿@page "/loanfees"
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inherits OwningComponentBase<FeeRepository>
+
+<h3>Loan Fees</h3>
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary" @onclick="AddNew">Add New Record</button>
+    </div>
+
+    <br />
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@fees" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridColumns>
+                        <GridColumn Field=@nameof(fee.Name) HeaderText="Name"></GridColumn>
+                        <GridColumn Field=@nameof(fee.Fixedamount) HeaderText="Fixed Amount"></GridColumn>
+                        <GridColumn Field=@nameof(fee.PercentageBased) HeaderText="Percentage Based"></GridColumn>
+                        <GridColumn Field=@nameof(fee.DeductFromPrincipalAmount) HeaderText="Deductable"></GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{
+                                    var myBranch = (context as LoanMgt.SHARED.Fee);
+                                    <SfButton @onclick="@(() => EditRecord(myBranch))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{
+                                    var myBranch = (context as LoanMgt.SHARED.Fee);
+                                    <SfButton @onclick="@(() => ShowDelete(myBranch))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+    @code {
+        private LoanMgt.SHARED.Fee fee = new LoanMgt.SHARED.Fee();
+        private IEnumerable<LoanMgt.SHARED.Fee> fees { get; set; } = new List<LoanMgt.SHARED.Fee>();
+
+        private bool showModal = false;
+        private string title = "Default Title";
+        private string childContent = "Default Message";
+        private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+        private int feeId = 0;
+        private bool popup = false;
+
+        protected override void OnInitialized()
+        {
+            fees = Service.GetAll();
+        }
+
+        private void ShowDelete(LoanMgt.SHARED.Fee myFee)
+        {
+            feeId = myFee.FeeId;
+            fee = myFee;
+            modalType = Component.ModalTypes.Delete;
+            title = "Delete Record";
+            childContent = "Do You Want To Delete This Record(" + myFee.Name + ")?";
+            showModal = true;
+        }
+
+        protected void EditRecord(LoanMgt.SHARED.Fee myFee)
+        {
+            fee = myFee;
+            UriHelper.NavigateTo("/addloanfees/" + fee.FeeId);
+        }
+
+        protected void DeletetRecord(LoanMgt.SHARED.Fee myFee)
+        {
+            showModal = false;
+            Service.Remove(myFee);
+
+            feeId = 0;
+            fees = Service.GetAll();
+
+            toastService.ShowWarning("Loan Fee has been Deleted", "System Information");
+        }
+
+        protected void AddNew()
+        {
+            UriHelper.NavigateTo("/addloanfees");
+        }
+    }

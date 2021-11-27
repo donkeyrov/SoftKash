@@ -1,0 +1,267 @@
+﻿@page "/branch"
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inject CountryRepository countryRepo;
+@inject ProvinceRepository provinceRepo;
+@inject TownRepository townRepo;
+@inherits OwningComponentBase<BranchRepository>
+
+<h3>Branches</h3>
+
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary" @onclick="() => openModal(true)">Add New Record</button>
+    </div>
+
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog modal-dialog2 modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add New Province</h5>
+                    </div>
+                    <EditForm Model="branch" OnValidSubmit="@Process">
+                        <div class="modal-body modal-body2">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div>
+                                <div class="row col-lg-12 col-md-12">
+
+                                    <div class="space col-lg-4 col-md-4">
+                                        <label for="country">Country</label>
+                                        <InputSelectNumber @bind-Value="countryId" placeholder="Country" id="country" name="country" class="form-control">
+                                            <option value="0">--- select ---</option>
+                                            @foreach (var country in countries)
+                                                {
+                                                <option value="@country.CountryId">@country.Name</option>
+                                                }
+                                        </InputSelectNumber>
+                                    </div>
+                                    <div class="space col-lg-4 col-md-4">
+                                        <label for="province">Province</label>
+                                        <InputSelectNumber @bind-Value="provinceId" placeholder="Province" id="Province" name="Province" class="form-control">
+                                            <option value="0">--- select ---</option>
+                                            @foreach (var province in provinces)
+                                                {
+                                                @if (province.CountryId == countryId)
+                                                    {
+                                                    <option value="@province.ProvinceId">@province.Name</option>
+                                                    }
+                                                }
+                                        </InputSelectNumber>
+                                    </div>
+                                    <div class="space col-lg-4 col-md-4">
+                                        <label for="town">Town</label>
+                                        <InputSelectNumber @bind-Value="branch.TownId" placeholder="Town" id="town" name="town" class="form-control">
+                                            <option value="0">--- select ---</option>
+                                            @foreach (var town in towns)
+                                                {
+                                                @if (town.ProvinceId == provinceId)
+                                                    {
+                                                    <option value="@town.TownId">@town.Name</option>
+                                                    }
+                                                }
+                                        </InputSelectNumber>
+                                    </div>
+
+                                </div>
+
+                                <div class="row col-lg-12 col-md-12">
+                                    <div class="space col-lg-6 col-md-6">
+                                        <label for="branchname">Branch Name</label>
+                                        <InputText @bind-Value="branch.Name" placeholder="Branch Name" id="branchname" name="branchname" class="form-control" />
+                                    </div>
+                                    <div class="space col-lg-6 col-md-6">
+                                        <label for="phone">Phone</label>
+                                        <InputText @bind-Value="branch.Phone" placeholder="Phone" id="phone" name="phone" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="row col-lg-12 col-md-12">
+                                    <div class="space">
+                                        <label for="branchaddress">Branch Address</label>
+                                        <InputText @bind-Value="branch.Address" placeholder="Branch Address" id="branchaddress" name="branchaddress" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="row col-lg-12 col-md-12">
+                                    <div class="space col-lg-6 col-md-6">
+                                        <label for="minloanamt">Min Loan Amount</label>
+                                        <InputNumber @bind-Value="branch.MinLoanAmount" placeholder="Min Loan Amount" id="minloanamt" name="minloanamt" class="form-control" />
+                                    </div>
+                                    <div class="space col-lg-6 col-md-6">
+                                        <label for="maxloanamt">Max Loan Amount</label>
+                                        <InputNumber @bind-Value="branch.MaxLoanAmount" placeholder="Max LOan Amount" id="maxloanamt" name="maxloanamt" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="row col-lg-12 col-md-12">
+                                    <div class="space col-lg-6 col-md-6">
+                                        <label for="mininterestrate">Min Interest Rate</label>
+                                        <InputNumber @bind-Value="branch.MinInterestRate" placeholder="Min Interest Rate" id="mininterestrate" name="mininterestrate" class="form-control" />
+                                    </div>
+                                    <div class="space col-lg-6 col-md-6">
+                                        <label for="maxinterestrate">Max Interest Rate</label>
+                                        <InputNumber @bind-Value="branch.MaxInterestRate" placeholder="Max Interest Rate" id="maxinterestrate" name="maxinterestrate" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="row col-lg-12 col-md-12">
+                                    <div class="space">
+                                        <label for="details">Branch Details</label>
+                                        <InputTextArea @bind-Value="branch.Details" placeholder="Branch Details" id="branchdetails" name="branchdetails" class="form-control" />
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    }
+
+
+
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@branches" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridColumns>
+                        <GridForeignColumn Field=@nameof(branch.TownId) HeaderText="Town" TextAlign="TextAlign.Left" ForeignKeyValue="Name" Format="d" ForeignDataSource="@towns"></GridForeignColumn>
+                        <GridColumn Field=@nameof(branch.Name) HeaderText="Branch Name"></GridColumn>
+                        <GridColumn Field=@nameof(branch.Phone) HeaderText="Brach Phone"></GridColumn>
+                        <GridColumn Field=@nameof(branch.Address) HeaderText="Branch Address"></GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{ 
+                                    var myBranch = (context as LoanMgt.SHARED.Branch);
+                                    <SfButton @onclick="@(() => EditRecord(myBranch))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                 }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{ 
+                                    var myBranch = (context as LoanMgt.SHARED.Branch);
+                                    <SfButton @onclick="@(() => ShowDelete(myBranch))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                 }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(branch))">
+    @childContent
+</Dialog>
+
+    @code {
+        private LoanMgt.SHARED.Branch branch = new LoanMgt.SHARED.Branch();
+        private IEnumerable<LoanMgt.SHARED.Country> countries { get; set; } = new List<LoanMgt.SHARED.Country>();
+        private IEnumerable<LoanMgt.SHARED.Province> provinces { get; set; } = new List<LoanMgt.SHARED.Province>();
+        private IEnumerable<LoanMgt.SHARED.Town> towns { get; set; } = new List<LoanMgt.SHARED.Town>();
+        private IEnumerable<LoanMgt.SHARED.Branch> branches { get; set; } = new List<LoanMgt.SHARED.Branch>();
+
+        private bool showModal = false;
+        private string title = "Default Title";
+        private string childContent = "Default Message";
+        private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+        private int branchId = 0;
+        private int countryId = 0;
+        private int provinceId = 0;
+        private bool popup = false;
+
+        protected override void OnInitialized()
+        {
+            branches = Service.GetAll();
+            towns = townRepo.GetAllWithProvinces();
+            countries = countryRepo.GetAll();
+            provinces = provinceRepo.GetAllWithCountry();
+
+            branch = new LoanMgt.SHARED.Branch();
+            branch.Town = new LoanMgt.SHARED.Town();
+        }
+
+        protected void Process()
+        {
+            closeModal();
+
+            if (string.IsNullOrEmpty(branch.BranchId.ToString()) || branch.BranchId == 0)
+            {
+                branch.CreatedDate = DateTime.Now;
+                branch.CreatedBy = "USER";
+                branch.Town = null;
+
+                Service.Add(branch);
+                toastService.ShowSuccess("Branch has been created", "System Information");
+            }
+            else
+            {
+                Service.Update(branch);
+                toastService.ShowInfo("Branch has been updated!", "System Information");
+            }
+
+            branch = new LoanMgt.SHARED.Branch();
+            branch.Town = new LoanMgt.SHARED.Town();
+            branches = Service.GetAll();
+        }
+
+        private void ShowDelete(LoanMgt.SHARED.Branch myBranch)
+        {
+            branchId = myBranch.BranchId;
+            branch = myBranch;// Service.Get(id);
+            modalType = Component.ModalTypes.Delete;
+            title = "Delete Record";
+            childContent = "Do You Want To Delete This Record(" + branch.Name + ")?";
+            showModal = true;
+        }
+
+        protected void EditRecord(LoanMgt.SHARED.Branch myBranch)
+        {
+            branch = myBranch;// Service.Get(id);
+            var town = townRepo.Get(branch.TownId);
+            var prov = provinceRepo.Get(town.ProvinceId);
+            provinceId = prov.ProvinceId;
+            countryId = prov.CountryId;
+            openModal();
+        }
+
+        protected void DeletetRecord(LoanMgt.SHARED.Branch myBranch)
+        {
+            showModal = false;
+            Service.Remove(myBranch);
+
+            branchId = 0;
+            branch = new LoanMgt.SHARED.Branch();
+            branch.Town = new LoanMgt.SHARED.Town();
+            branches = Service.GetAll();
+
+            toastService.ShowWarning("Branch has been Deleted", "System Information");
+        }
+
+        void openModal(bool reset = false)
+        {
+            if (reset)
+            {
+                branch = new SHARED.Branch();
+                countryId = 0;
+                provinceId = 0;
+            }
+
+            popup = true;
+        }
+
+        void closeModal()
+        {
+            popup = false;
+        }
+    }

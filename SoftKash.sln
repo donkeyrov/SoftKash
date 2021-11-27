@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31729.503
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoanMgt.UI", "LoanMgt.UI\LoanMgt.UI.csproj", "{29ECDF3A-0725-4111-838B-014CD559AA3B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoanMgt.SHARED", "LoanMgt.SHARED\LoanMgt.SHARED.csproj", "{CF4B387B-578F-4CEA-AEAA-E955BBD4AE8D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{29ECDF3A-0725-4111-838B-014CD559AA3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29ECDF3A-0725-4111-838B-014CD559AA3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29ECDF3A-0725-4111-838B-014CD559AA3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29ECDF3A-0725-4111-838B-014CD559AA3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF4B387B-578F-4CEA-AEAA-E955BBD4AE8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF4B387B-578F-4CEA-AEAA-E955BBD4AE8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF4B387B-578F-4CEA-AEAA-E955BBD4AE8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF4B387B-578F-4CEA-AEAA-E955BBD4AE8D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8A4DFD58-18DF-4AFE-9542-7F85B88F3488}
+	EndGlobalSection
+EndGlobal

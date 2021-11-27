@@ -1,0 +1,176 @@
+﻿@page "/loanrepaymentmethods"
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inherits OwningComponentBase<DisbursementMethodRepository>
+
+<h3>Loan Repayment Methods</h3>
+
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary oi oi-plus" @onclick="()=>openModal(true)"> Add New Record</button>
+    </div>
+
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @if (repaymentType.DisbursementMethodId > 0)
+                        {
+                            <h5 class="modal-title">Edit Repayment Type</h5>
+                        }
+                        else
+                        {
+                            <h5 class="modal-title">Add New Repayment Type</h5>
+                        }
+
+                    </div>
+                    <EditForm Model="repaymentType" OnValidSubmit="@Process">
+                        <div class="modal-body">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div>
+                                <div class="space">
+                                    <label for="repaymenttypename">Name</label>
+                                    <InputText @bind-Value="repaymentType.Name" placeholder="Name" id="repaymenttypename" name="repaymenttypename" class="form-control" />
+                                </div>
+                                @if (repaymentType.DisbursementMethodId > 0)
+                                {
+                                    <div class="space">
+                                        <label for="status">Status</label>
+                                        <InputCheckbox @bind-Value="repaymentType.Active" placeholder="Status" id="status" name="status" />
+
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@repaymentTypes" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridColumns>
+                        <GridColumn Field=@nameof(repaymentType.Name) HeaderText="Name"></GridColumn>
+                        <GridColumn Field=@nameof(repaymentType.Active) HeaderText="Status"></GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.DisbursementMethod);
+                                    <SfButton @onclick="@(() => EditRecord(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.DisbursementMethod);
+                                    <SfButton @onclick="@(() => ShowDelete(rType))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(repaymentType))">
+    @childContent
+</Dialog>
+@code {
+    private LoanMgt.SHARED.DisbursementMethod repaymentType = new LoanMgt.SHARED.DisbursementMethod();
+    private IEnumerable<LoanMgt.SHARED.DisbursementMethod> repaymentTypes { get; set; } = new List<LoanMgt.SHARED.DisbursementMethod>();
+
+    private bool showModal = false;
+    private string title = "Default Title";
+    private string childContent = "Default Message";
+    private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+    private int repaymentTypeId = 0;
+    private bool popup = false;
+
+    protected override void OnInitialized()
+    {
+        repaymentTypes = Service.GetAll();
+
+    }
+
+    protected void Process()
+    {
+        closeModal();
+
+        if (string.IsNullOrEmpty(repaymentType.DisbursementMethodId.ToString()) || repaymentType.DisbursementMethodId == 0)
+        {
+            repaymentType.CreatedDate = DateTime.Now;
+            repaymentType.CreatedBy = "USER";
+            repaymentType.Active = true;
+            Service.Add(repaymentType);
+            toastService.ShowSuccess("Loan repayment type has been created", "System Information");
+        }
+        else
+        {
+            Service.Update(repaymentType);
+            toastService.ShowInfo("Loan repayment type has been updated!", "System Information");
+        }
+
+        repaymentType = new LoanMgt.SHARED.DisbursementMethod();
+        repaymentTypes = Service.GetAll();
+    }
+
+    private void ShowDelete(LoanMgt.SHARED.DisbursementMethod rType)
+    {
+        repaymentTypeId = rType.DisbursementMethodId;
+        repaymentType = rType;//Service.Get(id);
+        modalType = Component.ModalTypes.Delete;
+        title = "Delete Record";
+        childContent = "Do You Want To Delete This Record(" + repaymentType.Name + ")?";
+        showModal = true;
+    }
+
+    protected void EditRecord(LoanMgt.SHARED.DisbursementMethod rType)
+    {
+        repaymentType = rType;// Service.Get(rType.DisbursementMethodId);
+        openModal();
+    }
+
+    protected void DeletetRecord(LoanMgt.SHARED.DisbursementMethod rType)
+    {
+        showModal = false;
+        Service.Remove(rType);
+
+        repaymentTypeId = 0;
+        repaymentType = new LoanMgt.SHARED.DisbursementMethod();
+        repaymentTypes = Service.GetAll();
+
+        toastService.ShowWarning("Loan repayment type has been Deleted", "System Information");
+    }
+
+    void openModal(bool reset = false)
+    {
+        if (reset == true)
+            repaymentType = new SHARED.DisbursementMethod();
+
+        popup = true;
+    }
+
+    void closeModal()
+    {
+        popup = false;
+    }
+}

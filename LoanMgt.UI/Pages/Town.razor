@@ -1,0 +1,232 @@
+﻿@page "/town"
+@using LoanMgt.SHARED;
+@using LoanMgt.UI.Repositories;
+@using LoanMgt.UI.Components;
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inject CountryRepository countryRepo
+@inject ProvinceRepository provinceRepo
+@inherits OwningComponentBase<TownRepository>
+
+<h3>Towns</h3>
+
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary" @onclick="() => openModal(true)"><span class="oi oi-plus" aria-hidden="true"></span>Add New Record</button>
+    </div>
+
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog  modal-dialog-centered ">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @if (town.TownId > 0)
+                        {
+                            <h5 class="modal-title">Edit Town</h5>
+                        }
+                        else
+                        {
+                            <h5 class="modal-title">Add New Town</h5>
+                        }
+                    </div>
+                    <EditForm Model="town" OnValidSubmit="@Process">
+                        <div class="modal-body">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div>
+                                <div class="space">
+                                    <label for="country">Country</label>
+                                    <InputSelectNumber @bind-Value="countryId" placeholder="Country Code" id="countrycode" name="countrycode" class="form-control">
+                                        <option value="0">--- select ---</option>
+                                        @foreach (var country in countries)
+                                            {
+                                            <option value="@country.CountryId">@country.Name</option>
+                                            }
+                                    </InputSelectNumber>
+                                </div>
+                                <div class="space">
+                                    <label for="province">Province</label>
+                                    <InputSelectNumber @bind-Value="town.ProvinceId" placeholder="Province Code" id="provincecode" name="provincecode" class="form-control">
+                                        <option value="0">--- select ---</option>
+                                        @foreach (var province in provinces)
+                                            {
+                                                if (province.CountryId == countryId)
+                                                {
+                                                <option value="@province.ProvinceId">@province.Name</option>
+                                                }
+                                            }
+                                    </InputSelectNumber>
+                                </div>
+                                <div class="space">
+                                    <label for="towncode">Town Code</label>
+                                    <InputText @bind-Value="town.Code
+                                           " placeholder="Town Code" id="towncode" name="towncode" class="form-control" />
+                                </div>
+                                <div class="space">
+                                    <label for="townname">Town Name</label>
+                                    <InputText @bind-Value="town.Name" placeholder="Town Name" id="townname" name="townname" class="form-control" />
+
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@towns" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridEditSettings AllowAdding="true" AllowDeleting="true" AllowEditing="true"></GridEditSettings>
+                    <GridColumns>                       
+                        <GridForeignColumn Field=@nameof(town.ProvinceId) HeaderText="Province" ForeignKeyValue="Name" Format="d" ForeignDataSource="@provinces"></GridForeignColumn>
+                        <GridColumn Field=@nameof(town.Code) HeaderText="Town Code"></GridColumn>
+                        <GridColumn Field=@nameof(town.Name) HeaderText="Town Name"></GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{ 
+                                    var myTown = (context as LoanMgt.SHARED.Town);
+                                    <SfButton @onclick="@(() => EditRecord(myTown))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                 }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{ 
+                                    var myTown = (context as LoanMgt.SHARED.Town);
+                                    <SfButton @onclick="@(() => ShowDelete(myTown))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                 }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+    <Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+            OnClickCallback="@(()=> DeletetRecord(town))">
+        @childContent
+    </Dialog>
+
+    @code {
+
+        private LoanMgt.SHARED.Town myTown;
+        private LoanMgt.SHARED.Town town = new LoanMgt.SHARED.Town();
+        private IEnumerable<LoanMgt.SHARED.Country> countries { get; set; } = new List<LoanMgt.SHARED.Country>();
+        private IEnumerable<LoanMgt.SHARED.Province> provinces { get; set; } = new List<LoanMgt.SHARED.Province>();
+        private IEnumerable<LoanMgt.SHARED.Town> towns { get; set; } = new List<LoanMgt.SHARED.Town>();
+
+        private bool showModal = false;
+        private string title = "Default Title";
+        private string childContent = "Default Message";
+        private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+        private int townId = 0;
+        int provinceId = 0;
+        int countryId = 0;
+        private bool popup = false;
+
+        protected override void OnInitialized()
+        {
+            towns = Service.GetAllWithProvinces();
+            provinces = provinceRepo.GetAllWithCountry();
+            countries = countryRepo.GetAll();
+
+            town = new LoanMgt.SHARED.Town();
+            town.Province = new LoanMgt.SHARED.Province();
+        }
+
+        protected void Process()
+        {
+            closeModal();
+
+            if (string.IsNullOrEmpty(town.TownId.ToString()) || town.TownId == 0)
+            {
+                town.Province = null;
+                town.CreatedDate = DateTime.Now;
+                town.CreatedBy = "USER";
+
+                Service.Add(town);
+                toastService.ShowSuccess("Town has been created", "System Information");
+            }
+            else
+            {
+                town.ProvinceId = provinceId;
+
+                Service.Update(town);
+                toastService.ShowInfo("Town has been updated!", "System Information");
+            }
+
+            town = new LoanMgt.SHARED.Town();
+            provinceId = 0;
+            countryId = 0;
+            towns = Service.GetAllWithProvinces();
+        }
+
+        private void ShowDelete(LoanMgt.SHARED.Town myTown)
+        {
+            townId = myTown.TownId;
+            town = myTown;// Service.Get(id);
+            modalType = Component.ModalTypes.Delete;
+            title = "Delete Record";
+            childContent = "Do You Want To Delete This Record(" + town.Name + ")?";
+            showModal = true;
+        }
+
+        protected void EditRecord(LoanMgt.SHARED.Town myTown)
+        {
+            town = myTown;// Service.Get(id);
+            provinceId = town.ProvinceId;
+            var prov = provinceRepo.Get(provinceId);
+            countryId = prov.CountryId;
+            openModal();
+        }
+
+        protected void DeletetRecord(LoanMgt.SHARED.Town myTown)
+        {
+            showModal = false;
+
+            townId = 0;
+            Service.Remove(myTown);
+            town = new LoanMgt.SHARED.Town();
+            provinceId = 0;
+            countryId = 0;
+            towns = Service.GetAllWithProvinces();
+
+            toastService.ShowWarning("Town has been Deleted", "System Information");
+        }
+
+        void openModal(bool reset = false)
+        {
+            if (reset)
+            {
+                town = new SHARED.Town();
+                provinceId = 0;
+                countryId = 0;
+            }
+
+
+            popup = true;
+        }
+
+        void closeModal()
+        {
+            popup = false;
+        }
+
+    }

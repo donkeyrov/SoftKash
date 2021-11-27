@@ -1,0 +1,199 @@
+﻿@page "/province"
+@using LoanMgt.SHARED;
+@using LoanMgt.UI.Repositories;
+@using LoanMgt.UI.Components;
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inject CountryRepository countryRepo
+@inherits OwningComponentBase<ProvinceRepository>
+
+<h3>Provinces</h3>
+
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary oi oi-plus" @onclick="() => openModal(true)"> Add New Record</button>
+    </div>
+
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog  modal-dialog-centered ">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @if (province.ProvinceId > 0)
+                        {
+                            <h5 class="modal-title">Edit Province</h5>
+                        }
+                        else
+                        {
+                            <h5 class="modal-title">Add New Province</h5>
+                        }
+                    </div>
+                    <EditForm Model="province" OnValidSubmit="@Process">
+                        <div class="modal-body ">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div>
+                                <div class="space">
+                                    <label for="country">Country</label>
+                                    <InputSelectNumber @bind-Value="province.CountryId" placeholder="Country Code" id="countrycode" name="countrycode" class="form-control">
+                                        <option value="0">--- select ---</option>
+                                        @foreach (var country in countries)
+                                            {
+                                            <option value="@country.CountryId">@country.Name</option>
+                                            }
+                                    </InputSelectNumber>
+                                </div>
+                                <div class="space">
+                                    <label for="provincecode">Province Code</label>
+                                    <InputText @bind-Value="province.Code" placeholder="Province Code" id="provincecode" name="provincecode" class="form-control" />
+                                </div>
+                                <div class="space">
+                                    <label for="provincename">Province Name</label>
+                                    <InputText @bind-Value="province.Name" placeholder="Province Name" id="provincename" name="provincename" class="form-control" />
+
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@provinces" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridColumns>
+                        <GridForeignColumn Field=@nameof(province.CountryId) HeaderText="Country" TextAlign="TextAlign.Left" ForeignKeyValue="Name" Format="d" ForeignDataSource="@countries"></GridForeignColumn>
+                        <GridColumn Field=@nameof(province.Code) HeaderText="Province Code"></GridColumn>
+                        <GridColumn Field=@nameof(province.Name) HeaderText="Province Name"></GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{ 
+                                    var myProv = (context as LoanMgt.SHARED.Province);
+                                    <SfButton @onclick="@(() => EditRecord(myProv))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                 }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{ 
+                                    var myProv = (context as LoanMgt.SHARED.Province);
+                                    <SfButton @onclick="@(() => ShowDelete(myProv))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                 }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(province))">
+    @childContent
+</Dialog>
+
+    @code {
+
+        private LoanMgt.SHARED.Province province = new LoanMgt.SHARED.Province();
+        private IEnumerable<LoanMgt.SHARED.Country> countries { get; set; } = new List<LoanMgt.SHARED.Country>();
+        private IEnumerable<LoanMgt.SHARED.Province> provinces { get; set; } = new List<LoanMgt.SHARED.Province>();
+
+        private bool showModal = false;
+        private string title = "Default Title";
+        private string childContent = "Default Message";
+        private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+        private int provinceId = 0;
+        private bool popup = false;
+
+        protected override void OnInitialized()
+        {
+            provinces = Service.GetAllWithCountry();
+            countries = countryRepo.GetAll();
+
+            province = new LoanMgt.SHARED.Province();
+            province.Country = new LoanMgt.SHARED.Country();
+        }
+
+        protected void Process()
+        {
+            closeModal();
+
+            if (string.IsNullOrEmpty(province.ProvinceId.ToString()) || province.ProvinceId == 0)
+            {
+                province.CreatedDate = DateTime.Now;
+                province.CreatedBy = "USER";
+                province.Country = null;
+
+                Service.Add(province);
+                toastService.ShowSuccess("Province has been created", "System Information");
+            }
+            else
+            {
+                Service.Update(province);
+                toastService.ShowInfo("Province has been updated!", "System Information");
+            }
+
+            province = new LoanMgt.SHARED.Province();
+            province.Country = new LoanMgt.SHARED.Country();
+            provinces = Service.GetAllWithCountry();
+        }
+
+        private void ShowDelete(LoanMgt.SHARED.Province myProvince)
+        {
+            provinceId = myProvince.ProvinceId;
+            province = myProvince;// Service.Get(id);
+            modalType = Component.ModalTypes.Delete;
+            title = "Delete Record";
+            childContent = "Do You Want To Delete This Record(" + province.Name + ")?";
+            showModal = true;
+        }
+
+        protected void EditRecord(LoanMgt.SHARED.Province myProvince)
+        {
+            province = myProvince;// Service.Get(id);
+            openModal();
+        }
+
+        protected void DeletetRecord(LoanMgt.SHARED.Province myProvince)
+        {
+            showModal = false;
+            Service.Remove(province);
+
+            provinceId = 0;
+            province = new LoanMgt.SHARED.Province();
+            province.Country = new LoanMgt.SHARED.Country();
+            provinces = Service.GetAllWithCountry();
+
+            toastService.ShowWarning("Province has been Deleted", "System Information");
+        }
+
+        void openModal(bool reset = false)
+        {
+            if (reset == true)
+                province = new SHARED.Province();
+
+            popup = true;
+        }
+
+        void closeModal()
+        {
+            popup = false;
+        }
+
+    }

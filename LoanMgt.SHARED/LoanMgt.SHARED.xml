@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LoanMgt.SHARED</name>
+    </assembly>
+    <members>
+        <member name="T:LoanMgt.SHARED.Bank">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.Borrower">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.BorrowerFile">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.BorrowerGroup">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.Branch">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.BranchHoliday">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.CollateralType">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.Country">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.DisbursementMethod">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.Fee">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.Gender">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.Group">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.Guarantor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.GuarantorFile">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.InterestMethod">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.Loan">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.LoanDuration">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.LoanFee">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.LoanFile">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.LoanGuarantor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.LoanInterestPeriod">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.LoanPenalty">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.LoanProduct">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.LoanProductBranch">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.LoanStatus">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.OtherIncomeType">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.Penalty">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.PenaltyLoanStatus">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.Province">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.RepaymentCycle">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.RepaymentOrder">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.Sequence">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.Town">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:LoanMgt.SHARED.WorkingStatus">
+            <summary>
+            
+            </summary>
+        </member>
+    </members>
+</doc>

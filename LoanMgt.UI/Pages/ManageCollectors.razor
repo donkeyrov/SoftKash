@@ -1,0 +1,189 @@
+﻿@page "/managecollectors"
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inject BranchRepository branchRepo;
+@inherits OwningComponentBase<CollectorRepository>
+
+<h3>Manage Collectors</h3>
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary oi oi-plus" @onclick="()=>openModal(true)"> Add New Record</button>
+    </div>
+
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @if (collector.CollectorId > 0)
+                        {
+                            <h5 class="modal-title">Edit Collector</h5>
+                        }
+                        else
+                        {
+                            <h5 class="modal-title">Add New Collector</h5>
+                        }
+
+                    </div>
+                    <EditForm Model="collector" OnValidSubmit="@Process">
+                        <div class="modal-body">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div>
+                                <div class="space">
+                                    <label for="collectorname">Name</label>
+                                    <InputText @bind-Value="collector.Name" placeholder="Collector Name" id="collectorname" name="collectorname" class="form-control" />
+                                </div>
+                                <br/>
+                                <div class="space">
+                                    <SfMultiSelect TValue="string[]" @bind-Value="MultiVal" TItem="LoanMgt.SHARED.Branch" Placeholder="Branch" PopupHeight="350px" PopupWidth="350px" DataSource="@branches">
+                                        <MultiSelectFieldSettings Text="Name" Value="BranchId"></MultiSelectFieldSettings>
+                                    </SfMultiSelect>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@collectors" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridColumns>
+                        <GridColumn Field=@nameof(collector.Name) HeaderText="Name"></GridColumn>
+                        <GridForeignColumn Field=@nameof(collector.BranchId) HeaderText="Branch" ForeignKeyValue="Name" Format="d" ForeignDataSource="@branches"></GridForeignColumn>
+                        <GridColumn MaxWidth="70">
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.Collector);
+                                    <SfButton @onclick="@(() => EditRecord(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn MaxWidth="70">
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.Collector);
+                                    <SfButton @onclick="@(() => ShowDelete(rType))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(collector))">
+    @childContent
+</Dialog>
+@code {
+    private LoanMgt.SHARED.Collector collector = new LoanMgt.SHARED.Collector();
+    private LoanMgt.SHARED.Branch branch = new LoanMgt.SHARED.Branch();
+    private IEnumerable<LoanMgt.SHARED.Collector> collectors { get; set; } = new List<LoanMgt.SHARED.Collector>();
+    private IEnumerable<LoanMgt.SHARED.Branch> branches { get; set; } = new List<LoanMgt.SHARED.Branch>();
+
+    private bool showModal = false;
+    private string title = "Default Title";
+    private string childContent = "Default Message";
+    private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+    private int collectorId = 0;
+    private bool popup = false;
+    public string[] MultiVal { get; set; } = new string[] { };
+
+    protected override void OnInitialized()
+    {
+        collectors = Service.GetAll();
+        branches = branchRepo.GetAll();
+    }
+
+    protected void Process()
+    {
+        if(MultiVal == null || MultiVal.Count() <= 0)
+        {
+            toastService.ShowError("Please select a branch!", "System Information");
+            return;
+        }
+        closeModal();
+
+        if (string.IsNullOrEmpty(collector.CollectorId.ToString()) || collector.CollectorId == 0)
+        {
+            collector.CreatedDate = DateTime.Now;
+            collector.CreatedBy = "USER";
+            collector.BranchId = int.Parse(MultiVal[0]);
+
+            Service.Add(collector);
+            toastService.ShowSuccess("Collector has been created", "System Information");
+        }
+        else
+        {
+            Service.Update(collector);
+            toastService.ShowInfo("Collector has been updated!", "System Information");
+        }
+
+        collector = new LoanMgt.SHARED.Collector();
+        collectors = Service.GetAll();
+    }
+
+    private void ShowDelete(LoanMgt.SHARED.Collector rType)
+    {
+        collectorId = rType.CollectorId;
+        collector = rType;
+        modalType = Component.ModalTypes.Delete;
+        title = "Delete Record";
+        childContent = "Do You Want To Delete This Record(" + collector.Name + ")?";
+        showModal = true;
+    }
+
+    protected void EditRecord(LoanMgt.SHARED.Collector rType)
+    {
+        collector = rType;
+        MultiVal.Append<string>(collector.BranchId.ToString());
+        openModal();
+    }
+
+    protected void DeletetRecord(LoanMgt.SHARED.Collector rType)
+    {
+        showModal = false;
+        Service.Remove(rType);
+
+        collectorId = 0;
+        collector = new LoanMgt.SHARED.Collector();
+        MultiVal = new string[] { };
+        collectors = Service.GetAll();
+
+        toastService.ShowWarning("Collector has been Deleted", "System Information");
+    }
+
+    void openModal(bool reset = false)
+    {
+        if (reset == true)
+        {
+            collector = new SHARED.Collector();
+            MultiVal = new string[] { };
+        }
+
+        popup = true;
+    }
+
+    void closeModal()
+    {
+        popup = false;
+    }
+}
