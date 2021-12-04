@@ -46,8 +46,21 @@ app {
     text-overflow: ellipsis;
 }
 
+.superscript {
+    position: relative;
+    top: -0.5em;
+    font-size: 70%;
+    font-style: italic;
+    margin-left: 5px;
+}
 .sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+    min-width: 270px;
+    max-width: 270px;
+    background: #3e64ff;
+    color: #fff;
+    -webkit-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    transition: all 0.3s;
 }
 
     .sidebar .top-row {

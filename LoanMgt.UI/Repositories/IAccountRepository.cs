@@ -11,5 +11,6 @@ namespace LoanMgt.UI.Repositories
     /// </summary>
     public interface IAccountRepository : IGenericRepository<Account>
     {
+        public IEnumerable<Account> GetAllWithType();
     }
 }

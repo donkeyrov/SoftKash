@@ -1,0 +1,221 @@
+﻿@page "/transactioncodes"
+@using LoanMgt.SHARED;
+@using LoanMgt.UI.Repositories;
+@using LoanMgt.UI.Components;
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inject AccountRepository accountRepo
+@inherits OwningComponentBase<TransactionCodeRepository>
+
+<h3>Transaction Codes</h3>
+
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary oi oi-plus" @onclick="() => openModal(true)"> Add New Record</button>
+    </div>
+
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog  modal-dialog-centered ">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @if (transactionCode.TransactionCodeId > 0)
+                        {
+                            <h5 class="modal-title">Edit Transaction Code</h5>
+                        }
+                        else
+                        {
+                            <h5 class="modal-title">Add New Transaction Code</h5>
+                        }
+                    </div>
+                    <EditForm Model="transactionCode" OnValidSubmit="@Process">
+                        <div class="modal-body ">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div>
+                                <div class="space">
+                                    <label for="trancode">Transaction Code</label>
+                                    <InputText @bind-Value="transactionCode.Code" placeholder="Transaction Code" id="trancode" name="trancode" class="form-control" />
+                                </div>
+                                <div class="space">
+                                    <label for="accountname">Description</label>
+                                    <InputText @bind-Value="transactionCode.Description" placeholder="Account Name" id="accountname" name="accountname" class="form-control" />
+                                </div>
+                                <div class="space row col-md-12 col-lg-12"> 
+                                    <div class="col-md-6 col-lg-12">
+                                        <label for="debit">Debit Account</label>
+                                        <InputSelectNumber @bind-Value="transactionCode.DebitAccountId" placeholder="Debit Account" id="debit" name="debit" class="form-control">
+                                            <option value="0">--- select ---</option>
+                                            @foreach (var acc in accounts)
+                                                {
+                                                <option value="@acc.AccountId">@acc.AccountName</option>
+                                                <option class="superscript" disabled ><i>-- @acc.AccountType.Desciption Account</i></option>
+                                                }
+                                        </InputSelectNumber>
+                                    </div>
+                                    <div class="col-md-6 col-lg-12">
+                                        <label for="credit">Credt Account</label>
+                                        <InputSelectNumber @bind-Value="transactionCode.CreditAccountId" placeholder="Credit Account" id="credit" name="credit" class="form-control">
+                                            <option value="0">--- select ---</option>
+                                            @foreach (var acc in accounts)
+                                                {
+                                                <option value="@acc.AccountId">@acc.AccountName</option>
+                                                <option class="superscript" disabled ><i>-- @acc.AccountType.Desciption Account</i></option>
+                                                }
+                                        </InputSelectNumber>
+                                    </div>
+                                </div>
+                                <div class="space">
+                                    <label for="active">Transaction Code is Active</label>
+                                    <InputCheckbox @bind-Value="transactionCode.Active" id="active" name="active" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@transactionCodes" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridColumns>                        
+                        <GridColumn Field=@nameof(transactionCode.Code) HeaderText="Transaction Code"></GridColumn>
+                        <GridColumn Field=@nameof(transactionCode.Description) HeaderText="Description"></GridColumn>
+                        @*<GridForeignColumn Field=@nameof(transactionCode.DebitAccountId) HeaderText="Debit A/c" TextAlign="TextAlign.Left" ForeignKeyValue="AccountName" Format="d" ForeignDataSource="@accounts"></GridForeignColumn>
+                        <GridForeignColumn Field=@nameof(transactionCode.CreditAccountId) HeaderText="Credit A/c" TextAlign="TextAlign.Left" ForeignKeyValue="AccountName" Format="d" ForeignDataSource="@accounts"></GridForeignColumn>*@
+                        <GridColumn Field=@nameof(transactionCode.Active) HeaderText="Debit Opening Bal"></GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{ 
+                                    var myAcc = (context as LoanMgt.SHARED.TransactionCode);
+                                    <SfButton @onclick="@(() => EditRecord(myAcc))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                 }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{ 
+                                    var myAcc = (context as LoanMgt.SHARED.TransactionCode);
+                                    <SfButton @onclick="@(() => ShowDelete(myAcc))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                 }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(transactionCode))">
+    @childContent
+</Dialog>
+
+    @code {
+
+        private LoanMgt.SHARED.TransactionCode transactionCode = new LoanMgt.SHARED.TransactionCode();
+        private IEnumerable<LoanMgt.SHARED.TransactionCode> transactionCodes = new List<LoanMgt.SHARED.TransactionCode>();
+        private IEnumerable<LoanMgt.SHARED.Account> accounts = new List<LoanMgt.SHARED.Account>();
+        
+        private bool showModal = false;
+        private string title = "Default Title";
+        private string childContent = "Default Message";
+        private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+        private int transactionCodeId = 0;
+        private bool popup = false;
+
+        protected override void OnInitialized()
+        {
+            transactionCodes = Service.GetAll();
+            accounts = accountRepo.GetAllWithType();
+           
+
+            transactionCode = new LoanMgt.SHARED.TransactionCode();
+            transactionCode.DebitAccount = new LoanMgt.SHARED.Account();
+            transactionCode.CreditAccount = new LoanMgt.SHARED.Account();
+        }
+
+        protected void Process()
+        {
+            closeModal();
+
+            if (string.IsNullOrEmpty(transactionCode.TransactionCodeId.ToString()) || transactionCode.TransactionCodeId == 0)
+            {                
+                transactionCode.DebitAccount = null;
+                transactionCode.CreditAccount = null;
+
+                Service.Add(transactionCode);
+                toastService.ShowSuccess("Transaction Code has been created", "System Information");
+            }
+            else
+            {
+                Service.Update(transactionCode);
+                toastService.ShowInfo("Transaction Code has been updated!", "System Information");
+            }
+
+            transactionCode = new LoanMgt.SHARED.TransactionCode();
+            transactionCode.DebitAccount = new LoanMgt.SHARED.Account();
+            transactionCode.CreditAccount = new LoanMgt.SHARED.Account();
+            transactionCodes = Service.GetAll();
+        }
+
+        private void ShowDelete(LoanMgt.SHARED.TransactionCode myTranCode)
+        {
+            transactionCodeId = myTranCode.TransactionCodeId;
+            transactionCode = myTranCode;
+            modalType = Component.ModalTypes.Delete;
+            title = "Delete Record";
+            childContent = "Do You Want To Delete This Record(" + transactionCode.Description + ")?";
+            showModal = true;
+        }
+
+        protected void EditRecord(LoanMgt.SHARED.TransactionCode myTranCode)
+        {
+            transactionCode = myTranCode;
+            openModal();
+        }
+
+        protected void DeletetRecord(LoanMgt.SHARED.TransactionCode myTranCode)
+        {
+            showModal = false;
+            Service.Remove(transactionCode);
+
+            transactionCodeId = 0;
+            transactionCode = new LoanMgt.SHARED.TransactionCode();
+            transactionCode.DebitAccount = new LoanMgt.SHARED.Account();
+            transactionCode.CreditAccount = new LoanMgt.SHARED.Account();
+            transactionCodes = Service.GetAll();
+
+            toastService.ShowWarning("Transaction Code has been Deleted", "System Information");
+        }
+
+        void openModal(bool reset = false)
+        {
+            if (reset == true)
+                transactionCode = new SHARED.TransactionCode();
+
+            popup = true;
+        }
+
+        void closeModal()
+        {
+            popup = false;
+        }
+
+    }
+

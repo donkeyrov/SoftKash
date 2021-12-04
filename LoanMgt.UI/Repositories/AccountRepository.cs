@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LoanMgt.SHARED;
 using LoanMgt.UI.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace LoanMgt.UI.Repositories
 {
@@ -19,6 +20,11 @@ namespace LoanMgt.UI.Repositories
         public AccountRepository(ApplicationDbContext db) : base(db)
         {
                 
+        }
+
+        public IEnumerable<Account> GetAllWithType()
+        {
+            return dbContext.Set<Account>().Include("AccountType").ToList();
         }
     }
 }

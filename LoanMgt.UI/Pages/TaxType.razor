@@ -1,13 +1,11 @@
-﻿@page "/staffroles"
+﻿@page "/taxtypes"
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
-@inject AuthenticationStateProvider GetAuthenticationStateAsync
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
-@inherits OwningComponentBase<RoleRepository>
+@inherits OwningComponentBase<TaxTypeRepository>
 
-<h3>Staff Roles</h3>
+
+<h3>Tax Types</h3>
 <div class="admin-link">
     <NavLink href="/admin">Back to Admin</NavLink>
 </div>
@@ -23,25 +21,35 @@
             <div class="modal-dialog modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        @if (role.Id != "")
+                        @if (taxType.TaxTypeId > 0)
                         {
-                            <h5 class="modal-title">Edit Role</h5>
+                            <h5 class="modal-title">Edit Tax Type</h5>
                         }
                         else
                         {
-                            <h5 class="modal-title">Add New Role</h5>
+                            <h5 class="modal-title">Add New Tax Type</h5>
                         }
 
                     </div>
-                    <EditForm Model="role" OnValidSubmit="@Process">
+                    <EditForm Model="taxType" OnValidSubmit="@Process">
                         <div class="modal-body">
                             <DataAnnotationsValidator/>
                             <ValidationSummary/>
                             <div>
                                 <div class="space">
-                                    <label for="name">Role Name</label>
-                                    <InputText @bind-Value="role.Name" placeholder="Role Name" id="name" name="name" class="form-control" />
+                                    <label for="taxcode">Tax Type Code</label>
+                                    <InputText @bind-Value="taxType.Code" placeholder="Tax Type Code" id="taxcode" name="taxcode" class="form-control" />
                                 </div>
+
+                                <div class="space">
+                                    <label for="desc">Tax Type Name</label>
+                                    <InputText @bind-Value="taxType.Description" placeholder="Tax Type Name" id="desc" name="desc" class="form-control"/>
+                                </div>
+                                <div class="space">
+                                    <label for="percent">Tax Percentage</label>
+                                    <InputNumber @bind-Value="taxType.TaxPercentage" placeholder="Tax Percentage" id="percent" name="percent " class="form-control"/>
+                                </div>
+                                
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -58,15 +66,16 @@
     <div class="col-lg-12 control-section">
         <div class="content-wrapper">
             <div class="row">
-                <SfGrid DataSource="@roles" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                <SfGrid DataSource="@taxTypes" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
                     <GridColumns>
-                        <GridColumn Field=@nameof(role.Name) HeaderText="Role Name"></GridColumn>
-                        <GridColumn Field=@nameof(role.NormalizedName) HeaderText="Description"></GridColumn>
+                        <GridColumn Field=@nameof(taxType.Code) HeaderText="Tax Type Code"></GridColumn>
+                        <GridColumn Field=@nameof(taxType.Description) HeaderText="Tax Type Name"></GridColumn>
+                        <GridColumn Field=@nameof(taxType.TaxPercentage) HeaderText="Tax Pecentage"></GridColumn>
                         
                         <GridColumn MaxWidth="70">
                             <Template>
                                 @{
-                                    var rType = (context as LoanMgt.SHARED.Role);
+                                    var rType = (context as LoanMgt.SHARED.TaxType);
                                     <SfButton @onclick="@(() => EditRecord(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
                                 }
                             </Template>
@@ -74,7 +83,7 @@
                         <GridColumn MaxWidth="70">
                             <Template>
                                 @{
-                                    var rType = (context as LoanMgt.SHARED.Role);
+                                    var rType = (context as LoanMgt.SHARED.TaxType);
                                     <SfButton @onclick="@(() => ShowDelete(rType))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
                                 }
                             </Template>
@@ -86,94 +95,77 @@
     </div>
 </div>
 <Dialog Title="@title" showModal="@showModal" modalType="@modalType"
-        OnClickCallback="@(()=> DeletetRecord(role))">
+        OnClickCallback="@(()=> DeletetRecord(taxType))">
     @childContent
 </Dialog>
-
 @code {
-    private LoanMgt.SHARED.Role role = new LoanMgt.SHARED.Role();
-    private IEnumerable<LoanMgt.SHARED.Role> roles { get; set; } = new List<LoanMgt.SHARED.Role>();
+    private LoanMgt.SHARED.TaxType taxType = new LoanMgt.SHARED.TaxType();
+    private IEnumerable<LoanMgt.SHARED.TaxType> taxTypes { get; set; } = new List<LoanMgt.SHARED.TaxType>();
 
     private bool showModal = false;
     private string title = "Default Title";
     private string childContent = "Default Message";
     private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
-    private string roleId = "";
+    private int taxTypeId = 0;
     private bool popup = false;
     private bool newRec = false;
 
-    protected async override Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
-        var user = authstate.User;
-        var name = user.Identity.Name;
-
-        var userID = UserManager.GetUserId(user);
-
-        roles = Service.GetAllRole();
+        taxTypes = Service.GetAll();
     }
 
     protected void Process()
     {
         closeModal();
 
-        role.NormalizedName = role.Name.ToUpper();
-
-        if (newRec)
+        if (string.IsNullOrEmpty(taxType.TaxTypeId.ToString()) || taxType.TaxTypeId == 0)
         {
-            role.Id = Guid.NewGuid().ToString().ToUpper();
-            role.ConcurrencyStamp = Guid.NewGuid().ToString().ToUpper();
-
-            Service.AddRole(role);
-            newRec = false;
-            toastService.ShowSuccess("Role has been created", "System Information");
+            Service.Add(taxType);
+            toastService.ShowSuccess("Tax type has been created", "System Information");
         }
         else
         {
-            Service.UpdateRole(role);
-            toastService.ShowInfo("Role has been updated!", "System Information");
+            Service.Update(taxType);
+            toastService.ShowInfo("Tax type has been updated!", "System Information");
         }
 
-        role = new LoanMgt.SHARED.Role();
-        roles = Service.GetAllRole();
+        taxType = new LoanMgt.SHARED.TaxType();
+        taxTypes = Service.GetAll();
     }
 
-    private void ShowDelete(LoanMgt.SHARED.Role rType)
+    private void ShowDelete(LoanMgt.SHARED.TaxType rType)
     {
-        roleId = rType.Id;
-        role = rType;
+        taxTypeId = rType.TaxTypeId;
+        taxType = rType;
         modalType = Component.ModalTypes.Delete;
         title = "Delete Record";
-        childContent = "Do You Want To Delete This Record(" + role.Name + ")?";
+        childContent = "Do You Want To Delete This Record(" + taxType.Description + ")?";
         showModal = true;
     }
 
-    protected void EditRecord(LoanMgt.SHARED.Role rType)
+    protected void EditRecord(LoanMgt.SHARED.TaxType rType)
     {
-        role = rType;
+        taxType = rType;
         openModal();
     }
 
-    protected void DeletetRecord(LoanMgt.SHARED.Role rType)
+    protected void DeletetRecord(LoanMgt.SHARED.TaxType rType)
     {
         showModal = false;
-        Service.DeleteRole(rType);
+        Service.Remove(rType);
 
-        roleId = "0";
-        role = new LoanMgt.SHARED.Role();
-        roles = Service.GetAllRole();
+        taxTypeId = 0;
+        taxType = new LoanMgt.SHARED.TaxType();
+        taxTypes = Service.GetAll();
 
-        toastService.ShowWarning("Role has been Deleted", "System Information");
+        toastService.ShowWarning("Tax type has been Deleted", "System Information");
     }
 
     void openModal(bool reset = false)
     {
         if (reset == true)
-        {
-            newRec = true;
-            role = new SHARED.Role();
-        }
-        
+            taxType = new SHARED.TaxType();
 
         popup = true;
     }

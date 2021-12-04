@@ -1,0 +1,232 @@
+﻿@page "/jvaccounts"
+@using LoanMgt.SHARED;
+@using LoanMgt.UI.Repositories;
+@using LoanMgt.UI.Components;
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inject AccountTypeRepository accountTypeRepo
+@inject CurrencyRepository currencyRepo
+@inherits OwningComponentBase<AccountRepository>
+
+<h3>Accounts</h3>
+
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary oi oi-plus" @onclick="() => openModal(true)"> Add New Record</button>
+    </div>
+
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog  modal-dialog-centered ">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @if (account.AccountId > 0)
+                        {
+                            <h5 class="modal-title">Edit Account</h5>
+                        }
+                        else
+                        {
+                            <h5 class="modal-title">Add New Account</h5>
+                        }
+                    </div>
+                    <EditForm Model="account" OnValidSubmit="@Process">
+                        <div class="modal-body ">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div>
+                                <div class="space row col-md-12 col-lg-12"> 
+                                    <div class="col-md-6 col-lg-12">
+                                    <label for="accountType">Account Type</label>
+                                    <InputSelectNumber @bind-Value="account.AccountTypeId" placeholder="Account Type" id="accountType" name="accountType" class="form-control">
+                                        <option value="0">--- select ---</option>
+                                        @foreach (var aType in accountTypes)
+                                            {
+                                            <option value="@aType.AccountTypeId">@aType.Desciption</option>
+                                            }
+                                    </InputSelectNumber>
+                                </div>
+                                <div class="col-md-6 col-lg-12">
+                                    <label for="currency">Currency</label>
+                                    <InputSelectNumber @bind-Value="account.CurrencyId" placeholder="Currency" id="currency" name="currency" class="form-control">
+                                        <option value="0">--- select ---</option>
+                                        @foreach (var curr in currencies)
+                                            {
+                                            <option value="@curr.CurrencyId">@curr.CurrencyName</option>
+                                            }
+                                    </InputSelectNumber>
+                                </div>
+                            </div>
+                                
+                                <div class="space">
+                                    <label for="accountcode">Account Code</label>
+                                    <InputText @bind-Value="account.Code" placeholder="Account Code" id="accountcode" name="accountcode" class="form-control" />
+                                </div>
+                                <div class="space">
+                                    <label for="accountname">Account Name</label>
+                                    <InputText @bind-Value="account.AccountName" placeholder="Account Name" id="accountname" name="accountname" class="form-control" />
+                                </div>
+                                <div class="space row col-md-12 col-lg-12"> 
+                                    <div class="col-md-6 col-lg-12">
+                                        <label for="debitbalance">Debit Opening Balance</label>
+                                        <InputNumber @bind-Value="account.Debit" placeholder="Debit Opening Balance" id="debitbalance" name="debitbalance" class="form-control" />
+                                    </div>
+                                    <div class="col-md-6 col-lg-12">
+                                        <label for="creditbalance">Credit Opening Balance</label>
+                                        <InputNumber @bind-Value="account.Credit" placeholder="Credit Opening Balance" id="creditbalance" name="creditbalance" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="space">
+                                    <label for="active">Account is Active</label>
+                                    <InputCheckbox @bind-Value="account.Active" id="active" name="active" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@accounts" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridColumns>
+                        <GridForeignColumn Field=@nameof(account.AccountTypeId) HeaderText="Account Type" TextAlign="TextAlign.Left" ForeignKeyValue="Desciption" Format="d" ForeignDataSource="@accountTypes"></GridForeignColumn>
+                        <GridColumn Field=@nameof(account.Code) HeaderText="Account Code"></GridColumn>
+                        <GridColumn Field=@nameof(account.AccountName) HeaderText="Account Name"></GridColumn>
+                        <GridForeignColumn Field=@nameof(account.CurrencyId) HeaderText="Currency" TextAlign="TextAlign.Left" ForeignKeyValue="CurrencyCode" Format="d" ForeignDataSource="@currencies"></GridForeignColumn>
+                        <GridColumn Field=@nameof(account.Debit) HeaderText="Debit Opening Bal"></GridColumn>
+                        <GridColumn Field=@nameof(account.Credit) HeaderText="Credit Opening Bal "></GridColumn>
+                        <GridColumn Field=@nameof(account.Active) HeaderText="Account is Active"></GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{ 
+                                    var myAcc = (context as LoanMgt.SHARED.Account);
+                                    <SfButton @onclick="@(() => EditRecord(myAcc))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                 }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{ 
+                                    var myAcc = (context as LoanMgt.SHARED.Account);
+                                    <SfButton @onclick="@(() => ShowDelete(myAcc))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                 }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(account))">
+    @childContent
+</Dialog>
+
+    @code {
+
+        private LoanMgt.SHARED.Account account = new LoanMgt.SHARED.Account();
+        private IEnumerable<LoanMgt.SHARED.Account> accounts { get; set; } = new List<LoanMgt.SHARED.Account>();
+        private IEnumerable<LoanMgt.SHARED.AccountType> accountTypes { get; set; } = new List<LoanMgt.SHARED.AccountType>();
+        private IEnumerable<LoanMgt.SHARED.Currency> currencies { get; set; } = new List<LoanMgt.SHARED.Currency>();
+
+        private bool showModal = false;
+        private string title = "Default Title";
+        private string childContent = "Default Message";
+        private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+        private int accountId = 0;
+        private bool popup = false;
+
+        protected override void OnInitialized()
+        {
+            accounts = Service.GetAllWithType();
+            accountTypes = accountTypeRepo.GetAll();
+            currencies = currencyRepo.GetAll();
+
+            account = new LoanMgt.SHARED.Account();
+            account.AccountType = new LoanMgt.SHARED.AccountType();
+        }
+
+        protected void Process()
+        {
+            closeModal();
+
+            if (string.IsNullOrEmpty(account.AccountId.ToString()) || account.AccountId == 0)
+            {                
+                account.AccountType = null;
+                account.Currency = null;
+
+                Service.Add(account);
+                toastService.ShowSuccess("Account has been created", "System Information");
+            }
+            else
+            {
+                Service.Update(account);
+                toastService.ShowInfo("Account has been updated!", "System Information");
+            }
+
+            account = new LoanMgt.SHARED.Account();
+            account.AccountType = new LoanMgt.SHARED.AccountType();
+            account.Currency = new LoanMgt.SHARED.Currency();
+            accounts = Service.GetAllWithType();
+        }
+
+        private void ShowDelete(LoanMgt.SHARED.Account myAccount)
+        {
+            accountId = myAccount.AccountId;
+            account = myAccount;
+            modalType = Component.ModalTypes.Delete;
+            title = "Delete Record";
+            childContent = "Do You Want To Delete This Record(" + account.AccountName + ")?";
+            showModal = true;
+        }
+
+        protected void EditRecord(LoanMgt.SHARED.Account myAccount)
+        {
+            account = myAccount;
+            openModal();
+        }
+
+        protected void DeletetRecord(LoanMgt.SHARED.Account myAccount)
+        {
+            showModal = false;
+            Service.Remove(account);
+
+            accountId = 0;
+            account = new LoanMgt.SHARED.Account();
+            account.AccountType = new LoanMgt.SHARED.AccountType();
+            account.Currency = new LoanMgt.SHARED.Currency();
+            accounts = Service.GetAllWithType();
+
+            toastService.ShowWarning("Account has been Deleted", "System Information");
+        }
+
+        void openModal(bool reset = false)
+        {
+            if (reset == true)
+                account = new SHARED.Account();
+
+            popup = true;
+        }
+
+        void closeModal()
+        {
+            popup = false;
+        }
+
+    }

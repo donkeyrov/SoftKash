@@ -1,16 +1,36 @@
 ﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Authorization
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
 
-<div class="sidebar">
-    <NavMenu />
-</div>
 
+<AuthorizeView>
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+</AuthorizeView>
 <div class="main">
-    <div class="top-row px-4 auth">
+    <div class="top-row px-4 auth" style="z-index:9999;">
         <LoginDisplay />
-        <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+        <a href="https://docs.microsoft.com/aspnet/" target="_blank" class="btn btn-outline-info">Help</a>
+
+        
     </div>
 
     <div class="content px-4">
         @Body
     </div>
+    <BlazoredToasts Position="ToastPosition.BottomRight"
+                        Timeout="5"
+                        RemoveToastsOnNavigation=true
+                        IconType="IconType.FontAwesome"
+                        InfoClass="toast-text-override"
+                        InfoIcon="oi oi-info"
+                        WarningClass="toast-text-override"
+                        WarningIcon="oi oi-warning"
+                        SuccessClass="toast-text-override"
+                        SuccessIcon="oi oi-thumb-up"
+                        ErrorClass="toast-text-override"
+                        ErrorIcon="oi oi-thumb-down" />
 </div>

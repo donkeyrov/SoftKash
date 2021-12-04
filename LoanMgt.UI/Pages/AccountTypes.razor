@@ -1,0 +1,190 @@
+﻿@page "/accounttypes"
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inherits OwningComponentBase<AccountTypeRepository>
+
+
+<h3>Account Types</h3>
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary oi oi-plus" @onclick="()=>openModal(true)"> Add New Record</button>
+    </div>
+
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @if (accountType.AccountTypeId > 0)
+                        {
+                            <h5 class="modal-title">Edit Account Type</h5>
+                        }
+                        else
+                        {
+                            <h5 class="modal-title">Add New Account Type</h5>
+                        }
+
+                    </div>
+                    <EditForm Model="accountType" OnValidSubmit="@Process">
+                        <div class="modal-body">
+                            <DataAnnotationsValidator/>
+                            <ValidationSummary/>
+                            <div>
+                                <div class="space">
+                                    <label for="accountcode">Account Type Code</label>
+                                    <InputText @bind-Value="accountType.Code" placeholder="Account Type Code" id="accountcode" name="accountcode" class="form-control" />
+                                </div>
+
+                                <div class="space">
+                                    <label for="accountTypename">Account Type Name</label>
+                                    <InputText @bind-Value="accountType.Desciption" placeholder="Account Type Name" id="accountTypename" name="accountTypename" class="form-control"/>
+                                </div>
+                                <div class="space">
+                                    <label for="balancesheet">Is Balance Sheet Account</label>
+                                    <InputCheckbox @bind-Value="accountType.BalanceSheetAccount" placeholder="Balance Sheet Account" id="balancesheet" name="balancesheet " class="form-control"/>
+                                </div>
+                                <div class="row col-lg-12 col-md-12">
+                                    <div class="col-lg-6 col-md-6">
+                                        <label for="debit">Debit Account Balance</label>
+                                        <InputCheckbox @bind-Value="accountType.Debit" placeholder="Debit Account Balance" id="debit" name="debit" class="form-control"/>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <label for="credit">Credit Account Balance</label>
+                                        <InputCheckbox @bind-Value="accountType.Credit" placeholder="Credit Account Balance" id="credit" name="credit" class="form-control"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@accountTypes" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridColumns>
+                        <GridColumn Field=@nameof(accountType.Code) HeaderText="Account Type Code"></GridColumn>
+                        <GridColumn Field=@nameof(accountType.Desciption) HeaderText="Account Type Name"></GridColumn>
+                        <GridColumn Field=@nameof(accountType.BalanceSheetAccount) HeaderText="BalanceSheet Account"></GridColumn>
+                        <GridColumn Field=@nameof(accountType.Debit) HeaderText="Debit Account Bal"></GridColumn>
+                        <GridColumn Field=@nameof(accountType.Credit) HeaderText="Credit Account Bal"></GridColumn>
+
+                        <GridColumn MaxWidth="70">
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.AccountType);
+                                    <SfButton @onclick="@(() => EditRecord(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn MaxWidth="70">
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.AccountType);
+                                    <SfButton @onclick="@(() => ShowDelete(rType))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(accountType))">
+    @childContent
+</Dialog>
+@code {
+    private LoanMgt.SHARED.AccountType accountType = new LoanMgt.SHARED.AccountType();
+    private IEnumerable<LoanMgt.SHARED.AccountType> accountTypes { get; set; } = new List<LoanMgt.SHARED.AccountType>();
+
+    private bool showModal = false;
+    private string title = "Default Title";
+    private string childContent = "Default Message";
+    private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+    private int accountTypeTypeId = 0;
+    private bool popup = false;
+
+    protected override void OnInitialized()
+    {
+        accountTypes = Service.GetAll();
+    }
+
+    protected void Process()
+    {
+        closeModal();
+
+        if (string.IsNullOrEmpty(accountType.AccountTypeId.ToString()) || accountType.AccountTypeId == 0)
+        {
+            //accountType. = DateTime.Now;
+            //accountType.cre = "USER";
+
+            Service.Add(accountType);
+            toastService.ShowSuccess("Account type has been created", "System Information");
+        }
+        else
+        {
+            Service.Update(accountType);
+            toastService.ShowInfo("Account type has been updated!", "System Information");
+        }
+
+        accountType = new LoanMgt.SHARED.AccountType();
+        accountTypes = Service.GetAll();
+    }
+
+    private void ShowDelete(LoanMgt.SHARED.AccountType rType)
+    {
+        accountTypeTypeId = rType.AccountTypeId;
+        accountType = rType;
+        modalType = Component.ModalTypes.Delete;
+        title = "Delete Record";
+        childContent = "Do You Want To Delete This Record(" + accountType.Code + ")?";
+        showModal = true;
+    }
+
+    protected void EditRecord(LoanMgt.SHARED.AccountType rType)
+    {
+        accountType = rType;
+        openModal();
+    }
+
+    protected void DeletetRecord(LoanMgt.SHARED.AccountType rType)
+    {
+        showModal = false;
+        Service.Remove(rType);
+
+        accountTypeTypeId = 0;
+        accountType = new LoanMgt.SHARED.AccountType();
+        accountTypes = Service.GetAll();
+
+        toastService.ShowWarning("Account type has been Deleted", "System Information");
+    }
+
+    void openModal(bool reset = false)
+    {
+        if (reset == true)
+            accountType = new SHARED.AccountType();
+
+        popup = true;
+    }
+
+    void closeModal()
+    {
+        popup = false;
+    }
+}

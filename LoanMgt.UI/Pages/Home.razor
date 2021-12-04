@@ -2,9 +2,25 @@
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
 
-<h3>Home</h3>
 
+<AuthorizeView>
+<h3>Home @context.User.Identity.Name!</h3>
+
+</AuthorizeView>
 @code {
 
+    protected async override Task OnInitializedAsync()
+    {
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        var name = user.Identity.Name;
+
+        var userID = UserManager.GetUserId(user);
+
+        
+    }
 }

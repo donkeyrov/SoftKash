@@ -1,0 +1,224 @@
+﻿@using LoanMgt.SHARED; 
+@using LoanMgt.UI.Repositories
+@inject NavigationManager UriHelper
+@*@inject ISessionStorageService sessionStorage*@
+@inherits OwningComponentBase<LoanMgt.UI.Repositories.MenuRepository>
+
+<nav id="sidebar" class="@myClass">
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary" @onclick="openModal"><i class="fa fa-bars"></i></button>
+    </div>
+
+    <h1><a href="/home" class="logo">@logoText</a></h1>
+    @if (menuList != null){
+
+    <ul class="list-unstyled components mb-5">
+
+        @foreach (var mn in menuList)
+        {
+            @if (mn.ParentMenuId == 0)
+            {
+                <li class="">
+                    @if (string.IsNullOrEmpty(@mn.MenuURL))
+                    {
+                        var idLink = "#pageSubmenu" + mn.MenuId.ToString();
+                        var idLink2 = "pageSubmenu" + mn.MenuId.ToString();
+
+
+                        <a href="#" data-bs-toggle="collapse" data-bs-target="@idLink" aria-expanded="false" class="dropdown-toggle"><span class="@mn.IconName" aria-hidden="true"></span> @mn.Name</a>
+
+                        <div class="collapse" id="@idLink2">
+                            <ul class="nav collapse list-unstyled" id="@idLink2">
+                                @foreach (var mn1 in menuList)
+                                {
+                                    @if (mn1.ParentMenuId == mn.MenuId)
+                                    {
+
+                                        <li class="">
+                                            @if (string.IsNullOrEmpty(@mn1.MenuURL))
+                                            {
+                                                var idLink11 = "#pageSubmenu" + mn1.MenuId.ToString();
+                                                var idLink22 = "pageSubmenu" + mn1.MenuId.ToString();
+
+
+                                                <a href="#" data-bs-toggle="collapse" data-bs-target="@idLink11" aria-expanded="false" class="dropdown-toggle"><span class="@mn1.IconName" aria-hidden="true"></span> @mn1.Name</a>
+                                                <div class="collapse" id="@idLink22">
+                                                    <ul class="nav collapse list-unstyled">
+
+                                                        @foreach (var mn2 in menuList)
+                                                        {
+                                                            @if (mn2.ParentMenuId == mn1.MenuId)
+                                                            {
+                                                                @if (string.IsNullOrEmpty(@mn2.MenuURL))
+                                                                {
+                                                                    <NavLink class="nav-link" @onclick="() => GetIsClicked(mn2)">
+                                                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="@mn2.IconName" aria-hidden="true"></span> @mn2.Name<br />
+                                                                    </NavLink>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <NavLink class="nav-link" href="@mn2.MenuURL" @onclick="() => GetIsClicked(mn2)">
+                                                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="@mn2.IconName" aria-hidden="true"></span> @mn2.Name<br />
+                                                                    </NavLink>
+                                                                }
+
+                                                            }
+                                                        }
+
+                                                    </ul>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <NavLink href="@mn1.MenuURL" @onclick="() => GetIsClicked(mn1)">
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="@mn1.IconName" aria-hidden="true"></span> @mn1.Name</div>
+                                                </NavLink>
+                                            }
+                                        </li>
+
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <NavLink href="@mn.MenuURL" @onclick="() => GetIsClicked(mn)">
+                            <span class="@mn.IconName" aria-hidden="true"></span> @mn.Name<br />
+                        </NavLink>
+                    }
+
+                </li>
+            }
+        }
+
+
+    </ul>
+        }
+    <div class="footer">
+        <p>
+            Copyright &copy;
+            All rights reserved
+        </p>
+    </div>
+</nav>
+
+@code {
+
+    string myClass = "";
+    string logoText = "SOFTKASH.";
+    private bool collapseNavMenu = true;
+    private bool expanSubNav;
+    private IEnumerable<Menu> menuList;
+    private int clickedMenu = 0;
+    private bool hasPageName = true;
+    private int prevClickedMenu = 0;
+    private int UserId = 0;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        if (hasPageName)
+        {
+            collapseNavMenu = !collapseNavMenu;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+
+            menuList = Service.GetAll();
+
+            int studentId = 10;//await sessionStorage.GetItemAsync<int>("studentId");
+            int staffId = 10;//await sessionStorage.GetItemAsync<int>("staffId");
+
+            //get logged in users
+
+            if (staffId > 0)
+            {
+                UserId = staffId;
+
+                if (UserId > 0)
+                {
+                    //get all menus assigned to the logged in user
+                    //var myMenus = profileModuleRepo.GetProfileMenusForUser(UserId);
+                    //menuList = Service.GetAll();
+                    //menuList = myMenus;
+                }
+                else
+                {
+                    //menuList = Service.GetAllMenus();
+                }
+            }
+            else
+            {
+                if (studentId > 0)
+                    UserId = studentId;
+
+                if (UserId > 0)
+                {
+                    //get all menus assigned to the logged in user
+                    //var myMenus = profileModuleRepo.GetProfileMenusForUser(UserId);
+
+                    //menuList = Service.GetAll();
+                    //menuList = myMenus;
+                }
+                else
+                {
+                    //menuList = Service.GetAllMenus();
+                }
+            }
+
+
+        }
+        catch
+        {
+
+        }
+
+
+    }
+
+    public void GetIsClicked(Menu menu)
+    {
+        clickedMenu = menu.MenuId;
+        if (prevClickedMenu != clickedMenu)
+        {
+            expanSubNav = false;
+            if (menu.MenuURL != "" || menu.MenuURL == "Home")
+            {
+                hasPageName = true;
+                //expanSubNav = !expanSubNav;
+            }
+            else
+            {
+                expanSubNav = !expanSubNav;
+                hasPageName = false;
+            }
+        }
+        else
+        {
+            expanSubNav = !expanSubNav;
+        }
+
+        prevClickedMenu = clickedMenu;
+    }
+
+    void openModal()
+    {
+        if (string.IsNullOrEmpty(myClass))
+        {
+            myClass = "active";
+            logoText = "S.";
+        }
+        else
+        {
+            myClass = "";
+            logoText = "SOFTKASH.";
+        }
+    }
+
+}

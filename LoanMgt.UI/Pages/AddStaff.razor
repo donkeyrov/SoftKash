@@ -1,0 +1,217 @@
+﻿@page "/addstaff"
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject BranchRepository branchRepo
+
+<h3>Add Staff</h3>
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary oi oi-plus" @onclick="()=>openModal(true)"> Add New Record</button>
+    </div>
+
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @if (user.Id != "")
+                        {
+                            <h5 class="modal-title">Edit Staff</h5>
+                        }
+                        else
+                        {
+                            <h5 class="modal-title">Add New Staff</h5>
+                        }
+
+                    </div>
+                    <EditForm Model="user" OnValidSubmit="@Process">
+                        <div class="modal-body">
+                            <DataAnnotationsValidator/>
+                            <ValidationSummary/>
+                            <div>
+                                <div class="space">
+                                    <label for="username">UserName/Email</label>
+                                    <InputText @bind-Value="user.Email" placeholder="Email Address" id="username" name="username" class="form-control" />
+                                </div>
+                                <div class="space">
+                                    <label for="password1">Password</label>
+                                    <InputText @bind-Value="password1" placeholder="Password" id="password1" name="password1" class="form-control" />
+                                </div>
+                                <div class="space">
+                                    <label for="password2">Confirm Password</label>
+                                    <InputText @bind-Value="password2" placeholder="Confirm Password" id="password2" name="password2" class="form-control" />
+                                </div>
+                                @*<div class="space">
+                                    <label for="branch">Branch</label>
+                                    <InputSelectNumber @bind-Value="user.BranchId" placeholder="Branch" id="branch" name="branch" class="form-control">
+                                        <option value="0">--- select ---</option>
+                                        @foreach (var branch in branches)
+                                            {
+                                            <option value="@branch.BranchId">@branch.Name</option>
+                                            }
+                                    </InputSelectNumber>
+                                </div>*@
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@users" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridColumns>
+                        <GridColumn Field=@nameof(user.UserName) HeaderText="Username"></GridColumn>
+                        <GridColumn Field=@nameof(user.Email) HeaderText="Email"></GridColumn>
+                        @*<GridColumn Field=@nameof(user.Lastname) HeaderText="Lastname"></GridColumn>
+                        <GridForeignColumn Field=@nameof(user.BranchId) HeaderText="Branch" TextAlign="TextAlign.Left" ForeignKeyValue="Name" Format="d" ForeignDataSource="@branches"></GridForeignColumn>*@
+                        <GridColumn MaxWidth="70">
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.User);
+                                    <SfButton @onclick="@(() => EditRecord(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn MaxWidth="70">
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.User);
+                                    <SfButton @onclick="@(() => ShowDelete(rType))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(user))">
+    @childContent
+</Dialog>
+
+@code {
+    private IdentityUser user = new IdentityUser();
+    private IEnumerable<IdentityUser> users = new List<IdentityUser>();
+    private IEnumerable<SHARED.Branch> branches = new List<SHARED.Branch>();
+    private bool showModal = false;
+    private string title = "Default Title";
+    private string childContent = "Default Message";
+    private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+    private string userId = "";
+    private string password1 = "";
+    private string password2 = "";
+    private bool popup = false;
+    private bool newRec = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var thisUser = authstate.User;
+        var name = thisUser.Identity.Name;
+        users = UserManager.Users.AsEnumerable();
+        userId = UserManager.GetUserId(thisUser);
+        branches = branchRepo.GetAll();
+    }
+
+    protected async Task Process()
+    {
+        closeModal();
+
+        if(password1 != password2)
+        {
+            toastService.ShowWarning("Passwords do not match!", "System Information");
+            return;
+        }
+
+        if (newRec)
+        {
+            user.Id = Guid.NewGuid().ToString().ToUpper();
+            user.ConcurrencyStamp = Guid.NewGuid().ToString().ToUpper();
+            user.SecurityStamp = Guid.NewGuid().ToString().ToUpper();
+            user.UserName = user.Email;
+            user.NormalizedEmail = user.Email.ToUpper();
+            user.NormalizedUserName = user.UserName.ToUpper();
+            user.EmailConfirmed = true;
+
+            await UserManager.CreateAsync(user,password1);            
+            newRec = false;
+            toastService.ShowSuccess("Staff has been created", "System Information");
+        }
+        else
+        {
+            await UserManager.UpdateAsync(user);
+            toastService.ShowInfo("Staff has been updated!", "System Information");
+        }
+
+        await new Task(()=>Load());
+    }
+
+    private void Load()
+    {
+        users = UserManager.Users.AsEnumerable();
+    }
+    private void ShowDelete(IdentityUser rType)
+    {
+        userId = rType.Id;
+        user = rType;
+        modalType = Component.ModalTypes.Delete;
+        title = "Delete Record";
+        childContent = "Do You Want To Delete This Record(" + user.UserName + ")?";
+        showModal = true;
+    }
+
+    protected void EditRecord(IdentityUser rType)
+    {
+        user = rType;
+        openModal();
+    }
+
+    protected async void DeletetRecord(IdentityUser rType)
+    {
+        showModal = false;
+        await UserManager.DeleteAsync(rType);
+
+        userId = "0";
+        user = new IdentityUser();
+        users = UserManager.Users.AsEnumerable();
+
+        toastService.ShowWarning("Staff has been Deleted", "System Information");
+    }
+
+    void openModal(bool reset = false)
+    {
+        if (reset == true)
+        {
+            newRec = true;
+            user = new IdentityUser();
+        }
+        
+
+        popup = true;
+    }
+
+    void closeModal()
+    {
+        popup = false;
+    }
+}

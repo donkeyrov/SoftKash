@@ -41,13 +41,12 @@ namespace LoanMgt.UI
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddAuthorizationCore();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
             services.AddSyncfusionBlazor();
-            services.AddServerSideBlazor();
             services.AddBlazoredToast();
-            //services.AddBlazorContextMenu();
-            services.AddTransient<MenuRepository>();
-            services.AddScoped<ProfileModuleRepository>();
+            services.AddBlazorContextMenu();
+            services.AddTransient<MenuRepository>();            
             services.AddTransient<CountryRepository>();
             services.AddTransient<ProvinceRepository>();
             services.AddTransient<TownRepository>();
@@ -69,6 +68,10 @@ namespace LoanMgt.UI
             services.AddTransient<OtherIncomeTypeRepository>();
             services.AddTransient<CollectorRepository>();
             services.AddTransient<FeeRepository>();
+            services.AddTransient<TaxTypeRepository>();
+            services.AddTransient<AssetManagementTypeRepository>();
+            services.AddTransient<UserRoleRepository>();
+            services.AddTransient<RoleRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -2,8 +2,166 @@
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
+@inherits OwningComponentBase<AssetManagementTypeRepository>
 
-<h3>AssetManagementTypes</h3>
+<h3>Asset Management Types</h3>
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary oi oi-plus" @onclick="()=>openModal(true)"> Add New Record</button>
+    </div>
 
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @if (assetManagementType.AssetManagementTypeId > 0)
+                        {
+                            <h5 class="modal-title">Edit Asset Management Type</h5>
+                        }
+                        else
+                        {
+                            <h5 class="modal-title">Add New Asset Management Type</h5>
+                        }
 
+                    </div>
+                    <EditForm Model="assetManagementType" OnValidSubmit="@Process">
+                        <div class="modal-body">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div>
+                                <div class="space">
+                                    <label for="assetname">Name</label>
+                                    <InputText @bind-Value="assetManagementType.Name" placeholder="Asset Management Type Name" id="assetname" name="assetname" class="form-control" />
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@assetManagementTypes" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridColumns>
+                        <GridColumn Field=@nameof(assetManagementType.Name) HeaderText="Name"></GridColumn>
+
+                        <GridColumn MaxWidth="70">
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.AssetManagementType);
+                                    <SfButton @onclick="@(() => EditRecord(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn MaxWidth="70">
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.AssetManagementType);
+                                    <SfButton @onclick="@(() => ShowDelete(rType))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(assetManagementType))">
+    @childContent
+</Dialog>
+@code {
+    private LoanMgt.SHARED.AssetManagementType assetManagementType = new LoanMgt.SHARED.AssetManagementType();
+    private IEnumerable<LoanMgt.SHARED.AssetManagementType> assetManagementTypes = new List<LoanMgt.SHARED.AssetManagementType>();
+
+    private bool showModal = false;
+    private string title = "Default Title";
+    private string childContent = "Default Message";
+    private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+    private int assetManagementTypeId = 0;
+    private bool popup = false;
+
+    protected override void OnInitialized()
+    {
+        assetManagementTypes = Service.GetAll();
+    }
+
+    protected void Process()
+    {
+        closeModal();
+
+        if (string.IsNullOrEmpty(assetManagementType.AssetManagementTypeId.ToString()) || assetManagementType.AssetManagementTypeId == 0)
+        {
+            assetManagementType.CreatedDate = DateTime.Now;
+            assetManagementType.CreatedBy = "USER";
+
+            Service.Add(assetManagementType);
+            toastService.ShowSuccess("Asset management type has been created", "System Information");
+        }
+        else
+        {
+            Service.Update(assetManagementType);
+            toastService.ShowInfo("Asset management type has been updated!", "System Information");
+        }
+
+        assetManagementType = new LoanMgt.SHARED.AssetManagementType();
+        assetManagementTypes = Service.GetAll();
+    }
+
+    private void ShowDelete(LoanMgt.SHARED.AssetManagementType rType)
+    {
+        assetManagementTypeId = rType.AssetManagementTypeId;
+        assetManagementType = rType;
+        modalType = Component.ModalTypes.Delete;
+        title = "Delete Record";
+        childContent = "Do You Want To Delete This Record(" + assetManagementType.Name + ")?";
+        showModal = true;
+    }
+
+    protected void EditRecord(LoanMgt.SHARED.AssetManagementType rType)
+    {
+        assetManagementType = rType;
+        openModal();
+    }
+
+    protected void DeletetRecord(LoanMgt.SHARED.AssetManagementType rType)
+    {
+        showModal = false;
+        Service.Remove(rType);
+
+        assetManagementTypeId = 0;
+        assetManagementType = new LoanMgt.SHARED.AssetManagementType();
+        assetManagementTypes = Service.GetAll();
+
+        toastService.ShowWarning("Asset Management Type has been Deleted", "System Information");
+    }
+
+    void openModal(bool reset = false)
+    {
+        if (reset == true)
+            assetManagementType = new SHARED.AssetManagementType();
+
+        popup = true;
+    }
+
+    void closeModal()
+    {
+        popup = false;
+    }
 }

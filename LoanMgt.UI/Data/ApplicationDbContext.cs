@@ -54,9 +54,9 @@ namespace LoanMgt.UI.Data
         public DbSet<TransactionCode> TransactionCodes { get; set; }
         public DbSet<TransactionDetails> TransactionDetails { get; set; }
         public DbSet<WorkingStatus> WorkingStatuses { get; set; }
-        public DbSet<Profile> Profiles { get; set; }
-        public DbSet<ProfileModule> ProfileModules { get; set; }
-        public DbSet<User> Users { get; set; }
+        //public DbSet<Role> Roles{ get; set; }
+        //public DbSet<UserRole> UserRoles { get; set; }
+        //public DbSet<User> Users { get; set; }
         public DbSet<UserSession> UserSessions { get; set; }
         public DbSet<PersonDetails> PersonDetails { get; set; }
         public DbSet<Currency> Currencies { get; set; }
@@ -67,5 +67,6 @@ namespace LoanMgt.UI.Data
         public DbSet<CollateralType> CollateralTypes { get; set; }
         public DbSet<OtherIncomeType> OtherIncomeTypes { get; set; }
         public DbSet<Collector> Collectors { get; set; }
+        public DbSet<AssetManagementType> AssetManagementTypes { get; set; }
     }
 }

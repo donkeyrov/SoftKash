@@ -13,8 +13,6 @@ namespace LoanMgt.SHARED
         public int DebitAccountId { get; set; }
         public int CreditAccountId { get; set; }
         public bool Active { get; set; }
-        public bool MainCode { get; set; }
-
         public Account DebitAccount { get; set; }
         public Account CreditAccount { get; set; }
     }

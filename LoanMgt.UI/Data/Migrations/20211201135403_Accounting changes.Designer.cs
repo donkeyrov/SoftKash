@@ -4,14 +4,16 @@ using LoanMgt.UI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LoanMgt.UI.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211201135403_Accounting changes")]
+    partial class Accountingchanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,20 +42,12 @@ namespace LoanMgt.UI.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("Credit")
-                        .HasColumnType("real");
-
-                    b.Property<int>("CurrencyId")
-                        .HasColumnType("int");
-
-                    b.Property<float>("Debit")
-                        .HasColumnType("real");
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("AccountId");
 
                     b.HasIndex("AccountTypeId");
-
-                    b.HasIndex("CurrencyId");
 
                     b.ToTable("Accounts");
                 });
@@ -125,9 +119,6 @@ namespace LoanMgt.UI.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<bool>("BalanceSheetAccount")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -145,27 +136,6 @@ namespace LoanMgt.UI.Data.Migrations
                     b.HasKey("AccountTypeId");
 
                     b.ToTable("AccountTypes");
-                });
-
-            modelBuilder.Entity("LoanMgt.SHARED.AssetManagementType", b =>
-                {
-                    b.Property<int>("AssetManagementTypeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("AssetManagementTypeId");
-
-                    b.ToTable("AssetManagementTypes");
                 });
 
             modelBuilder.Entity("LoanMgt.SHARED.Bank", b =>
@@ -1979,6 +1949,9 @@ namespace LoanMgt.UI.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("MainCode")
+                        .HasColumnType("bit");
+
                     b.HasKey("TransactionCodeId");
 
                     b.HasIndex("CreditAccountId");
@@ -2359,12 +2332,6 @@ namespace LoanMgt.UI.Data.Migrations
                     b.HasOne("LoanMgt.SHARED.AccountType", "AccountType")
                         .WithMany("Accounts")
                         .HasForeignKey("AccountTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LoanMgt.SHARED.Currency", "Currency")
-                        .WithMany()
-                        .HasForeignKey("CurrencyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
