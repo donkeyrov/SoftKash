@@ -1,9 +1,4 @@
-﻿<style>
-    .expand-menu{
-        margin-left:10px;
-    }
-</style>
-
+﻿
 <nav id="sidebar" class="@myClass">
     <div style="margin-bottom:10px;">
         <button class="btn btn-primary" @onclick="openModal"><i class="fa fa-bars"></i></button>
@@ -12,240 +7,233 @@
     <h1><a href="/home" class="logo">@logoText</a></h1>
 
 <ul class="list-unstyled components mb-5">
-    <li class="">
-        <a href="#" data-bs-toggle="collapse" data-bs-target="1" aria-expanded="false" class="dropdown-toggle"><span class="fa fa-home" aria-hidden="true"></span> HOME</a>
+    <li class="nav-item px-3">
+        <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=2;}">
+            <span class="oi oi-list-rich" aria-hidden="true"></span> HOME
+        </NavLink>
     </li>
                 
-    <li class="">
-        <a href="#" data-bs-toggle="collapse" data-bs-target="2" aria-expanded="false" class="dropdown-toggle"><span class="fa fa-users" aria-hidden="true"></span> BORROWERS</a>
-        <div class="collapse" id="2">
-            <ul class="nav collapse list-unstyled" id="2">
-            @*@if (expandSubMenu)
-            {*@
-            <li class="">
-                <NavLink class="expand-menu" href="/viewborrowers">
-                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Borrowers</div
-                </NavLink>
-            </li>
-            <li class="">
-                <NavLink class="expand-menu" href="/addborrower">
-                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Borrower</div>
-                </NavLink>
-            </li>
-            <li class="">
-                <NavLink class="expand-menu" href="/viewborrowergroups">
-                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Borrower Group</div>
-                </NavLink>
-            </li>
-            <li class="">
-                <NavLink class="expand-menu" href="/addborrowergroup">
-                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Borrower Group</div>
-                </NavLink>
-            </li>
-           @* }*@
-            </ul>
-        </div>
+    <li class="nav-item px-3">
+        <NavLink class="nav-link" href="" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=2;}">
+            <span class="oi oi-list-rich" aria-hidden="true"></span> BORROWERS
+        </NavLink>
+        
+        @if (expandSubMenu && clickedMenu == 2)
+        {            
+            <NavLink class="expand-menu" href="/viewborrowers">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Borrowers
+            </NavLink>            
+            <NavLink class="expand-menu" href="/addborrower">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Borrower
+            </NavLink>            
+            <NavLink class="expand-menu" href="/viewborrowergroups">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Borrower Group
+            </NavLink>  
+            <NavLink class="expand-menu" href="/addborrowergroup">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Borrower Group
+            </NavLink>            
+        }            
     </li>
         
 <li class="nav-item px-3">
-    <NavLink class="nav-link" href="" @onclick="() => expandSubMenu = !expandSubMenu">
+    <NavLink class="nav-link" href="" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=3;}">
         <span class="oi oi-list-rich" aria-hidden="true"></span> LOANS
     </NavLink>
-    @if(expandSubMenu)
+    @if(expandSubMenu && clickedMenu == 3)
     {                
         <NavLink class="expand-menu" href="/viewallloans">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> View All Loans
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View All Loans
         </NavLink>
         <NavLink class="expand-menu" href="/addloan">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Add Loan
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Loan
         </NavLink>
         <NavLink class="expand-menu" href="/dueloans">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Due Loans
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Due Loans
         </NavLink>
         <NavLink class="expand-menu" href="/missedrepayments">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Missed Repayments
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Missed Repayments
         </NavLink>
         <NavLink class="expand-menu" href="/loansinarrears">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Loans In Arrears
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Loans In Arrears
         </NavLink>
         <NavLink class="expand-menu" href="/norepayments">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> No Repayments
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> No Repayments
         </NavLink>
         <NavLink class="expand-menu" href="/passedmaturitydate">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Passed Maturity Date
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Passed Maturity Date
         </NavLink>
         <NavLink class="expand-menu" href="/loancalculator">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Loan Calculator
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Loan Calculator
         </NavLink>
         <NavLink class="expand-menu" href="/guarantors">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Guarantors
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Guarantors
         </NavLink>
         <NavLink class="expand-menu" href="/loancomments">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Loan Comments
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Loan Comments
         </NavLink>
         <NavLink class="expand-menu" href="/approveloans">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Approve Loans
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Approve Loans
         </NavLink>                
     }
 </li>
 
 <li class="nav-item px-3">
-    <NavLink class="nav-link" href="" @onclick="() => expandSubMenu = !expandSubMenu">
+    <NavLink class="nav-link" href="" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=4;}">
         <span class="oi oi-plus" aria-hidden="true"></span> REPAYMENTS
     </NavLink>
-    @if(expandSubMenu)
+    @if(expandSubMenu && clickedMenu == 4)    
     {                
         <NavLink class="expand-menu" href="/viewrepayments">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> View  Repayments
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View  Repayments
         </NavLink>
         <NavLink class="expand-menu" href="/bulkrepayments">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Bulk Repayments
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Bulk Repayments
         </NavLink>
         <NavLink class="expand-menu" href="/uploadrepayments">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Upload Repayments - CSV
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Upload Repayments - CSV
         </NavLink>
         <NavLink class="expand-menu" href="/approverepaymentss">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Approve Repayments
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Approve Repayments
         </NavLink>
     }
 </li>
 
 <li class="nav-item px-3">
-    <NavLink class="nav-link" href="" @onclick="() => expandSubMenu = !expandSubMenu">
+    <NavLink class="nav-link" href="" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=5;}">
         <span class="oi oi-list-rich" aria-hidden="true"></span> COLLATERAL REGISTER
     </NavLink>
-    @if(expandSubMenu)
+    @if(expandSubMenu && clickedMenu == 5)    
     {                
         <NavLink class="expand-menu" href="">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> View Register
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Register
         </NavLink>
         <NavLink class="expand-menu" href="">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Add Collateral
+           &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Collateral
         </NavLink>
     }
 </li>
 <li class="nav-item px-3">
-    <NavLink class="nav-link" href="" @onclick="() => expandSubMenu = !expandSubMenu">
+    <NavLink class="nav-link" href="" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=6;}">
         <span class="oi oi-plus" aria-hidden="true"></span> COLLECTION SHEET
     </NavLink>
-    @if(expandSubMenu)
+    @if(expandSubMenu && clickedMenu == 6)
     {                
         <NavLink class="expand-menu" href="/Dailycollection">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Daily Collection
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Daily Collection
         </NavLink>
         <NavLink class="expand-menu" href="/missedrepayments">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Missed Repayments
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Missed Repayments
         </NavLink>
         <NavLink class="expand-menu" href="/passedmaturitydate">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Passed Maturity Date Loans
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Passed Maturity Date Loans
         </NavLink>
     }
 </li>
         
 <li class="nav-item px-3">
-    <NavLink class="nav-link" href="" @onclick="() => expandSubMenu = !expandSubMenu">
+    <NavLink class="nav-link" href="" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=7;}">
         <span class="oi oi-list-rich" aria-hidden="true"></span> INVESTOR ACCOUNTS
     </NavLink>
-    @if(expandSubMenu)
+    @if(expandSubMenu && clickedMenu == 7)
     {                
         <NavLink class="expand-menu" href="/viewinvestoraccounts">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> View Investor Accounts
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Investor Accounts
         </NavLink>
         <NavLink class="expand-menu" href="/addinvestoraccount">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Add Investor Account
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Investor Account
         </NavLink>
 
         <NavLink class="expand-menu" href="/viewloaninvestments">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> View All Loan Investments
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View All Loan Investments
         </NavLink>
         <NavLink class="expand-menu" href="/investortransactions">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> View Investor Transactions
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Investor Transactions
         </NavLink>
         <NavLink class="expand-menu" href="/approveloaninvestments">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Approve Loan Investments
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Approve Loan Investments
         </NavLink>
     }
 </li>
 <li class="nav-item px-3">
-    <NavLink class="nav-link" href="" @onclick="() => expandSubMenu = !expandSubMenu">
+    <NavLink class="nav-link" href="" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=8;}">
         <span class="oi oi-plus" aria-hidden="true"></span> EXPENSES
     </NavLink>
-    @if(expandSubMenu)
+    @if(expandSubMenu && clickedMenu == 8)
     {                
         <NavLink class="expand-menu" href="/viewexpenses">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> View Expenses
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Expenses
         </NavLink>
         <NavLink class="expand-menu" href="/addexpenses">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Add Expenses
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Expenses
         </NavLink>
     }
 </li>
         
 <li class="nav-item px-3">
-    <NavLink class="nav-link" href="" @onclick="() => expandSubMenu = !expandSubMenu">
+    <NavLink class="nav-link" href="" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=9;}">
         <span class="oi oi-list-rich" aria-hidden="true"></span> OTHER INCOME
     </NavLink>
-    @if(expandSubMenu)
+    @if(expandSubMenu && clickedMenu == 9)
     {                
         <NavLink class="expand-menu" href="/viewincome">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> View Other Income
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Other Income
         </NavLink>
         <NavLink class="expand-menu" href="/addincome">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Add Other Income
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Other Income
         </NavLink>
     }
 </li>                
 <li class="nav-item px-3">
-    <NavLink class="nav-link" href="" @onclick="() => expandSubMenu = !expandSubMenu">
+    <NavLink class="nav-link" href="" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=10;}">
         <span class="oi oi-plus" aria-hidden="true"></span> ACCOUTNING
     </NavLink>
-    @if(expandSubMenu)
+    @if(expandSubMenu && clickedMenu == 10)
     {                
         <NavLink class="expand-menu" href="/cashflowaccumulated">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Cash Flow Accumulated
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Cash Flow Accumulated
         </NavLink>
         <NavLink class="expand-menu" href="/cashflowmonthly">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Cash Flow Monthly
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Cash Flow Monthly
         </NavLink>
         <NavLink class="expand-menu" href="/cashflowprojection">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Cash Flow Projection
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Cash Flow Projection
         </NavLink>
         <NavLink class="expand-menu" href="/cashbook">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Cash Book
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Cash Book
         </NavLink>
         <NavLink class="expand-menu" href="/trailbalance">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Trail Balance
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Trail Balance
         </NavLink>
         <NavLink class="expand-menu" href="/balancesheet">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Balance Sheet
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Balance Sheet
         </NavLink>
         <NavLink class="expand-menu" href="/profitandloss">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Profit and Loss
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Profit and Loss
         </NavLink>               
     }
 </li>
 <li class="nav-item px-3">
-    <NavLink class="nav-link" href="" @onclick="() => expandSubMenu = !expandSubMenu">
+    <NavLink class="nav-link" href="" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=11;}">
         <span class="oi oi-list-rich" aria-hidden="true"></span> REPORTS
     </NavLink>
-    @if(expandSubMenu)
+    @if(expandSubMenu && clickedMenu == 11)
     {                
         <NavLink class="expand-menu" href="">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> SETTINGS 1
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> SETTINGS 1
         </NavLink>
         <NavLink class="expand-menu" href="">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> SETTINGS 2
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> SETTINGS 2
         </NavLink>
     }
 </li>
 <li class="nav-item px-3">
-    <NavLink class="nav-link" href="" @onclick="() => expandSubMenu = !expandSubMenu" >
+    <NavLink class="nav-link" href="" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=12;}" >
         <span class="oi oi-list-rich" aria-hidden="true"></span> SETTINGS
     </NavLink>
-    @if(expandSubMenu)
+    @if(expandSubMenu && clickedMenu == 12)
     {                
         <NavLink class="expand-menu" href="/admin">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Administration
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Administration
         </NavLink>                
     }
 </li>
@@ -275,6 +263,22 @@
     private void ToggleNavMenu()
     {        
         collapseNavMenu = !collapseNavMenu;        
+    }
+
+    public void MenuIsClicked(int menu)
+    {
+        clickedMenu = menu;
+        if(clickedMenu == prevClickedMenu)
+        {
+            expandSubMenu = false;
+        }
+        else
+        {
+            expandSubMenu = true;
+        }
+        expandSubMenu = !expandSubMenu;
+
+        prevClickedMenu = clickedMenu;
     }
 
     public void GetIsClicked(int menu, bool page)

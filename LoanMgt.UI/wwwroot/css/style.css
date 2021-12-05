@@ -6721,16 +6721,16 @@ button.bg-dark:focus {
 .py-3 {
   padding-top: 1rem !important; }
 
-.pr-3,
-.px-3 {
+.pr-3/*,
+.px-3*/ {
   padding-right: 1rem !important; }
 
 .pb-3,
 .py-3 {
   padding-bottom: 1rem !important; }
 
-.pl-3,
-.px-3 {
+.pl-3/*,
+.px-3*/ {
   padding-left: 1rem !important; }
 
 .p-4 {
@@ -8213,8 +8213,8 @@ h1, h2, h3, h4, h5,
   width: 100%; }
 
 #sidebar {
-  min-width: 270px;
-  max-width: 270px;
+  min-width: 300px;
+  max-width: 300px;
   background: #3e64ff;
   color: #fff;
   -webkit-transition: all 0.3s;
@@ -8225,9 +8225,9 @@ h1, h2, h3, h4, h5,
     max-width: 80px;
     text-align: center; }
     #sidebar.active ul.components li {
-      font-size: 14px; }
+      font-size: 12px; }
       #sidebar.active ul.components li a {
-        padding: 10px 0; }
+        padding: 5px 0; }
         #sidebar.active ul.components li a span {
           margin-right: 0;
           display: block;
@@ -8260,11 +8260,11 @@ h1, h2, h3, h4, h5,
         -o-transition: none;
         transition: none; } }
   #sidebar ul li {
-    font-size: 16px; }
+    font-size: 14px; }
     #sidebar ul li > ul {
-      margin-left: 10px; }
+      margin-left: 5px; }
       #sidebar ul li > ul li {
-        font-size: 14px; }
+        font-size: 12px; }
     #sidebar ul li a {
       padding: 10px 30px;
       display: block;
