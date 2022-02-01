@@ -6,6 +6,174 @@
 
 <h3>Loan Duration Period</h3>
 
-@code {
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">    
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary oi oi-plus" @onclick="()=>openModal(true)"> Add New Record</button>
+    </div>
 
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog modal-dialog2 modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @if (loanDuration.LoanDurationId > 0)
+                        {
+                            <h5 class="modal-title">Edit Loan Duration</h5>
+                        }
+                        else
+                        {
+                            <h5 class="modal-title">Add New Loan Duration</h5>
+                        }
+
+                    </div>
+                    <EditForm Model="loanDuration" OnValidSubmit="@Process">
+                        <div class="modal-body modal-body2">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div class="row col-lg-12 col-md-12">
+                                <div class="col-lg-4 col-md-4">
+                                    <label>Loan Duration Code</label>
+                                </div>
+                                <div class="col-lg-7 col-md-7">
+                                    <InputText @bind-Value="loanDuration.Code" placeholder="Code" id="loanDurationCode" name="loanDurationCode" class="form-control" />
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row col-lg-12 col-md-12">
+                                <div class="col-lg-4 col-md-4">
+                                    <label>Loan Duration Description</label>
+                                </div>
+                                <div class="col-lg-7 col-md-7">
+                                    <InputText @bind-Value="loanDuration.Description" placeholder="Description" id="loanDurationDescription" name="loanDurationDescription" class="form-control" />
+                                </div>
+                            </div>
+                            <br />                            
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@loanDurations" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridColumns>
+                        <GridColumn Field=@nameof(loanDuration.Code) HeaderText="Code"></GridColumn>
+                        <GridColumn Field=@nameof(loanDuration.Description) HeaderText="Description"></GridColumn>
+                        
+                        <GridColumn>
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.LoanDuration);
+                                    <SfButton @onclick="@(() => EditRecord(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.LoanDuration);
+                                    <SfButton @onclick="@(() => ShowDelete(rType))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(loanDuration))">
+    @childContent
+</Dialog>
+@code {
+    private LoanMgt.SHARED.LoanDuration loanDuration = new LoanMgt.SHARED.LoanDuration();
+    private IEnumerable<LoanMgt.SHARED.LoanDuration> loanDurations { get; set; } = new List<LoanMgt.SHARED.LoanDuration>();
+
+    private bool showModal = false;
+    private string title = "Default Title";
+    private string childContent = "Default Message";
+    private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+    private int loanDurationId = 0;    
+    private bool popup = false;
+
+    protected override void OnInitialized()
+    {
+        loanDurations = Service.GetAll();
+    }
+
+    protected void Process()
+    {
+        closeModal();
+                
+        if (string.IsNullOrEmpty(loanDuration.LoanDurationId.ToString()) || loanDuration.LoanDurationId == 0)
+        {
+            loanDuration.CreatedDate = DateTime.Now;
+            loanDuration.CreatedBy = "USER";
+            Service.Add(loanDuration);
+            toastService.ShowSuccess("Loan Duration has been created", "System Information");
+        }
+        else
+        {
+            Service.Update(loanDuration);
+            toastService.ShowInfo("Loan Duration has been updated!", "System Information");
+        }
+
+        loanDuration = new LoanMgt.SHARED.LoanDuration();
+        loanDurations = Service.GetAll();
+    }
+
+    private void ShowDelete(LoanMgt.SHARED.LoanDuration rType)
+    {
+        loanDurationId = rType.LoanDurationId;
+        loanDuration = rType;
+        modalType = Component.ModalTypes.Delete;
+        title = "Delete Record";
+        childContent = "Do You Want To Delete This Record(" + loanDuration.Description + ")?";
+        showModal = true;
+    }
+
+    protected void EditRecord(LoanMgt.SHARED.LoanDuration rType)
+    {
+        loanDuration = rType;        
+        openModal();
+    }
+
+    protected void DeletetRecord(LoanMgt.SHARED.LoanDuration rType)
+    {
+        showModal = false;
+        Service.Remove(rType);
+
+        loanDurationId = 0;
+        loanDuration = new LoanMgt.SHARED.LoanDuration();
+        loanDurations = Service.GetAll();
+
+        toastService.ShowWarning("Loan duration has been Deleted", "System Information");
+    }
+
+    void openModal(bool reset = false)
+    {
+        if (reset == true)
+            loanDuration = new SHARED.LoanDuration();
+
+        popup = true;
+    }
+
+    void closeModal()
+    {
+        popup = false;
+    }
 }
