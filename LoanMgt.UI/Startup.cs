@@ -72,6 +72,10 @@ namespace LoanMgt.UI
             services.AddTransient<AssetManagementTypeRepository>();
             services.AddTransient<UserRoleRepository>();
             services.AddTransient<RoleRepository>();
+            services.AddTransient<LoanProductRepository>();
+            services.AddTransient<InterestMethodRepository>();
+            services.AddTransient<LoanInterestPeriodRepository>();
+            services.AddTransient<LoanDurationRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

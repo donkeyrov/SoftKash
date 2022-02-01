@@ -8,10 +8,12 @@
 
   <ItemGroup>
     <Content Remove="compilerconfig.json" />
+    <Content Remove="Pages\LoanDurationPeriod.razor" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="compilerconfig.json" />
+    <None Include="Pages\LoanDurationPeriod.razor" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,6 +35,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LoanMgt.SHARED\LoanMgt.SHARED.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\LoanDurationPeriod.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\LoanDurationPeriod.razor" />
   </ItemGroup>
 
 </Project>

@@ -16,6 +16,7 @@ namespace LoanMgt.SHARED
         public int RepaymentOrderId { get; set; }
         public int LoanProductId { get; set; }
         public int FeeId { get; set; }
+        public int OrderNo { get; set; }
         public string CreatedBy { get; set; }
         public DateTime DateCreated { get; set; }
     }
