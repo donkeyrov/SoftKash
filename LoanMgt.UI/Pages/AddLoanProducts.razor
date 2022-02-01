@@ -6,6 +6,7 @@
 @inject InterestMethodRepository interestMethodRepo;
 @inject LoanInterestPeriodRepository loanInterestPeriodRepo;
 @inject LoanDurationRepository loanDurationRepo;
+@inject RepaymentCycleRpository repaymentCycleRepo;
 @inherits OwningComponentBase<LoanProductRepository>
 
 <h3>Add Loan Products</h3>
@@ -268,10 +269,10 @@
                         <label>Repayment Cycle</label>
                     </div>
                     <div class="col-lg-8 col-md-8">
-                        <InputSelectNumber @bind-Value="loanProduct.InterestMethodId" id="interestMethod" name="interestMethod" class="form-control">
-                            @foreach(var item in interestMethods)
+                        <InputSelectNumber @bind-Value="loanProduct.RepaymentCycleId" id="repaymentCycle" name="repaymentCycle" class="form-control">
+                            @foreach(var item in repaymentCycles)
                             {
-                                <option value="@item.InterestMethodId" >@item.Description</option>
+                                <option value="@item.RepaymentCycleId" >@item.Name</option>
                             }
                         </InputSelectNumber>
                     </div>
@@ -343,7 +344,7 @@
         </div>
         <br />
         <div class="text-right pace-md">
-            <button type="submit" class="btn btn-info">Submit</button>
+            <button type="submit" class="btn btn-info" >Submit</button>
         </div>
     </EditForm>
 </div>
@@ -356,7 +357,8 @@
     private LoanMgt.SHARED.LoanProduct loanProduct = new LoanMgt.SHARED.LoanProduct();
     public IEnumerable<LoanMgt.SHARED.InterestMethod> interestMethods;     
     public IEnumerable<LoanMgt.SHARED.LoanInterestPeriod> loanInterestPeriods;     
-    public IEnumerable<LoanMgt.SHARED.LoanDuration> loanDurations;     
+    public IEnumerable<LoanMgt.SHARED.LoanDuration> loanDurations;
+    public IEnumerable<LoanMgt.SHARED.RepaymentCycle> repaymentCycles;
     private string stringChecked = "False";
     private string saturdayChecked = "False";
     private string sundayChecked = "False";
@@ -378,12 +380,23 @@
         interestMethods = interestMethodRepo.GetAll();
         loanInterestPeriods = loanInterestPeriodRepo.GetAll();
         loanDurations = loanDurationRepo.GetAll();
+        repaymentCycles = repaymentCycleRepo.GetAll();
     }
 
     protected void Process()
     {
+        //TODO complete adding of loan products
+        if(loanProduct.LoanProductId == 0)
+        {
+            Service.Add(loanProduct);
+        }
+        else
+        {
+            Service.Update(loanProduct);
+        }
+
         toastService.ShowSuccess("Loan Product has been created", "System Information");
-        UriHelper.NavigateTo("/loanproducts");
+        UriHelper.NavigateTo("/loanproducts",true);
     }
 
  }

@@ -22,18 +22,18 @@ namespace LoanMgt.SHARED
         public float MinimumPrincipalAmount { get; set; }
         public float DefaultPrincipalAmount { get; set; }
         public float MaximumPrincipalAmount { get; set; }
-        public int InterestMethodId { get; set; }
+        public int? InterestMethodId { get; set; }
         public bool InterestIsPercentageBased { get; set; }
         public bool InterestIsFixedAmountPerCycle { get; set; }
-        public int LoanInterestPeriodId { get; set; }
+        public int? LoanInterestPeriodId { get; set; }
         public float MinimumLoanInterestRate { get; set; }
         public float DefaultLoanInterestRate { get; set; }
         public float MaximumLoanInterestRate { get; set; }
-        public int LoanDurationId { get; set; }
+        public int? LoanDurationId { get; set; }
         public int MinimumLoanDuration { get; set; }
         public int DefaultLoanDuration { get; set; }
         public int MaximumLoanDuration { get; set; }
-        public int RepaymentCycleId { get; set; }
+        public int? RepaymentCycleId { get; set; }
         public int MinimumNumberOfRePayments { get; set; }
         public int DefaultNumberOfRePayments { get; set; }
         public int MaximumNumberOfRepayments { get; set; }
