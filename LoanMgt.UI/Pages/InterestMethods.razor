@@ -4,8 +4,178 @@
 @inject NavigationManager UriHelper
 @inherits OwningComponentBase<InterestMethodRepository>
 
-<h3>InterestMethods</h3>
+<h3>Interest Methods</h3>
 
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">    
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary oi oi-plus" @onclick="()=>openModal(true)"> Add New Record</button>
+    </div>
+
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog modal-dialog2 modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @if (interestMethod.InterestMethodId > 0)
+                        {
+                            <h5 class="modal-title">Edit Interest Method</h5>
+                        }
+                        else
+                        {
+                            <h5 class="modal-title">Add New Interest Method</h5>
+                        }
+
+                    </div>
+                    <EditForm Model="interestMethod" OnValidSubmit="@Process">
+                        <div class="modal-body modal-body2">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div class="row col-lg-12 col-md-12">
+                                <div class="col-lg-4 col-md-4">
+                                    <label>Interest Method Code</label>
+                                </div>
+                                <div class="col-lg-7 col-md-7">
+                                    <InputText @bind-Value="interestMethod.Code" placeholder="Code" id="interestMethodCode" name="interestMethodCode" class="form-control" />
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row col-lg-12 col-md-12">
+                                <div class="col-lg-4 col-md-4">
+                                    <label>Interest Method Description</label>
+                                </div>
+                                <div class="col-lg-7 col-md-7">
+                                    <InputText @bind-Value="interestMethod.Description" placeholder="Description" id="interestMethodDescription" name="interestMethodDescription" class="form-control" />
+                                </div>
+                            </div>
+                            <br />                            
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@interestMethods" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridColumns>
+                        <GridColumn Field=@nameof(interestMethod.Code) HeaderText="Code"></GridColumn>
+                        <GridColumn Field=@nameof(interestMethod.Description) HeaderText="Description"></GridColumn>
+                        
+                        <GridColumn>
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.InterestMethod);
+                                    <SfButton @onclick="@(() => EditRecord(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn>
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.InterestMethod);
+                                    <SfButton @onclick="@(() => ShowDelete(rType))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(interestMethod))">
+    @childContent
+</Dialog>
 @code {
+    private LoanMgt.SHARED.InterestMethod interestMethod = new LoanMgt.SHARED.InterestMethod();
+    private IEnumerable<LoanMgt.SHARED.InterestMethod> interestMethods { get; set; } = new List<LoanMgt.SHARED.InterestMethod>();
 
+    private bool showModal = false;
+    private string title = "Default Title";
+    private string childContent = "Default Message";
+    private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+    private int interestMethodId = 0;
+    public string applyRepaymentType { get; set; } = "False";
+    private bool popup = false;
+
+    protected override void OnInitialized()
+    {
+        interestMethods = Service.GetAll();
+
+    }
+
+    protected void Process()
+    {
+        closeModal();
+                
+        if (string.IsNullOrEmpty(interestMethod.InterestMethodId.ToString()) || interestMethod.InterestMethodId == 0)
+        {
+            interestMethod.CreatedDate = DateTime.Now;
+            interestMethod.CreatedBy = "USER";
+            Service.Add(interestMethod);
+            toastService.ShowSuccess("Loan repayment Cycle has been created", "System Information");
+        }
+        else
+        {
+            Service.Update(interestMethod);
+            toastService.ShowInfo("Loan repayment Cycle has been updated!", "System Information");
+        }
+
+        interestMethod = new LoanMgt.SHARED.InterestMethod();
+        interestMethods = Service.GetAll();
+    }
+
+    private void ShowDelete(LoanMgt.SHARED.InterestMethod rType)
+    {
+        interestMethodId = rType.InterestMethodId;
+        interestMethod = rType;
+        modalType = Component.ModalTypes.Delete;
+        title = "Delete Record";
+        childContent = "Do You Want To Delete This Record(" + interestMethod.Description + ")?";
+        showModal = true;
+    }
+
+    protected void EditRecord(LoanMgt.SHARED.InterestMethod rType)
+    {
+        interestMethod = rType;        
+        openModal();
+    }
+
+    protected void DeletetRecord(LoanMgt.SHARED.InterestMethod rType)
+    {
+        showModal = false;
+        Service.Remove(rType);
+
+        interestMethodId = 0;
+        interestMethod = new LoanMgt.SHARED.InterestMethod();
+        interestMethods = Service.GetAll();
+
+        toastService.ShowWarning("Loan interest method has been Deleted", "System Information");
+    }
+
+    void openModal(bool reset = false)
+    {
+        if (reset == true)
+            interestMethod = new SHARED.InterestMethod();
+
+        popup = true;
+    }
+
+    void closeModal()
+    {
+        popup = false;
+    }
 }
