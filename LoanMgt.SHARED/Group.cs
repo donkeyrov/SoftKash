@@ -16,9 +16,10 @@ namespace LoanMgt.SHARED
         public int GroupId { get; set; }
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the group name!")]
         public string Name { get; set; }
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please select the group leader!")]
-        public int GroupLeaderId { get; set; }
+        //[Required(AllowEmptyStrings = false, ErrorMessage = "Please select the group leader!")]
+        public int? GroupLeaderId { get; set; }
         public string CollectorName { get; set; }
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a description for the group!")]
         public string Details { get; set; }
         public string MeetingSchedule { get; set; }
         public string CreatedBy { get; set; }

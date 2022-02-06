@@ -2,9 +2,49 @@
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
+@inherits OwningComponentBase<GroupRepository>
 
-<h3>ViewBorrowerGroups</h3>
+<h3>View Borrower Groups</h3>
+
+@*<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>*@
+
+<div class="col-lg-12 control-section">
+    <div class="content-wrapper">
+        <div class="row">
+            <SfGrid DataSource="@groups" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                <GridColumns>
+                    <GridColumn Field=@nameof(group.Name) HeaderText="Group Name" TextAlign="TextAlign.Left" ></GridColumn>
+                    <GridColumn Field=@nameof(group.CollectorName) HeaderText="Collector Name"></GridColumn>
+                    <GridColumn Field=@nameof(group.Details) HeaderText="Details" TextAlign="TextAlign.Left" ></GridColumn>
+                    <GridColumn>
+                        <Template>
+                            @{
+                                var mGroup = (context as LoanMgt.SHARED.Group);
+                                <SfButton @onclick="@((args) => EditRecord(args,mGroup))" IsToggle="true" CssClass="e-success e-small">Settings</SfButton>
+                            }
+                        </Template>
+                    </GridColumn>
+
+                </GridColumns>
+            </SfGrid>
+        </div>
+    </div>
+</div>
 
 @code {
+    private LoanMgt.SHARED.Group group = new LoanMgt.SHARED.Group();
+    private IEnumerable<LoanMgt.SHARED.Group> groups { get; set; } = new List<LoanMgt.SHARED.Group>();
+    
+    protected override void OnInitialized()
+    {
+        groups = Service.GetAll();
+     
+    }
 
+    protected void EditRecord(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, LoanMgt.SHARED.Group myGroup)
+    {
+        UriHelper.NavigateTo("/addborrowergroup/"+ myGroup.GroupId);
+    }
 }

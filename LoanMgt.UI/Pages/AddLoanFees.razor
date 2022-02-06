@@ -86,12 +86,7 @@
     [Parameter]
     public int feeId { get; set; } = 0;    
     private LoanMgt.SHARED.Fee fee = new LoanMgt.SHARED.Fee();    
-    private string stringChecked = "False";
-    private string saturdayChecked = "False";
-    private string sundayChecked = "False";
-    private string nextCycle = "False";
-
-
+    
     protected override void OnInitialized()
     {
         if (feeId > 0)

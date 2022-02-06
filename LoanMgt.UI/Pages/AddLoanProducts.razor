@@ -359,13 +359,7 @@
     public IEnumerable<LoanMgt.SHARED.LoanInterestPeriod> loanInterestPeriods;     
     public IEnumerable<LoanMgt.SHARED.LoanDuration> loanDurations;
     public IEnumerable<LoanMgt.SHARED.RepaymentCycle> repaymentCycles;
-    private string stringChecked = "False";
-    private string saturdayChecked = "False";
-    private string sundayChecked = "False";
-    private string nextCycle = "False";
-    private string orderString = "";
-
-
+   
     protected override void OnInitialized()
     {
         if(loanProductId > 0)

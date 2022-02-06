@@ -1,10 +1,16 @@
 ﻿@page "/addborrower"
+@page "/addborrower/{BorrowerId:int}"
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
 
-<h3>AddBorrower</h3>
+<h3>Add Borrower</h3>
+
+<div class="admin-link">
+    <NavLink href="/viewborrowers">Back to Borrowers</NavLink>
+</div>
 
 @code {
-
+    [Parameter]
+    public int BorrowerId { get; set; } = 0;
 }

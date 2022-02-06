@@ -40,13 +40,8 @@
     private IEnumerable<LoanMgt.SHARED.Town> towns { get; set; } = new List<LoanMgt.SHARED.Town>();
     private IEnumerable<LoanMgt.SHARED.Branch> branches { get; set; } = new List<LoanMgt.SHARED.Branch>();
 
-    private bool showModal = false;
-    private string title = "Default Title";
-    private string childContent = "Default Message";
-    private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
     private int branchId = 0;
-    private bool popup = false;
-
+    
     protected override void OnInitialized()
     {
         branches = Service.GetAll();

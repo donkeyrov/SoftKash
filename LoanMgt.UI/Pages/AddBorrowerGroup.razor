@@ -1,10 +1,100 @@
 ﻿@page "/addborrowergroup"
+@page "/addborrowergroup/{GroupId:int}"
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
+@inject BorrowerRepository borrowerRepo;
+@inherits OwningComponentBase<GroupRepository>
 
-<h3>AddBorrowerGroup</h3>
+<h3>Add Borrower Group</h3>
 
-@code {
+<div class="admin-link">
+    <NavLink href="/viewborrowergroups">Back to Borrower Groups</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <EditForm Model="group" OnValidSubmit="@Process">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
+        <div class="row col-lg-12 col-md-12 pace-md">
+            <div class="col-lg-4 col-md-4">
+                <label for="groupName">Group Name</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <InputText @bind-Value="group.Name" placeholder="Group Name" id="groupName" name="groupName" class="form-control" />
+            </div>
+        </div>
+        <br />
+        <div class="row col-lg-12 col-md-12 pace-md">
+            <div class="col-lg-4 col-md-4">
+                <label for="groupLeader">Group Leader</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <InputSelectNumber @bind-Value="group.Name" placeholder="Group Leader" id="groupLeader" name="groupLeader" class="form-control">
+                    <option value="0">-- select --</option>
+                    @foreach (var item in borrowers)
+                    {
+                        <option value="@item.BorrowerId"> @item.Firstname @item.Lastname - @item.NRC</option>
+                    }
+                </InputSelectNumber>
+            </div>
+        </div>
+        <div class="row col-lg-12 col-md-12 pace-md">
+            <div class="col-lg-4 col-md-4">
+                <label for="collectorName">Collector Name</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <InputText @bind-Value="group.CollectorName" placeholder="Collector Name" id="collectorName" name="collectorName" class="form-control" />
+            </div>
+        </div>
+        <div class="row col-lg-12 col-md-12 pace-md">
+            <div class="col-lg-4 col-md-4">
+                <label for="description">Description</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <InputTextArea @bind-Value="group.Details" placeholder="Group Description" id="description" name="description" class="form-control" />
+            </div>
+        </div>
+
+        <br />
+        <div class="text-right pace-md">
+            <button type="submit" class="btn btn-info">Submit</button>
+        </div>
+    </EditForm>
+</div>
+
+@code
+{
+    [Parameter]
+    public int GroupId { get; set; } = 0;
+    public SHARED.Group group = new SHARED.Group();
+    public IEnumerable<SHARED.Borrower> borrowers;
+
+
+    protected override void OnInitialized()
+    {
+        borrowers = borrowerRepo.GetAll();
+
+        if (GroupId > 0)
+        {
+            group = Service.Get(GroupId);
+        }
+    }
+
+    protected void Process()
+    {
+        if (group.GroupId == 0)
+        {
+            Service.Add(group);
+            toastService.ShowSuccess("Borrower Group has been created", "System Information");
+        }
+        else
+        {
+            Service.Update(group);
+            toastService.ShowInfo("Borrower Group has been updated", "System Information");
+        }
+
+        
+        UriHelper.NavigateTo("/viewborrowergroups", true);
+    }
 }
