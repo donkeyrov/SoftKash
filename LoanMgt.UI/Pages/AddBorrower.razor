@@ -2,15 +2,260 @@
 @page "/addborrower/{BorrowerId:int}"
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
+@inject TownRepository townRepo;
+@inject ProvinceRepository provinceRepo;
+@inject TitleRepository titleRepo;
+@inject GenderRepository genderRepo;
+@inject WorkingStatusRepository workingStatusRepo;
 @inject NavigationManager UriHelper
+@inherits OwningComponentBase<BorrowerRepository>
 
 <h3>Add Borrower</h3>
 
 <div class="admin-link">
     <NavLink href="/viewborrowers">Back to Borrowers</NavLink>
 </div>
+<div class="new-border3 blue-top">
+    <div class="col-lg-12 control-section">
+        <EditForm Model="borrower" OnValidSubmit="@Process">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-@code {
+             <div class="gray new-border pace-md">
+                <p><b>Required Fields</b></p>
+            </div>
+
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4 pull-right">
+                    <label>Province</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="borrower.ProvinceId" id="interestMethod" name="interestMethod" class="form-control">
+                        @foreach(var item in provinces)
+                        {
+                            <option value="@item.ProvinceId" >@item.Name</option>
+                        }
+                    </InputSelectNumber>
+                </div>
+                    
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4 pull-right">
+                    <label>Town</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="borrower.TownId" id="interestMethod" name="interestMethod" class="form-control">
+                        @foreach(var item in towns)
+                        {
+                            if(item.ProvinceId == borrower.ProvinceId)
+                            {
+                                <option value="@item.TownId" >@item.Name</option>    
+                            }                        
+                        }
+                    </InputSelectNumber>
+                </div>
+                    
+            </div>
+            <br/>
+            <hr/>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="firstname">First Name</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText @bind-Value="borrower.Firstname" placeholder="First Name" id="firstname" name="firstname" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="lastname">Last Name</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText @bind-Value="borrower.Lastname" placeholder="Last Name" id="lastname" name="lastname" class="form-control"/>
+                </div>
+            </div>
+            <div style="" class="text-center">
+                AND /OR
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="businessname">Business Name</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText @bind-Value="borrower.BusinessName" placeholder="Business Name" id="businessname" name="businessname" class="form-control"/>
+                </div>
+            </div>
+
+            <div class="gray new-border3 pace-md">
+                <p><b>Optional Fields</b></p>
+            </div>
+            <br/>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="nrc">NRC</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText @bind-Value="borrower.NRC" placeholder="NRC" id="nrc" name="nrc" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4 pull-right">
+                    <label>Gender</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="borrower.GenderId" id="gender" name="gender" class="form-control">
+                        @foreach(var item in genders)
+                        {                            
+                            <option value="@item.GenderId" >@item.Description</option>                                                       
+                        }
+                    </InputSelectNumber>
+                </div>                    
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4 pull-right">
+                    <label>Title</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="borrower.TitleId" id="title" name="title" class="form-control">
+                        @foreach(var item in titles)
+                        {                            
+                            <option value="@item.TitleId" >@item.Description</option>                                                       
+                        }
+                    </InputSelectNumber>
+                </div>                    
+            </div>
+
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="mobile">Mobile</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText Type="Tel" @bind-Value="borrower.Mobile" placeholder="Mobile" id="mobile" name="mobile" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="email">Email</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText Type="Email" @bind-Value="borrower.Email" placeholder="Email" id="email" name="email" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="dob">Date of Birth</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputDate @bind-Value="borrower.DateOfBirth" placeholder="Date of Birth" id="dob" name="dob" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="mobile">Address</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText  @bind-Value="borrower.Address" placeholder="Address" id="address" name="address" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="zipcode">Zip Code</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText @bind-Value="borrower.ZipCode" placeholder="Zip Code" id="zipcode" name="zipcode" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="phone">Land Line</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText Type="Tel" @bind-Value="borrower.LandLine" placeholder="Land Line" id="phone" name="phone" class="form-control"/>
+                </div>
+            </div>
+
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4 pull-right">
+                    <label>Working Status</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="borrower.WorkingStatusId" id="workingstatus" name="workingstatus" class="form-control">
+                        @foreach(var item in workingStatuses)
+                        {                            
+                            <option value="@item.WorkingStatusId" >@item.Description</option>                                                       
+                        }
+                    </InputSelectNumber>
+                </div>                    
+            </div>
+
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="creditscore">Credit Score</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputNumber @bind-Value="borrower.CreditScore" placeholder="Credit Score" id="creditscore" name="creditscore" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="detials">Details</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputTextArea @bind-Value="borrower.Details" placeholder="Details" id="detials" name="details" class="form-control"/>
+                </div>
+            </div>
+
+            <br />
+            <div class="text-right pace-md">
+                <button type="submit" class="btn btn-info" >Submit</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code
+{
     [Parameter]
     public int BorrowerId { get; set; } = 0;
+    private LoanMgt.SHARED.Borrower borrower = new SHARED.Borrower();
+    public IEnumerable<LoanMgt.SHARED.Town> towns;     
+    public IEnumerable<LoanMgt.SHARED.Province> provinces;
+    public IEnumerable<LoanMgt.SHARED.Title> titles;
+    public IEnumerable<LoanMgt.SHARED.Gender> genders ;
+    public IEnumerable<LoanMgt.SHARED.WorkingStatus> workingStatuses ;
+
+    protected override void OnInitialized()
+    {
+        if(BorrowerId > 0)
+        {
+            borrower = Service.Get(BorrowerId);
+        }
+        else
+        {
+            borrower = new SHARED.Borrower();
+        }
+
+        towns = townRepo.GetAll();
+        provinces = provinceRepo.GetAll();
+        genders = genderRepo.GetAll();
+        titles = titleRepo.GetAll();
+        workingStatuses = workingStatusRepo.GetAll();
+    }
+
+    protected void Process()
+    {
+        //TODO complete adding of loan products
+        if(borrower.BorrowerId == 0)
+        {
+            Service.Add(borrower);
+            toastService.ShowSuccess("Borrower has been created", "System Information");
+        }
+        else
+        {
+            Service.Update(borrower);
+            toastService.ShowSuccess("Borrower has been updated", "System Information");
+        }
+                
+        UriHelper.NavigateTo("/viewborrowers",true);
+    }
 }

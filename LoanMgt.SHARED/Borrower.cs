@@ -31,7 +31,7 @@ namespace LoanMgt.SHARED
         public int ProvinceId { get; set; }
         public string ZipCode { get; set; }
         public string LandLine { get; set; }
-        public string WorkingStatus { get; set; }
+        public int WorkingStatusId { get; set; }
         public float CreditScore { get; set; }
         public byte[] Photo { get; set; }
         public int StatusId { get; set; }
@@ -44,6 +44,7 @@ namespace LoanMgt.SHARED
         public Town Town { get; set; }
         public Province Province { get; set; }
         public Status Status { get; set; }
+        public WorkingStatus WorkingStatus { get; set; }
 
     }
 }
