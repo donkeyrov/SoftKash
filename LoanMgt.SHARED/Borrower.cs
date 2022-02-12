@@ -21,21 +21,21 @@ namespace LoanMgt.SHARED
         public string BusinessName { get; set; }
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the NRC!")]
         public string NRC { get; set; }
-        public int GenderId { get; set; }
-        public int TitleId { get; set; }
-        public string Mobile { get; set; }
-        public string Email { get; set; }
+        public int? GenderId { get; set; }
+        public int? TitleId { get; set; }
+        public string? Mobile { get; set; }
+        public string? Email { get; set; }
         public DateTime DateOfBirth { get; set; }
-        public string Address { get; set; }
+        public string? Address { get; set; }
         public int TownId { get; set; }
         public int ProvinceId { get; set; }
-        public string ZipCode { get; set; }
-        public string LandLine { get; set; }
-        public int WorkingStatusId { get; set; }
-        public float CreditScore { get; set; }
-        public byte[] Photo { get; set; }
-        public int StatusId { get; set; }
-        public string Details { get; set; }
+        public string? ZipCode { get; set; }
+        public string? LandLine { get; set; }
+        public int? WorkingStatusId { get; set; }
+        public float? CreditScore { get; set; }
+        public byte[]? Photo { get; set; }
+        public int? StatusId { get; set; }
+        public string? Details { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
 

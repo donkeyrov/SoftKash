@@ -30,7 +30,8 @@
                     <label>Province</label>
                 </div>
                 <div class="col-lg-8 col-md-8">
-                    <InputSelectNumber @bind-Value="borrower.ProvinceId" id="interestMethod" name="interestMethod" class="form-control">
+                    <InputSelectNumber @bind-Value="borrower.ProvinceId" id="province" name="province" class="form-control">
+                        <option value="0" >-- select --</option>
                         @foreach(var item in provinces)
                         {
                             <option value="@item.ProvinceId" >@item.Name</option>
@@ -44,7 +45,8 @@
                     <label>Town</label>
                 </div>
                 <div class="col-lg-8 col-md-8">
-                    <InputSelectNumber @bind-Value="borrower.TownId" id="interestMethod" name="interestMethod" class="form-control">
+                    <InputSelectNumber @bind-Value="borrower.TownId" id="town" name="town" class="form-control">
+                        <option value="0" >-- select --</option>
                         @foreach(var item in towns)
                         {
                             if(item.ProvinceId == borrower.ProvinceId)
@@ -104,6 +106,7 @@
                 </div>
                 <div class="col-lg-8 col-md-8">
                     <InputSelectNumber @bind-Value="borrower.GenderId" id="gender" name="gender" class="form-control">
+                        <option value="0" >-- select --</option>
                         @foreach(var item in genders)
                         {                            
                             <option value="@item.GenderId" >@item.Description</option>                                                       
@@ -117,6 +120,7 @@
                 </div>
                 <div class="col-lg-8 col-md-8">
                     <InputSelectNumber @bind-Value="borrower.TitleId" id="title" name="title" class="form-control">
+                        <option value="0" >-- select --</option>
                         @foreach(var item in titles)
                         {                            
                             <option value="@item.TitleId" >@item.Description</option>                                                       
@@ -180,6 +184,7 @@
                 </div>
                 <div class="col-lg-8 col-md-8">
                     <InputSelectNumber @bind-Value="borrower.WorkingStatusId" id="workingstatus" name="workingstatus" class="form-control">
+                        <option value="0" >-- select --</option>
                         @foreach(var item in workingStatuses)
                         {                            
                             <option value="@item.WorkingStatusId" >@item.Description</option>                                                       
@@ -247,6 +252,14 @@
         //TODO complete adding of loan products
         if(borrower.BorrowerId == 0)
         {
+            borrower.Province = null;
+            borrower.Town = null;
+            borrower.Gender = null;
+            borrower.Title = null;
+
+            borrower.CreatedBy= "sa";
+            borrower.CreatedDate = DateTime.Now;
+
             Service.Add(borrower);
             toastService.ShowSuccess("Borrower has been created", "System Information");
         }

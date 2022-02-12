@@ -4,6 +4,7 @@ using LoanMgt.UI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LoanMgt.UI.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220212135721_updated borrower entity")]
+    partial class updatedborrowerentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -254,7 +256,7 @@ namespace LoanMgt.UI.Data.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<float?>("CreditScore")
+                    b.Property<float>("CreditScore")
                         .HasColumnType("real");
 
                     b.Property<DateTime>("DateOfBirth")
@@ -270,7 +272,7 @@ namespace LoanMgt.UI.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("GenderId")
+                    b.Property<int>("GenderId")
                         .HasColumnType("int");
 
                     b.Property<string>("LandLine")
@@ -293,16 +295,16 @@ namespace LoanMgt.UI.Data.Migrations
                     b.Property<int>("ProvinceId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("StatusId")
+                    b.Property<int>("StatusId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TitleId")
+                    b.Property<int>("TitleId")
                         .HasColumnType("int");
 
                     b.Property<int>("TownId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("WorkingStatusId")
+                    b.Property<int>("WorkingStatusId")
                         .HasColumnType("int");
 
                     b.Property<string>("ZipCode")
@@ -2383,7 +2385,9 @@ namespace LoanMgt.UI.Data.Migrations
                 {
                     b.HasOne("LoanMgt.SHARED.Gender", "Gender")
                         .WithMany()
-                        .HasForeignKey("GenderId");
+                        .HasForeignKey("GenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("LoanMgt.SHARED.Province", "Province")
                         .WithMany()
@@ -2393,11 +2397,15 @@ namespace LoanMgt.UI.Data.Migrations
 
                     b.HasOne("LoanMgt.SHARED.Status", "Status")
                         .WithMany()
-                        .HasForeignKey("StatusId");
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("LoanMgt.SHARED.Title", "Title")
                         .WithMany()
-                        .HasForeignKey("TitleId");
+                        .HasForeignKey("TitleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("LoanMgt.SHARED.Town", "Town")
                         .WithMany()
@@ -2407,7 +2415,9 @@ namespace LoanMgt.UI.Data.Migrations
 
                     b.HasOne("LoanMgt.SHARED.WorkingStatus", "WorkingStatus")
                         .WithMany()
-                        .HasForeignKey("WorkingStatusId");
+                        .HasForeignKey("WorkingStatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Gender");
 
