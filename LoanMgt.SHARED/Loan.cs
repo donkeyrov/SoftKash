@@ -15,6 +15,7 @@ namespace LoanMgt.SHARED
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int LoanId { get; set; }
         public int  LoanProductId { get; set; }
+        public int BorrowerId { get; set; }
         public int LoanNumber { get; set; }
         public int DisbursementMethodId { get; set; }        
         public float PrincipalAmount { get; set; }
@@ -65,5 +66,6 @@ namespace LoanMgt.SHARED
         public LoanDuration LoanDuration { get; set; }
         public RepaymentCycle RepaymentCycle { get; set; }
         public LoanStatus LoanStatus { get; set; }
+        public Borrower Borrower { get; set; }
     }
 }

@@ -81,6 +81,7 @@ namespace LoanMgt.UI
             services.AddTransient<BorrowerFileRepository>();
             services.AddTransient<GroupRepository>();
             services.AddTransient<WorkingStatusRepository>();
+            services.AddTransient<LoanRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
