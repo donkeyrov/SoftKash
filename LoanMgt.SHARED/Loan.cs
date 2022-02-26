@@ -16,8 +16,10 @@ namespace LoanMgt.SHARED
         public int LoanId { get; set; }
         public int  LoanProductId { get; set; }
         public int BorrowerId { get; set; }
-        public int LoanNumber { get; set; }
-        public int DisbursementMethodId { get; set; }        
+        public string LoanNumber { get; set; }
+        public bool Cash { get; set; }
+        public bool Cheque { get; set; }
+        public bool OnlineTransfer { get; set; }
         public float PrincipalAmount { get; set; }
         public DateTime LoanReleaseDate { get; set; }  
         public int InterestMethodId { get; set; }

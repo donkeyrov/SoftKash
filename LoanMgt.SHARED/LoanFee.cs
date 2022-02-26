@@ -18,5 +18,7 @@ namespace LoanMgt.SHARED
         public int FeeId { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
+
+        public Fee Fee { get; set; }
     }
 }

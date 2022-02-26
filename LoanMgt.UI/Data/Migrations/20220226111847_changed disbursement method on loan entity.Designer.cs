@@ -4,6 +4,7 @@ using LoanMgt.UI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LoanMgt.UI.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220226111847_changed disbursement method on loan entity")]
+    partial class changeddisbursementmethodonloanentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1056,8 +1058,6 @@ namespace LoanMgt.UI.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("LoanFeeId");
-
-                    b.HasIndex("FeeId");
 
                     b.ToTable("LoanFees");
                 });
@@ -2565,17 +2565,6 @@ namespace LoanMgt.UI.Data.Migrations
                     b.Navigation("LoanStatus");
 
                     b.Navigation("RepaymentCycle");
-                });
-
-            modelBuilder.Entity("LoanMgt.SHARED.LoanFee", b =>
-                {
-                    b.HasOne("LoanMgt.SHARED.Fee", "Fee")
-                        .WithMany()
-                        .HasForeignKey("FeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Fee");
                 });
 
             modelBuilder.Entity("LoanMgt.SHARED.LoanProduct", b =>

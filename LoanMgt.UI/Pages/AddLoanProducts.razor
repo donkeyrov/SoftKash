@@ -3,6 +3,8 @@
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
 @inject BranchRepository branchRepo;
+@inject FeeRepository feeRepo;
+@inject LoanFeeRepository loanFeeRepo;
 @inject InterestMethodRepository interestMethodRepo;
 @inject LoanInterestPeriodRepository loanInterestPeriodRepo;
 @inject LoanDurationRepository loanDurationRepo;
@@ -10,6 +12,44 @@
 @inherits OwningComponentBase<LoanProductRepository>
 
 <h3>Add Loan Products</h3>
+
+@if (popup)
+{
+    <div class="modal modal2" tabindex="-1" style="display:block;">
+        <div class="modal-dialog modal-dialog2 modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Loan Fee</h5>
+                </div>
+                <EditForm Model="loanFee" OnValidSubmit="@ProcessFee">
+                    <div class="modal-body modal-body2">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div>                            
+                            <div class="space">
+                                <label for="fee">Fee</label>
+                                <InputSelect @bind-Value="loanFee.FeeId" id="nextacademicyearid" name="nextacademicyearid" class="form-control">
+                                    <option value="0">-- select --</option>
+                                    @foreach (var item in fees)
+                                    {
+                                        <option value="@item.FeeId">@item.Name - deduct from principal(@item.DeductFromPrincipalAmount)</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+
+}
+
 <div class="admin-link">
     <NavLink href="/loanproducts">Back to Loan Products</NavLink>
 </div>
@@ -262,6 +302,7 @@
         <div class="row col-lg-12 col-md-12">
             <div class="col-lg-4 col-md-4">
                 <label></label>
+                
             </div>
             <div class="col-lg-8 col-md-8">
                 <div class="row pace-md">
@@ -317,18 +358,38 @@
         <div class="row col-lg-12 col-md-12">
             <div class="col-lg-4 col-md-4">
                 <label></label>
+                <button type="button" class="btn btn-sm btn-primary" @onclick="openModal" >Add Fee(s)</button>
             </div>
             <div class="col-lg-8 col-md-8">
                 <div class="row pace-md">
                     <div class="col-lg-4 col-md-4 pull-right">
-                        <label>Repayment Order</label>
+                        <label>Loan Fee(s)</label>
                     </div>
-                    <div class="col-lg-6 col-md-6">
-                        <InputTextArea @bind-Value="loanProduct.RepaymentOrder" id="repaymentOrder" name="repaymentOrder" class="form-control">                            
-                        </InputTextArea>
+                    <div class="col-lg-8 col-md-8">
+                        <table class="table table-striped" >
+                            <thead>
+
+                            </thead>
+                            <tbody>
+                                @{int counter = 0;}
+                                @foreach(var item in loanFees)
+                                {
+                                    counter++;
+                                    <div class="row col-lg-12 col-md-12 pace-sm">
+                                        <div class="col-lg-1 col-md-1">@counter</div>
+                                        <div class="col-lg-8 col-md-8">@item.Fee.Name</div>
+                                        <div class="col-lg-3 col-md-3">
+                                            <button type="button" class="btn btn-secondary btn-sm" @onclick="@(()=>DeleteFee(@item.LoanFeeId))" >delete</button>
+                                        </div>
+                                    </div>                                    
+                                }
+                                
+                            </tbody>
+
+                        </table>
+                        
                     </div>  
-                    <button type="button" class="btn btn-primary btn-sm" >Up</button>&nbsp;
-                    <button type="button" class="btn btn-secondary btn-sm" >down</button>
+                    
                 </div>
             </div>
         </div>
@@ -349,22 +410,38 @@
     </EditForm>
 </div>
 
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(loanFeeId))">
+    @childContent
+</Dialog>
+
 @code {
     [Parameter]
-    public int loanProductId { get; set; } = 0;    
-    public DateTime[] MultipleValues { get; set; }
+    public int loanProductId { get; set; } = 0;
+    private int loanFeeId = 0;
+    public DateTime[] MultipleValues { get; set; }    
     private LoanMgt.SHARED.Branch branch = new LoanMgt.SHARED.Branch();
     private LoanMgt.SHARED.LoanProduct loanProduct = new LoanMgt.SHARED.LoanProduct();
     public IEnumerable<LoanMgt.SHARED.InterestMethod> interestMethods;     
     public IEnumerable<LoanMgt.SHARED.LoanInterestPeriod> loanInterestPeriods;     
     public IEnumerable<LoanMgt.SHARED.LoanDuration> loanDurations;
     public IEnumerable<LoanMgt.SHARED.RepaymentCycle> repaymentCycles;
-   
+    public IEnumerable<LoanMgt.SHARED.LoanFee> loanFees;
+    public LoanMgt.SHARED.LoanFee loanFee;
+    public IEnumerable<LoanMgt.SHARED.Fee> fees;
+    public LoanMgt.SHARED.Fee fee;
+    private bool popup = false;
+    private bool showModal = false;
+    private string title = "Default Title";
+    private string childContent = "Default Message";
+    private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+
     protected override void OnInitialized()
     {
         if(loanProductId > 0)
         {
-
+            loanProduct = Service.Get(loanProductId);
+            loanFees = loanFeeRepo.GetAll2().Where(f=> f.LoanId == loanProductId).ToList();
         }
         else
         {
@@ -375,6 +452,7 @@
         loanInterestPeriods = loanInterestPeriodRepo.GetAll();
         loanDurations = loanDurationRepo.GetAll();
         repaymentCycles = repaymentCycleRepo.GetAll();
+        fees = feeRepo.GetAll();
     }
 
     protected void Process()
@@ -393,4 +471,63 @@
         UriHelper.NavigateTo("/loanproducts",true);
     }
 
+    protected void ProcessFee()
+    {
+        //TODO complete adding of loan products
+        if(loanFee.LoanFeeId == 0 && loanProductId > 0)
+        {
+            loanFee.LoanId = loanProductId;
+            loanFee.CreatedBy = "user";
+            loanFee.CreatedDate = DateTime.Now;
+
+            loanFeeRepo.Add(loanFee);
+            toastService.ShowSuccess("Loan Fee has been Added", "System Information");
+        }
+        else
+        {  
+            if(loanProductId == 0)
+            {
+                toastService.ShowWarning("No loan product select, fee will not be added", "System Information");
+            }
+            else
+            {
+                toastService.ShowError("Loan fee could not be added", "System Information");
+            }            
+        }
+
+        loanFee = null;       
+        loanFees = loanFeeRepo.GetAll().Where(f=> f.LoanId == loanProductId).ToList();
+    }
+
+    protected void DeleteFee(int feeId)
+    {
+        loanFeeId = feeId;
+        title = "Delete Loan Fee";
+        childContent = "Are You Sure You Want to Delete This Loan Fee?";
+        modalType = Component.ModalTypes.Delete;
+        showModal = true;
+
+    }
+
+    protected void DeletetRecord(int id)
+    {
+        showModal = false;
+        var lFee = loanFeeRepo.Get(id);
+        loanFeeRepo.Remove(lFee);
+
+        loanFees = loanFeeRepo.GetAll2();
+        loanFeeId = 0;
+        toastService.ShowWarning("Fee has been Deleted", "System Information");
+    }
+
+    void openModal()
+    {
+        loanFee = new SHARED.LoanFee();
+        popup = true;
+    }
+
+    void closeModal()
+    {
+        popup = false;
+    }
  }

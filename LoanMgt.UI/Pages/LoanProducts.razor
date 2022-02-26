@@ -21,8 +21,9 @@
         <div class="row">
             <SfGrid DataSource="@loanProducts" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
                 <GridColumns>
-                    <GridColumn Field=@nameof(loanProduct.Name) HeaderText="Branch Name"></GridColumn>                    
+                    <GridColumn Field=@nameof(loanProduct.Name) HeaderText="Loan Name"></GridColumn>                    
                     <GridColumn Field=@nameof(loanProduct.LoanScheduleDescription) HeaderText="Schedule Description"></GridColumn>                    
+                    <GridColumn Field=@nameof(loanProduct.MaximumPrincipalAmount) HeaderText="Max Amount"></GridColumn>                    
                     <GridColumn Field=@nameof(loanProduct.MaximumLoanDuration) HeaderText="Max Duration"></GridColumn>                    
                     <GridColumn>
                         <Template>

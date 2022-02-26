@@ -11,5 +11,6 @@ namespace LoanMgt.UI.Repositories
     /// </summary>
     public interface ILoanFeeRepository : IGenericRepository<LoanFee>
     {
+        public IEnumerable<LoanFee> GetAll2();
     }
 }

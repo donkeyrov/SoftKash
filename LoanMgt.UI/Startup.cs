@@ -68,6 +68,7 @@ namespace LoanMgt.UI
             services.AddTransient<OtherIncomeTypeRepository>();
             services.AddTransient<CollectorRepository>();
             services.AddTransient<FeeRepository>();
+            services.AddTransient<LoanFeeRepository>();
             services.AddTransient<TaxTypeRepository>();
             services.AddTransient<AssetManagementTypeRepository>();
             services.AddTransient<UserRoleRepository>();

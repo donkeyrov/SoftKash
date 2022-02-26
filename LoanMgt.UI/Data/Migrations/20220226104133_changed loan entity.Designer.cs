@@ -4,6 +4,7 @@ using LoanMgt.UI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LoanMgt.UI.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220226104133_changed loan entity")]
+    partial class changedloanentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -865,12 +867,6 @@ namespace LoanMgt.UI.Data.Migrations
                     b.Property<string>("CalculateInterestOn")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Cash")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Cheque")
-                        .HasColumnType("bit");
-
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -883,7 +879,7 @@ namespace LoanMgt.UI.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("DisbursementMethodId")
+                    b.Property<int>("DisbursementMethodId")
                         .HasColumnType("int");
 
                     b.Property<bool>("DoNotAdjustRemainingPayments")
@@ -954,9 +950,6 @@ namespace LoanMgt.UI.Data.Migrations
 
                     b.Property<int>("NumberOfRePayments")
                         .HasColumnType("int");
-
-                    b.Property<bool>("OnlineTransfer")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("OverrideMaturityDate")
                         .HasColumnType("bit");
@@ -1056,8 +1049,6 @@ namespace LoanMgt.UI.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("LoanFeeId");
-
-                    b.HasIndex("FeeId");
 
                     b.ToTable("LoanFees");
                 });
@@ -2520,7 +2511,9 @@ namespace LoanMgt.UI.Data.Migrations
 
                     b.HasOne("LoanMgt.SHARED.DisbursementMethod", "DisbursementMethod")
                         .WithMany()
-                        .HasForeignKey("DisbursementMethodId");
+                        .HasForeignKey("DisbursementMethodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("LoanMgt.SHARED.InterestMethod", "InterestMethod")
                         .WithMany()
@@ -2565,17 +2558,6 @@ namespace LoanMgt.UI.Data.Migrations
                     b.Navigation("LoanStatus");
 
                     b.Navigation("RepaymentCycle");
-                });
-
-            modelBuilder.Entity("LoanMgt.SHARED.LoanFee", b =>
-                {
-                    b.HasOne("LoanMgt.SHARED.Fee", "Fee")
-                        .WithMany()
-                        .HasForeignKey("FeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Fee");
                 });
 
             modelBuilder.Entity("LoanMgt.SHARED.LoanProduct", b =>

@@ -1,10 +1,372 @@
 ﻿@page "/addloan"
+@page "/addloan/{loanId:int}"
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
+@inject BranchRepository branchRepo;
+@inject InterestMethodRepository interestMethodRepo;
+@inject LoanInterestPeriodRepository loanInterestPeriodRepo;
+@inject LoanDurationRepository loanDurationRepo;
+@inject RepaymentCycleRpository repaymentCycleRepo;
+@inject LoanProductRepository loanProductRepo;
+@inject BorrowerRepository BorrowerRepo;
+@inherits OwningComponentBase<LoanRepository>
 
-<h3>AddLoan</h3>
+<h3>Add Loan</h3>
+
+<div class="admin-link">
+    <NavLink href="/viewallloans">Back to View Loans</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <EditForm Model="loan" OnValidSubmit="@Process">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="gray new-border2">
+            <b>Required Field:</b>
+        </div>
+        <div class="row col-lg-12 col-md-12 pace-md">
+            <div class="col-lg-4 col-md-4">
+                <label for="loanProductName">Loan Product</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <Select placeholder="Loan Product" id="loanProductName" name="loanProductName" class="form-control" onchange=@OnValueChanged  >
+                    <option value="0">-- select --</option>
+                    @foreach (var item in loanProducts)
+                    {
+                        <option value="@item.LoanProductId">@item.Name </option>
+                    }
+                </Select>                
+            </div>
+        </div>
+        
+        <div class="row col-lg-12 col-md-12 pace-md">
+            <div class="col-lg-4 col-md-4">
+                <label for="borrower">Borrower</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <InputSelectNumber @bind-Value="loan.BorrowerId" placeholder="Select Borrower" id="borrower" name="borrower" class="form-control">
+                    <option value="0">-- select --</option>
+                    @foreach (var item in borrowers)
+                    {
+                        <option value="@item.BorrowerId">@item.NRC - @item.Firstname @item.Lastname </option>
+                    }
+                </InputSelectNumber>                
+            </div>
+        </div>
+
+        <div class="row col-lg-12 col-md-12 pace-md">
+            <div class="col-lg-4 col-md-4">
+                <label for="loanno">Loan #</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <InputText @bind-Value="loan.LoanNumber" placeholder="Loan Number" id="loanno" name="loanno" class="form-control" />                                 
+            </div>
+        </div>
+        <br/>
+        <div class="gray new-border2">
+            <b>Loan Terms (Required Fields):</b>
+        </div>
+        <hr/>
+        <br/>
+        <div class="pull-left">
+            <b style="color:#333;">Principal:</b>
+        </div>
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4">
+                <label></label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label>Disbursed By</label>
+                    </div>
+                    <div class="col-lg-1 col-md-1">
+                        <InputCheckbox @bind-Value="loan.Cash" id="cash" name="cash" class="form-control"/>
+                    </div> 
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label>Cash</label>
+                    </div>
+                </div>
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        
+                    </div>
+                    <div class="col-lg-1 col-md-1">
+                        <InputCheckbox @bind-Value="loan.Cheque" id="cheque" name="cheque" class="form-control"/>
+                    </div> 
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label for="cash">Cheque</label>
+                    </div>
+                </div>
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        
+                    </div>
+                    <div class="col-lg-1 col-md-1">
+                        <InputCheckbox @bind-Value="loan.OnlineTransfer " id="onlineTransfer" name="onlineTransfer" class="form-control"/>
+                    </div>  
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label for="onlineTransfer">Online Transfer</label>
+                    </div>
+                </div>                 
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4">
+                        <label for="PrincipalAmount">Principal Amount</label>
+                    </div>
+                    <div class="col-lg-8 col-md-8">
+                        <InputNumber @bind-Value="loan.PrincipalAmount" placeholder="Principal Amount" id="PrincipalAmount" name="PrincipalAmount" class="form-control"/>
+                    </div>
+                </div>
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4">
+                        <label for="releaseDate">Loan Release Date</label>
+                    </div>
+                    <div class="col-lg-8 col-md-8">
+                        <InputDate @bind-Value="loan.LoanReleaseDate" placeholder="Maximum Amount" id="releaseDate" name="releaseDate" class="form-control"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="pace-md"/>
+        <div class="pull-left">
+            <b style="color:#333;">Interest:</b>
+        </div>
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4">
+                <label></label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label>Interest Method</label>
+                    </div>
+                    <div class="col-lg-8 col-md-8">
+                        <InputSelectNumber @bind-Value="loan.InterestMethodId" id="interestMethod" name="interestMethod" class="form-control">
+                            @foreach(var item in interestMethods)
+                            {
+                                <option value="@item.InterestMethodId" >@item.Description</option>
+                            }
+                        </InputSelectNumber>
+                    </div>
+                    
+                </div>
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label>Interest Type</label>
+                    </div>
+                    <div class="col-lg-8 col-md-8">
+                        <div class="row pace-sm">
+                            <SfRadioButton Label="I want Interest to be percentage % based" Name="interestType" Value="True"  @bind-Checked="loan.InterestIsPercentageBased" ></SfRadioButton>
+                            &nbsp;
+
+                        </div>
+                        <div class="row">
+                            <SfRadioButton Label="I want Interest to be a fixed amount Per Cycle" Name="interestType" Value="False" @bind-Checked="loan.InterestIsFixedAmountPerCycle" ></SfRadioButton>
+                            &nbsp;
+                        </div>
+                        
+                    </div> 
+                    
+                </div>
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label>Loan Interest %</label>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <InputNumber @bind-Value="loan.LoanInterestRate" placeholder="%" id="interestRate" name="interestRate" class="form-control"/>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <InputSelectNumber @bind-Value="loan.LoanInterestPeriodId" id="interestMethod" name="interestMethod" class="form-control">
+                            @foreach(var item in loanInterestPeriods)
+                            {
+                                <option value="@item.LoanInterestPeriodId" >@item.Description</option>
+                            }
+                        </InputSelectNumber>
+                    </div>                    
+                </div>                                            
+            </div>
+        </div>
+
+        <hr class="pace-md"/>
+        <div class="pull-left">
+            <b style="color:#333;">Duration:</b>
+        </div>
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4">
+                <label></label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label>Loan Duration</label>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <InputNumber @bind-Value="loan.LoanPeriod" placeholder="0" id="loanPeriod" name="loanPeriod" class="form-control"/>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <InputSelectNumber @bind-Value="loan.LoanDurationId" id="loanDuration" name="loanDuration" class="form-control">
+                            @foreach(var item in loanDurations)
+                            {
+                                <option value="@item.LoanDurationId" >@item.Description</option>
+                            }
+                        </InputSelectNumber>
+                    </div>                    
+                </div>
+             </div>
+        </div>
+
+        <hr class="pace-md"/>
+        <div class="pull-left">
+            <b style="color:#333;">Repayments:</b>
+        </div>
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4">
+                <label></label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label>Repayment Cycle</label>
+                    </div>
+                    <div class="col-lg-8 col-md-8">
+                        <InputSelectNumber @bind-Value="loan.RepaymentCycleId" id="repaymentCycle" name="repaymentCycle" class="form-control">
+                            @foreach(var item in repaymentCycles)
+                            {
+                                <option value="@item.RepaymentCycleId" >@item.Name</option>
+                            }
+                        </InputSelectNumber>
+                    </div>                    
+                </div>
+                           
+               
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4">
+                        <label for="defaultlAmount">Number of Repayments</label>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <InputNumber @bind-Value="loan.NumberOfRePayments" placeholder="Number Repayments" id="numberRepayments" name="numberRepayments" class="form-control"/>
+                    </div>
+                </div>                
+            </div>
+        </div>
+
+        <br/>
+       
+        <br/>
+        <div class="row col-lg-12 col-md-12 pace-md">
+            <div class="col-lg-4 col-md-4">
+                <label for="loanScheduleDescription">Loan Description</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <InputText @bind-Value="loan.LoanTitle" placeholder="Loan Description" id="loanScheduleDescription" name="loanScheduleDescription" class="form-control"/>
+            </div>
+        </div>
+        <br />
+        <div class="text-right pace-md">
+            <button type="submit" class="btn btn-info" >Submit</button>
+        </div>
+    </EditForm>
+</div>
 
 @code {
+    [Parameter]
+    public int loanId { get; set; } = 0;    
+    public DateTime[] MultipleValues { get; set; }
+    private int loanProductID;
+    private LoanMgt.SHARED.Branch branch = new LoanMgt.SHARED.Branch();
+    private LoanMgt.SHARED.LoanProduct loanProduct = new LoanMgt.SHARED.LoanProduct();
+    private LoanMgt.SHARED.Loan loan = new LoanMgt.SHARED.Loan();
+    public IEnumerable<LoanMgt.SHARED.InterestMethod> interestMethods;     
+    public IEnumerable<LoanMgt.SHARED.LoanInterestPeriod> loanInterestPeriods;     
+    public IEnumerable<LoanMgt.SHARED.LoanDuration> loanDurations;
+    public IEnumerable<LoanMgt.SHARED.RepaymentCycle> repaymentCycles;
+    public IEnumerable<LoanMgt.SHARED.LoanProduct> loanProducts;
+    public IEnumerable<LoanMgt.SHARED.Borrower> borrowers;
 
+    protected override void OnInitialized()
+    {
+        if(loanId > 0)
+        {
+
+        }
+        else
+        {
+            branch = new SHARED.Branch();
+            loan = new SHARED.Loan();
+            loan.LoanReleaseDate = DateTime.Now;
+        }
+
+        interestMethods = interestMethodRepo.GetAll();
+        loanInterestPeriods = loanInterestPeriodRepo.GetAll();
+        loanDurations = loanDurationRepo.GetAll();
+        repaymentCycles = repaymentCycleRepo.GetAll();
+        loanProducts = loanProductRepo.GetAll();
+        borrowers = BorrowerRepo.GetAll();
+    }
+
+    protected void Process()
+    {
+        //TODO complete adding of loan products
+        if(loan.LoanId == 0)
+        {
+            Service.Add(loan);
+        }
+        else
+        {
+            Service.Update(loan);
+        }
+
+        toastService.ShowSuccess("Loan has been created", "System Information");
+        UriHelper.NavigateTo("/viewallloans",true);
+    }
+
+    void OnValueChanged(ChangeEventArgs e)
+    {
+        loanProductID = int.Parse(e.Value.ToString());
+        var loanProduct = loanProductRepo.Get(loanProductID);
+
+        loan.LoanProductId = loanProductID;
+
+        try
+        {
+            loan.Cash = loanProduct.Cash;
+            loan.Cheque = loanProduct.Cheque;
+            loan.OnlineTransfer = loanProduct.OnlineTransfer;
+            //loan.DisbursementMethodId = loanProduct.DisbursementMethod.
+            loan.PrincipalAmount = loanProduct.DefaultPrincipalAmount;
+
+            if(loanProduct.InterestMethodId != null)
+                loan.InterestMethodId = int.Parse(loanProduct.InterestMethodId.ToString());
+
+            loan.InterestIsPercentageBased = loanProduct.InterestIsPercentageBased;
+            loan.InterestIsFixedAmountPerCycle = loanProduct.InterestIsFixedAmountPerCycle;
+            loan.InterestFixedAmount = loanProduct.MaturityInterestIsFixedAmount;
+            loan.InterestRateAfterMaturity = loanProduct.InterestRateAfterMaturity;
+
+            if(loanProduct.LoanDurationId != null)
+                loan.LoanDurationId = int.Parse(loanProduct.LoanDurationId.ToString());
+
+            loan.NumberOfRePayments = loanProduct.DefaultNumberOfRePayments;
+
+            if(loanProduct.RepaymentCycleId != null)
+                loan.RepaymentCycleId = int.Parse(loanProduct.RepaymentCycleId.ToString());
+
+            loan.lastRepaymentAmount = loanProduct.lastRepaymentAmount;
+            loan.CalculateInterestOn = loanProduct.CalculateInterestOn;
+            loan.RecurringPeriodAfterMaturity = loanProduct.RecurringPeriodAfterMaturity;
+            loan.ExttendAfterMaturity = loanProduct.ExtendAfterMaturity;
+            loan.DDurationAfterMaturity = loanProduct.DurationAfterMaturity;
+            loan.RecurringPeriodAfterMaturity = loanProduct.RecurringPeriodAfterMaturity;
+            loan.LoanTitle = loanProduct.Name;
+            //loan.OverrideRepaymentAmount = loanProduct.OverrideRepaymentAmountTo
+        }
+        catch(Exception ex)
+        {              
+        }
+
+        
+    }
+
+    
 }

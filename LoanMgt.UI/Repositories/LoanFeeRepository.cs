@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LoanMgt.UI.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace LoanMgt.UI.Repositories
 {
@@ -19,6 +20,11 @@ namespace LoanMgt.UI.Repositories
         public LoanFeeRepository(ApplicationDbContext db) : base(db)
         {
 
+        }
+
+        public IEnumerable<LoanFee> GetAll2()
+        {
+            return dbContext.Set<LoanFee>().Include(f=>f.Fee).ToList();
         }
     }
 }
