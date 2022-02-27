@@ -310,6 +310,10 @@
         //TODO complete adding of loan products
         if(loan.LoanId == 0)
         {
+            loan.LoanStatusId = 1;
+            loan.CreatedBy = "user";
+            loan.CreatedDate = DateTime.Now;
+
             Service.Add(loan);
         }
         else
