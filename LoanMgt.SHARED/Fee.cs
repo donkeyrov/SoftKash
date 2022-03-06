@@ -17,6 +17,7 @@ namespace LoanMgt.SHARED
         public string Name { get; set; }
         public bool Fixedamount { get; set; }
         public bool PercentageBased { get; set; }
+        public float Amount { get; set; }
         public bool CalculateOnDuePrincipalAmount { get; set; }
         public bool CalculateOnDueInterestamount { get; set; }
         public bool CalculateOnDuePricipalAndInterest { get; set; }

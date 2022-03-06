@@ -45,6 +45,12 @@
         </div>
     </div>
 </div>
+
+ <Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(fee))">
+    @childContent
+</Dialog>
+
     @code {
         private LoanMgt.SHARED.Fee fee = new LoanMgt.SHARED.Fee();
         private IEnumerable<LoanMgt.SHARED.Fee> fees { get; set; } = new List<LoanMgt.SHARED.Fee>();
