@@ -1,7 +1,104 @@
-﻿@page "/"
+﻿
+@page "/"
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
+<style>
+    body {
+        background: #f7f7f7;
+        height: 100%;
+    }
+    .login-form {
+        width: 340px;
+        margin: 100px auto;
+        font-size: 15px;
+    }
+    .login-form form {
+        margin-bottom: 15px;
+        background: #ffffff;
+        box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.3);
+        padding: 30px;
+    }
+    .form-control, .btn {
+        min-height: 38px;
+        border-radius: 2px;
+    }
+    .btn {
+        font-size: 15px;
+        font-weight: bold;
+        color: #fff;
+        background-color: #1b6ec2;
+        border-color: #1861ac;
+    }
+    .login-form .title {
+        font-size: 20px;
+        font-weight: 700;
+        font-family: verdana;
+    }
+</style>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@*<div class="login-form">
+    <EditForm Model="user" OnValidSubmit="@Process">
+        
+        <div class="mb-3 text-center title">
+            <span>SoftKash Loan Management</span>
+        </div>
+        <div asp-validation-summary="All" class="text-danger">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+        </div>
+        <div class="form-group">
+            <InputText @bind-Value="user.Email" class="form-control" placeholder="Username" />
+            <span asp-validation-for="Input.Email" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <InputText type="password" @bind-Value="user.PasswordHash" class="form-control" placeholder="Password" />
+            <span asp-validation-for="Input.Password" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary btn-block">Log in</button>
+        </div>
+        
+    </EditForm>
+</div>*@
+<div class="row">
+      <div class="loader">
+          <img src="/images/loadingimage.gif">
+      </div>
+  </div>
+@code
+{
+    SHARED.User user = new SHARED.User();
+
+    protected override async void OnInitialized()
+    {
+        // Clear the existing external cookie to ensure a clean login process
+           // await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+        UriHelper.NavigateTo("/Identity/Account/Login",true);
+    }
+
+    protected async void Process()
+    {
+        var myUser = UserManager.FindByEmailAsync(user.Email);
+
+        
+        var result = await SignInManager.PasswordSignInAsync(userName: user.Email,password: user.PasswordHash, isPersistent: true, lockoutOnFailure: true);
+        if (result.Succeeded)
+        {
+            UriHelper.NavigateTo("/home");
+        }
+        else
+        {
+            toastService.ShowWarning("User Could Not be Logged In", "System Information");
+        }
+         
+    }
+}
+

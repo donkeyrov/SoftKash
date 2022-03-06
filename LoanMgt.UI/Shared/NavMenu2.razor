@@ -24,9 +24,12 @@
                         var idLink = "#pageSubmenu" + mn.MenuId.ToString();
                         var idLink2 = "pageSubmenu" + mn.MenuId.ToString();
 
+                        <NavLink href="/home" data-bs-toggle="collapse" data-bs-target="@idLink" aria-expanded="false" class="dropdown-toggle">
+                            <span class="@mn.IconName" aria-hidden="true"></span> @mn.Name<br />
+                        </NavLink>
 
-                        <a href="#" data-bs-toggle="collapse" data-bs-target="@idLink" aria-expanded="false" class="dropdown-toggle"><span class="@mn.IconName" aria-hidden="true"></span> @mn.Name</a>
-
+                        @*<a  @onclick:preventDefault data-bs-toggle="collapse" data-bs-target="@idLink" aria-expanded="false" class="dropdown-toggle"><span class="@mn.IconName" aria-hidden="true"></span> @mn.Name</a>
+*@
                         <div class="collapse" id="@idLink2">
                             <ul class="nav collapse list-unstyled" id="@idLink2">
                                 @foreach (var mn1 in menuList)
@@ -41,7 +44,7 @@
                                                 var idLink22 = "pageSubmenu" + mn1.MenuId.ToString();
 
 
-                                                <a href="#" data-bs-toggle="collapse" data-bs-target="@idLink11" aria-expanded="false" class="dropdown-toggle"><span class="@mn1.IconName" aria-hidden="true"></span> @mn1.Name</a>
+                                                @*<a href="#" data-bs-toggle="collapse" data-bs-target="@idLink11" aria-expanded="false" class="dropdown-toggle"><span class="@mn1.IconName" aria-hidden="true"></span> @mn1.Name</a>
                                                 <div class="collapse" id="@idLink22">
                                                     <ul class="nav collapse list-unstyled">
 
@@ -66,13 +69,13 @@
                                                         }
 
                                                     </ul>
-                                                </div>
+                                                </div>*@
                                             }
                                             else
                                             {
-                                                <NavLink href="@mn1.MenuURL" @onclick="() => GetIsClicked(mn1)">
+                                                @*<NavLink href="@mn1.MenuURL" @onclick="() => GetIsClicked(mn1)">
                                                     <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="@mn1.IconName" aria-hidden="true"></span> @mn1.Name</div>
-                                                </NavLink>
+                                                </NavLink>*@
                                             }
                                         </li>
 

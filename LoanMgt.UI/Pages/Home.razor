@@ -5,6 +5,7 @@
 @inject AuthenticationStateProvider GetAuthenticationStateAsync
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
+@using Microsoft.VisualBasic;
 
 
 <AuthorizeView>
@@ -21,6 +22,8 @@
 
         var userID = UserManager.GetUserId(user);
 
-        
+        double rate = Financial.Pmt(0.03, 3, -628.05) + 5;
+        // 227.03 
+
     }
 }

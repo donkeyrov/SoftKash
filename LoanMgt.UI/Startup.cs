@@ -116,7 +116,7 @@ namespace LoanMgt.UI
             {
                 endpoints.MapControllers();
                 endpoints.MapBlazorHub();
-                endpoints.MapFallbackToPage("/_Host");
+                endpoints.MapFallbackToPage("/_Host");               
             });
         }
     }

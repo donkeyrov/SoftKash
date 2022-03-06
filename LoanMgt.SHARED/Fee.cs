@@ -21,6 +21,8 @@ namespace LoanMgt.SHARED
         public bool CalculateOnDueInterestamount { get; set; }
         public bool CalculateOnDuePricipalAndInterest { get; set; }
         public bool DeductFromPrincipalAmount { get; set; }
+        public bool Capitalized { get; set; }
+        public bool Monthly { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
 

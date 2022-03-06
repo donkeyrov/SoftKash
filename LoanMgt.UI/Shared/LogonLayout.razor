@@ -5,19 +5,10 @@
 @inject UserManager<IdentityUser> UserManager
 
 
-<AuthorizeView>
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-</AuthorizeView>
-<div class="main">
-    <AuthorizeView>
-        <div class="top-row px-4 auth" style="z-index:9999;">
-            <LoginDisplay />
-            <a href="" target="_blank" class="btn btn-outline-info">Help</a>        
-        </div>
-    </AuthorizeView>
 
+<div class="main">
+  
+    <div id="bg"></div>
     <div class="content px-4">
         @Body
     </div>
