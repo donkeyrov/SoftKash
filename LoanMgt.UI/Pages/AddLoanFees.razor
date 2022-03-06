@@ -8,7 +8,7 @@
 <h3>Add Loan Fees</h3>
 
 <div class="admin-link">
-    <NavLink href="/branch">Back to Branches</NavLink>
+    <NavLink href="/loanfees">Back to Fees</NavLink>
 </div>
 
 <div class="blue-top new-border">
@@ -35,11 +35,25 @@
                 <label>Fee Calculation</label>
             </div>
             <div class="col-lg-8 col-md-8">
-                <div class="row space">
+                <div class="row pace-sm">
                     <SfRadioButton TChecked="bool" Label="I want Fee to be a fixed amount" Name="feetype" Value="False" @bind-Checked="fee.Fixedamount"></SfRadioButton>
                 </div>
-                <div class="row space">
+                <div class="row pace-sm">
                     <SfRadioButton TChecked="bool" Label="I want Fee to be percentage % based" Name="feetype" Value="True" @bind-Checked="fee.PercentageBased"></SfRadioButton>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4 text-right"">
+                <label>Fee Type</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <div class="row pace-sm">
+                    <SfRadioButton TChecked="bool" Label="Capitalized Fee Type" Name="feecategory" Value="False" @bind-Checked="fee.Capitalized"></SfRadioButton>
+                </div>
+                <div class="row pace-sm">
+                    <SfRadioButton TChecked="bool" Label="Monthly Fee Type" Name="feecategory" Value="True" @bind-Checked="fee.Monthly"></SfRadioButton>
                 </div>
             </div>
         </div>
@@ -49,13 +63,13 @@
                 <label>Calculate Fee percentage % of</label>
             </div>
             <div class="col-lg-8 col-md-8">
-                <div class="row space">
+                <div class="row pace-sm">
                     <SfRadioButton TChecked="bool" Label="Total Loan Due Principal Amount" Name="applyHoliday" Value="False" @bind-Checked="fee.CalculateOnDuePrincipalAmount"></SfRadioButton>
                 </div>
-                <div class="row space">
+                <div class="row pace-sm">
                     <SfRadioButton TChecked="bool" Label="Total Loan Due Interest Amount" Name="applyHoliday" Value="True" @bind-Checked="fee.CalculateOnDueInterestamount"></SfRadioButton>
                 </div>
-                <div class="row space">
+                <div class="row pace-sm">
                     <SfRadioButton TChecked="bool" Label="Total Loan Due Principal and Interest Amount" Name="applyHoliday" Value="True" @bind-Checked="fee.CalculateOnDuePricipalAndInterest"></SfRadioButton>
                 </div>
             </div>
@@ -66,7 +80,7 @@
         </div>
         <br />
         <div class="row col-lg-12 col-md-12">
-            <div class="col-lg-4 col-md-4 text-right"">
+            <div class="col-lg-4 col-md-4 text-right">
                 <label>Deductable Fees</label>
             </div>
             <div class="col-lg-8 col-md-8">

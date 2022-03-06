@@ -29,6 +29,7 @@ namespace LoanMgt.SHARED
         public float MinimumLoanInterestRate { get; set; }
         public float DefaultLoanInterestRate { get; set; }
         public float MaximumLoanInterestRate { get; set; }
+        public float InterimInterest { get; set; }
         public int? LoanDurationId { get; set; }
         public int MinimumLoanDuration { get; set; }
         public int DefaultLoanDuration { get; set; }
