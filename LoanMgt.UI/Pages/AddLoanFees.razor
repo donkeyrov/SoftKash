@@ -31,29 +31,32 @@
         </div>
         <br />
         <div class="row col-lg-12 col-md-12">
-            <div class="col-lg-4 col-md-4 text-right"">
+            <div class="col-lg-4 col-md-4 text-right">
                 <label>Fee Calculation</label>
             </div>
             <div class="col-lg-8 col-md-8">
                 <div class="row pace-sm">
-                    <SfRadioButton TChecked="bool" Label="I want Fee to be a fixed amount" Name="feetype" Value="False" @bind-Checked="fee.Fixedamount"></SfRadioButton>
+                    <SfRadioButton TChecked="string" Label="I want Fee to be a fixed amount" Name="feetype" Value="Fixed"  @bind-Checked="sFixed"></SfRadioButton>
                 </div>
                 <div class="row pace-sm">
-                    <SfRadioButton TChecked="bool" Label="I want Fee to be percentage % based" Name="feetype" Value="True" @bind-Checked="fee.PercentageBased"></SfRadioButton>
+                    <SfRadioButton TChecked="string" Label="I want Fee to be percentage % based" Name="feetype" Value="Percentage" @bind-Checked="sFixed"></SfRadioButton>
+                </div>
+                <div class="row pace-sm">
+                    <InputNumber @bind-Value="fee.Amount" placeholder="Fee Value" id="feevalue" name="feevalue" class="form-control" />
                 </div>
             </div>
-        </div>
+        </div>                
         <br/>
         <div class="row col-lg-12 col-md-12">
-            <div class="col-lg-4 col-md-4 text-right"">
+            <div class="col-lg-4 col-md-4 text-right">
                 <label>Fee Type</label>
             </div>
             <div class="col-lg-8 col-md-8">
                 <div class="row pace-sm">
-                    <SfRadioButton TChecked="bool" Label="Capitalized Fee Type" Name="feecategory" Value="False" @bind-Checked="fee.Capitalized"></SfRadioButton>
+                    <SfRadioButton TChecked="string" Label="Capitalized Fee Type" Name="feecategory" Value="Capitalized" @bind-Checked="capitalized"></SfRadioButton>
                 </div>
                 <div class="row pace-sm">
-                    <SfRadioButton TChecked="bool" Label="Monthly Fee Type" Name="feecategory" Value="True" @bind-Checked="fee.Monthly"></SfRadioButton>
+                    <SfRadioButton TChecked="string" Label="Monthly Fee Type" Name="feecategory" Value="Monthly" @bind-Checked="capitalized"></SfRadioButton>
                 </div>
             </div>
         </div>
@@ -64,13 +67,13 @@
             </div>
             <div class="col-lg-8 col-md-8">
                 <div class="row pace-sm">
-                    <SfRadioButton TChecked="bool" Label="Total Loan Due Principal Amount" Name="applyHoliday" Value="False" @bind-Checked="fee.CalculateOnDuePrincipalAmount"></SfRadioButton>
+                    <SfRadioButton TChecked="string" Label="Total Loan Due Principal Amount" Name="applyHoliday" Value="Principal" @bind-Checked="principal"></SfRadioButton>
                 </div>
                 <div class="row pace-sm">
-                    <SfRadioButton TChecked="bool" Label="Total Loan Due Interest Amount" Name="applyHoliday" Value="True" @bind-Checked="fee.CalculateOnDueInterestamount"></SfRadioButton>
+                    <SfRadioButton TChecked="string" Label="Total Loan Due Interest Amount" Name="applyHoliday" Value="Interest" @bind-Checked="principal"></SfRadioButton>
                 </div>
                 <div class="row pace-sm">
-                    <SfRadioButton TChecked="bool" Label="Total Loan Due Principal and Interest Amount" Name="applyHoliday" Value="True" @bind-Checked="fee.CalculateOnDuePricipalAndInterest"></SfRadioButton>
+                    <SfRadioButton TChecked="string" Label="Total Loan Due Principal and Interest Amount" Name="applyHoliday" Value="PrincipalInterest" @bind-Checked="principal"></SfRadioButton>
                 </div>
             </div>
         </div>
@@ -99,14 +102,47 @@
 @code {
     [Parameter]
     public int feeId { get; set; } = 0;    
-    private LoanMgt.SHARED.Fee fee = new LoanMgt.SHARED.Fee();    
-    
+    private LoanMgt.SHARED.Fee fee = new LoanMgt.SHARED.Fee();  
+    private string sFixed = "Fixed";
+    private string capitalized = "Capitalized";
+    private string principal = "Principal";
+
     protected override void OnInitialized()
     {
         if (feeId > 0)
         {
             fee = Service.Get(feeId);
-            
+
+            if(fee.Fixedamount == true)
+            {
+                sFixed = "Fixed";
+            }
+            else
+            {
+                sFixed = "Percentage";
+            }
+
+            if(fee.Capitalized == true)
+            {
+                capitalized = "Capitalized";
+            }
+            else
+            {
+                capitalized = "Monthly";
+            }
+
+            if(fee.CalculateOnDuePrincipalAmount == true)
+            {
+                principal = "Principal";                
+            }
+            else if (fee.CalculateOnDueInterestamount == true)
+            {
+                principal = "Interest";                
+            }
+            else if(fee.CalculateOnDuePricipalAndInterest == true)
+            {
+                principal = "PrincipalInterest";                
+            }
         }
         else
         {
@@ -116,19 +152,62 @@
 
     protected void Process()
     {
+        if(sFixed == "Fixed")
+        {
+            fee.Fixedamount = true;
+            fee.PercentageBased = false;
+        }
+        else
+        {
+            fee.Fixedamount = false;
+            fee.PercentageBased = true;
+        }
+
+        if(capitalized == "Capitalized")
+        {
+            fee.Capitalized = true;
+            fee.Monthly = false;
+        }
+        else
+        {
+            fee.Capitalized = false;
+            fee.Monthly = true;
+        }
+
+        if(principal == "Principal")
+        {
+            fee.CalculateOnDuePrincipalAmount = true;
+            fee.CalculateOnDueInterestamount = false;
+            fee.CalculateOnDuePricipalAndInterest = false;
+        }
+        else if (principal == "Interest")
+        {
+            fee.CalculateOnDuePrincipalAmount = false;
+            fee.CalculateOnDueInterestamount = true;
+            fee.CalculateOnDuePricipalAndInterest = false;
+        }
+        else
+        {
+            fee.CalculateOnDuePrincipalAmount = false;
+            fee.CalculateOnDueInterestamount = false;
+            fee.CalculateOnDuePricipalAndInterest = true;
+        }
+
         fee.CreatedDate = DateTime.Now;
         fee.CreatedBy = "user";
 
         if (fee.FeeId == 0)
         {
             Service.Add(fee);
+            toastService.ShowSuccess("Loan Fee has been created", "System Information");
         }
         else
         {
             Service.Update(fee);
+            toastService.ShowSuccess("Loan Fee has been updated", "System Information");
         }
 
-        toastService.ShowSuccess("Loan Fee has been created", "System Information");
+        
         UriHelper.NavigateTo("/loanfees");
     }
 

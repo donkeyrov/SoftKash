@@ -32,7 +32,7 @@
                                     <option value="0">-- select --</option>
                                     @foreach (var item in fees)
                                     {
-                                        <option value="@item.FeeId">@item.Name - deduct from principal(@item.DeductFromPrincipalAmount)</option>
+                                        <option value="@item.FeeId">@item.Name - Capitalized: <b>@item.Capitalized</b> | Monthly: <b>@item.Monthly</b> | Value: <b>@item.Amount</b></option>
                                     }
                                 </InputSelect>
                             </div>
@@ -140,6 +140,14 @@
                         <InputNumber @bind-Value="loanProduct.MaximumPrincipalAmount" placeholder="Maximum Amount" id="maxAmount" name="maxAmount" class="form-control"/>
                     </div>
                 </div>
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4">
+                        <label for="step">Step</label>
+                    </div>
+                    <div class="col-lg-8 col-md-8">
+                        <InputNumber @bind-Value="loanProduct.Step" placeholder="Step" id="step" name="step" class="form-control"/>
+                    </div>
+                </div>
             </div>
         </div>
         <hr class="pace-md"/>
@@ -171,12 +179,12 @@
                     </div>
                     <div class="col-lg-8 col-md-8">
                         <div class="row pace-sm">
-                            <SfRadioButton Label="I want Interest to be percentage % based" Name="interestType" Value="True"  @bind-Checked="loanProduct.InterestIsPercentageBased" ></SfRadioButton>
+                            <SfRadioButton Label="I want Interest to be percentage % based" Name="interestType" Value="Percentage"  @bind-Checked="interestType" ></SfRadioButton>
                             &nbsp;
 
                         </div>
                         <div class="row">
-                            <SfRadioButton Label="I want Interest to be a fixed amount Per Cycle" Name="interestType" Value="False" @bind-Checked="loanProduct.InterestIsFixedAmountPerCycle" ></SfRadioButton>
+                            <SfRadioButton Label="I want Interest to be a fixed amount Per Cycle" Name="interestType" Value="Fixed" @bind-Checked="interestType" ></SfRadioButton>
                             &nbsp;
                         </div>
                         
@@ -188,7 +196,7 @@
                         <label>Loan Interest Period</label>
                     </div>
                     <div class="col-lg-8 col-md-8">
-                        <InputSelectNumber @bind-Value="loanProduct.InterestMethodId" id="interestMethod" name="interestMethod" class="form-control">
+                        <InputSelectNumber @bind-Value="loanProduct.LoanInterestPeriodId" id="interestMethod" name="interestMethod" class="form-control">
                             @foreach(var item in loanInterestPeriods)
                             {
                                 <option value="@item.LoanInterestPeriodId" >@item.Description</option>
@@ -380,18 +388,20 @@
                             </thead>
                             <tbody>
                                 @{int counter = 0;}
-                                @foreach(var item in loanFees)
+                                @if (loanFees != null)
                                 {
-                                    counter++;
-                                    <div class="row col-lg-12 col-md-12 pace-sm">
-                                        <div class="col-lg-1 col-md-1">@counter</div>
-                                        <div class="col-lg-8 col-md-8">@item.Fee.Name</div>
-                                        <div class="col-lg-3 col-md-3">
-                                            <button type="button" class="btn btn-secondary btn-sm" @onclick="@(()=>DeleteFee(@item.LoanFeeId))" >delete</button>
+                                    @foreach (var item in loanFees)
+                                    {
+                                        counter++;
+                                        <div class="row col-lg-12 col-md-12 pace-sm">
+                                            <div class="col-lg-1 col-md-1">@counter</div>
+                                            <div class="col-lg-8 col-md-8">@item.Fee.Name (value: @item.Fee.Amount)</div>
+                                            <div class="col-lg-3 col-md-3">
+                                                <button type="button" class="btn btn-secondary btn-sm" @onclick="@(()=>DeleteFee(@item.LoanFeeId))" >delete</button>
+                                            </div>
                                         </div>
-                                    </div>                                    
+                                    }
                                 }
-                                
                             </tbody>
 
                         </table>
@@ -438,6 +448,7 @@
     public LoanMgt.SHARED.LoanFee loanFee;
     public IEnumerable<LoanMgt.SHARED.Fee> fees;
     public LoanMgt.SHARED.Fee fee;
+    private string interestType = "Percentage";
     private bool popup = false;
     private bool showModal = false;
     private string title = "Default Title";
@@ -449,11 +460,20 @@
         if(loanProductId > 0)
         {
             loanProduct = Service.Get(loanProductId);
-            loanFees = loanFeeRepo.GetAll2().Where(f=> f.LoanId == loanProductId).ToList();
+            loanFees = loanFeeRepo.GetAll2().Where(f=> f.LoanId == loanProduct.LoanProductId).ToList();
+
+            if(loanProduct.InterestIsPercentageBased == true)
+            {
+                interestType = "Percentage";
+            }
+            else
+            {
+                interestType = "Fixed";
+            }
         }
         else
         {
-            branch = new SHARED.Branch();
+            branch = new SHARED.Branch();            
         }
 
         interestMethods = interestMethodRepo.GetAll();
@@ -465,26 +485,38 @@
 
     protected void Process()
     {
+        if(interestType == "Percentage")
+        {
+            loanProduct.InterestIsPercentageBased = true;
+            loanProduct.InterestIsFixedAmountPerCycle = false;
+        }
+        else
+        {
+            loanProduct.InterestIsPercentageBased = false;
+            loanProduct.InterestIsFixedAmountPerCycle = true;        
+        }
+
         //TODO complete adding of loan products
         if(loanProduct.LoanProductId == 0)
         {
             Service.Add(loanProduct);
+            toastService.ShowSuccess("Loan Product has been created", "System Information");
         }
         else
         {
             Service.Update(loanProduct);
+            toastService.ShowSuccess("Loan Product has been updated", "System Information");
         }
-
-        toastService.ShowSuccess("Loan Product has been created", "System Information");
+        
         UriHelper.NavigateTo("/loanproducts",true);
     }
 
     protected void ProcessFee()
     {
         //TODO complete adding of loan products
-        if(loanFee.LoanFeeId == 0 && loanProductId > 0)
+        if(loanFee.LoanFeeId == 0 && loanProduct.LoanProductId > 0)
         {
-            loanFee.LoanId = loanProductId;
+            loanFee.LoanId = loanProduct.LoanProductId;
             loanFee.CreatedBy = "user";
             loanFee.CreatedDate = DateTime.Now;
 
@@ -503,8 +535,8 @@
             }            
         }
 
-        loanFee = null;       
-        loanFees = loanFeeRepo.GetAll().Where(f=> f.LoanId == loanProductId).ToList();
+        loanFee = new SHARED.LoanFee();     
+        loanFees = loanFeeRepo.GetAll2().Where(f=> f.LoanId == loanProduct.LoanProductId).ToList();
     }
 
     protected void DeleteFee(int feeId)
@@ -523,7 +555,7 @@
         var lFee = loanFeeRepo.Get(id);
         loanFeeRepo.Remove(lFee);
 
-        loanFees = loanFeeRepo.GetAll2();
+        loanFees = loanFeeRepo.GetAll2().Where(f=> f.LoanId == loanProduct.LoanProductId).ToList();
         loanFeeId = 0;
         toastService.ShowWarning("Fee has been Deleted", "System Information");
     }

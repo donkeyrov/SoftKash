@@ -41,6 +41,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Utils" Version="6.0.2" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGenerators.Mvc" Version="6.0.2" />
     <PackageReference Include="Syncfusion.Blazor" Version="19.3.0.45" />
+    <PackageReference Include="Syncfusion.EJ.Export" Version="19.3.0.45" />
   </ItemGroup>
 
   <ItemGroup>

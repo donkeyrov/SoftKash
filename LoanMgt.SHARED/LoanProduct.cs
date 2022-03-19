@@ -51,6 +51,7 @@ namespace LoanMgt.SHARED
         public float lastRepaymentAmount { get; set; }
         public float OverrideRepaymentAmountTo { get; set; }
         public bool ProRataInterestCalculation { get; set; }
+        public float Step { get; set; }
         public string LoanScheduleDescription { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
