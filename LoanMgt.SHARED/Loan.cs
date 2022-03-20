@@ -52,6 +52,10 @@ namespace LoanMgt.SHARED
         public int LoanStatusId { get; set; }
         public string LoanTitle { get; set; }
         public string Description { get; set; }
+        public float? TotalDue { get; set; }
+        public float? EffectivePA { get; set; }
+        public float? TotalReturn { get; set; }
+        public float? TotalReturnPA { get; set; }
         public int ApproverStage { get; set; }
         public string FirstApprover { get; set; }
         public DateTime FirstApproverDate { get; set; }

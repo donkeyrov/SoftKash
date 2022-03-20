@@ -4,6 +4,7 @@ using LoanMgt.UI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LoanMgt.UI.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220320124853_aded group id to borrower entity")]
+    partial class adedgroupidtoborrowerentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -908,9 +910,6 @@ namespace LoanMgt.UI.Data.Migrations
                     b.Property<bool>("DoNotAdjustRemainingPayments")
                         .HasColumnType("bit");
 
-                    b.Property<float?>("EffectivePA")
-                        .HasColumnType("real");
-
                     b.Property<bool>("ExttendAfterMaturity")
                         .HasColumnType("bit");
 
@@ -1009,15 +1008,6 @@ namespace LoanMgt.UI.Data.Migrations
 
                     b.Property<string>("TimeToPostBetween")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<float?>("TotalDue")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("TotalReturn")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("TotalReturnPA")
-                        .HasColumnType("real");
 
                     b.Property<float>("lastRepaymentAmount")
                         .HasColumnType("real");

@@ -1,5 +1,4 @@
-﻿@page "/addloan"
-@page "/addloan/{loanId:int}"
+﻿@page "/approveloan/{loanId:int}"
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
@@ -17,7 +16,7 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
-<h3>Add Loan</h3>
+<h3>Approve Loan</h3>
 
 <div class="admin-link">
     <NavLink href="/viewallloans">Back to View Loans</NavLink>
@@ -30,29 +29,7 @@
         <div class="gray new-border2">
             <b>Required Field:</b>
         </div>
-        @*<div class="row col-lg-12 col-md-12 pace-md">
-            <div class="col-lg-4 col-md-4">
-                <label for="loanProductName">Loan Product</label>
-            </div>
-            <div class="col-lg-8 col-md-8">
-                <select placeholder="Loan Product" id="loanProductName" name="loanProductName" class="form-control" onchange=@OnValueChanged  >
-                    <option value="0">-- select --</option>
-                    @foreach (var item in loanProducts)
-                    {
-                        @if(item.LoanProductId == loan.LoanProductId)
-                        {
-                            <option value="@item.LoanProductId" selected="selected" >@item.Name </option>
-                        }
-                        else
-                        {
-                            <option value="@item.LoanProductId" >@item.Name </option>    
-                        }
-                        
-                    }
-                </select>                
-            </div>
-        </div>*@
-        
+               
         <div class="row col-lg-12 col-md-12 pace-md">
             <div class="col-lg-4 col-md-4">
                 <label for="borrower">Borrower</label>
@@ -318,9 +295,9 @@
         </div>
         <br />
         <div class="text-right pace-md">
-            @if(loan.LoanStatusId != 2)
+            @if(loan.LoanStatusId == 1 && loan.ApproverStage == 2)
             {
-                <button type="submit" class="btn btn-info" >Submit</button>
+                <button type="submit" class="btn btn-info" >Approve Loan</button>
             }
             else
             {

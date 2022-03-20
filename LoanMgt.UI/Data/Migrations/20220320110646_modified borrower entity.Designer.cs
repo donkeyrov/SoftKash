@@ -4,6 +4,7 @@ using LoanMgt.UI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LoanMgt.UI.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220320110646_modified borrower entity")]
+    partial class modifiedborrowerentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -275,9 +277,6 @@ namespace LoanMgt.UI.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("GenderId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("GroupId")
                         .HasColumnType("int");
 
                     b.Property<string>("LandLine")
@@ -709,9 +708,6 @@ namespace LoanMgt.UI.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("GroupLeaderBorrowerId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("GroupLeaderId")
                         .HasColumnType("int");
 
@@ -724,7 +720,7 @@ namespace LoanMgt.UI.Data.Migrations
 
                     b.HasKey("GroupId");
 
-                    b.HasIndex("GroupLeaderBorrowerId");
+                    b.HasIndex("GroupLeaderId");
 
                     b.ToTable("Groups");
                 });
@@ -908,9 +904,6 @@ namespace LoanMgt.UI.Data.Migrations
                     b.Property<bool>("DoNotAdjustRemainingPayments")
                         .HasColumnType("bit");
 
-                    b.Property<float?>("EffectivePA")
-                        .HasColumnType("real");
-
                     b.Property<bool>("ExttendAfterMaturity")
                         .HasColumnType("bit");
 
@@ -1009,15 +1002,6 @@ namespace LoanMgt.UI.Data.Migrations
 
                     b.Property<string>("TimeToPostBetween")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<float?>("TotalDue")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("TotalReturn")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("TotalReturnPA")
-                        .HasColumnType("real");
 
                     b.Property<float>("lastRepaymentAmount")
                         .HasColumnType("real");
@@ -2542,7 +2526,7 @@ namespace LoanMgt.UI.Data.Migrations
                 {
                     b.HasOne("LoanMgt.SHARED.Borrower", "GroupLeader")
                         .WithMany()
-                        .HasForeignKey("GroupLeaderBorrowerId");
+                        .HasForeignKey("GroupLeaderId");
 
                     b.Navigation("GroupLeader");
                 });

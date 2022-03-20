@@ -10,11 +10,13 @@
     <Content Remove="Areas\Identity\IdentityHostingStartup.cshtml" />
     <Content Remove="compilerconfig.json" />
     <Content Remove="Pages\AddLoanPenalty.razor" />
+    <Content Remove="Pages\ApproveLoan.razor" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="compilerconfig.json" />
     <None Include="Pages\AddLoanPenalty.razor" />
+    <None Include="Pages\ApproveLoan.razor" />
   </ItemGroup>
 
   <ItemGroup>
@@ -55,10 +57,15 @@
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Areas\Identity\IdentityHostingStartup.cshtml" />
     <_ContentIncludedByDefault Remove="Pages\AddLoanPenalty.razor" />
+    <_ContentIncludedByDefault Remove="Pages\ApproveLoan.razor" />
   </ItemGroup>
 
   <ItemGroup>
     <UpToDateCheckInput Remove="Areas\Identity\IdentityHostingStartup.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\ApproveLoan.razor" />
   </ItemGroup>
 
 </Project>

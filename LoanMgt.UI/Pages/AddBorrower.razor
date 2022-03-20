@@ -6,6 +6,7 @@
 @inject ProvinceRepository provinceRepo;
 @inject TitleRepository titleRepo;
 @inject GenderRepository genderRepo;
+@inject GroupRepository groupRepo;
 @inject WorkingStatusRepository workingStatusRepo;
 @inject NavigationManager UriHelper
 @inherits OwningComponentBase<BorrowerRepository>
@@ -58,6 +59,21 @@
                 </div>
                     
             </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4 pull-right">
+                    <label>Group</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="borrower.GroupId" id="group" name="group" class="form-control">
+                        <option value="0" >-- select --</option>
+                        @foreach(var item in groups)
+                        {
+                            <option value="@item.GroupId" >@item.Name</option> 
+                        }
+                    </InputSelectNumber>
+                </div>
+                    
+            </div>
             <br/>
             <hr/>
             <div class="row col-lg-12 col-md-12 pace-md">
@@ -92,6 +108,14 @@
                 <p><b>Optional Fields</b></p>
             </div>
             <br/>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="employeeno">Employee Number</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText @bind-Value="borrower.EmployeeNo" placeholder="Employee Number" id="employeeno" name="employeeno" class="form-control"/>
+                </div>
+            </div>
             <div class="row col-lg-12 col-md-12 pace-md">
                 <div class="col-lg-4 col-md-4">
                     <label for="nrc">NRC</label>
@@ -224,6 +248,7 @@
     public int BorrowerId { get; set; } = 0;
     private LoanMgt.SHARED.Borrower borrower = new SHARED.Borrower();
     public IEnumerable<LoanMgt.SHARED.Town> towns;     
+    public IEnumerable<LoanMgt.SHARED.Group> groups;     
     public IEnumerable<LoanMgt.SHARED.Province> provinces;
     public IEnumerable<LoanMgt.SHARED.Title> titles;
     public IEnumerable<LoanMgt.SHARED.Gender> genders ;
@@ -245,6 +270,7 @@
         genders = genderRepo.GetAll();
         titles = titleRepo.GetAll();
         workingStatuses = workingStatusRepo.GetAll();
+        groups = groupRepo.GetAll();
     }
 
     protected void Process()

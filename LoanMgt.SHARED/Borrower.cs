@@ -19,6 +19,10 @@ namespace LoanMgt.SHARED
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the lastname!")]
         public string Lastname { get; set; }
         public string BusinessName { get; set; }
+
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the Employee Number!")]
+        public string EmployeeNo { get; set; }
+
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the NRC!")]
         public string NRC { get; set; }
         public int? GenderId { get; set; }
@@ -27,6 +31,7 @@ namespace LoanMgt.SHARED
         public string? Email { get; set; }
         public DateTime DateOfBirth { get; set; }
         public string? Address { get; set; }
+        public int? GroupId { get; set; }
         public int TownId { get; set; }
         public int ProvinceId { get; set; }
         public string? ZipCode { get; set; }
@@ -44,6 +49,7 @@ namespace LoanMgt.SHARED
         public Town Town { get; set; }
         public Province Province { get; set; }
         public Status Status { get; set; }
+        //public Group Group { get; set; }
         public WorkingStatus WorkingStatus { get; set; }
 
     }
