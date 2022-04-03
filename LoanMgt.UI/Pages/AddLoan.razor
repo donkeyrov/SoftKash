@@ -318,7 +318,11 @@
         </div>
         <br />
         <div class="text-right pace-md">
-            @if(loan.LoanStatusId != 2)
+            @if(loan.LoanStatusId == 1 && loan.ApproverStage == 2 )
+            {
+                <button type="button" class="btn btn-info" @onclick="@(() => ShowDelete())" >Approve</button>
+            }
+            else if(loan.LoanStatusId != 2)
             {
                 <button type="submit" class="btn btn-info" >Submit</button>
             }
@@ -330,6 +334,11 @@
         </div>
     </EditForm>
 </div>
+
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> ApproveLoan())">
+    @childContent
+</Dialog>
 
 @code {
     [Parameter]
@@ -347,6 +356,13 @@
     public IEnumerable<LoanMgt.SHARED.Borrower> borrowers;
     private List<SHARED.LoanFee> loanFees = new List<SHARED.LoanFee>();
     string name = string.Empty;
+
+    private bool showModal = false;
+    private string title = "Default Title";
+    private string childContent = "Default Message";
+    private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+    private int titleId = 0;
+    private bool popup = false;
 
     protected async override void OnInitialized()
     {
@@ -405,9 +421,9 @@
 
         try
         {
-            loan.Cash = loanProduct.Cash;
-            loan.Cheque = loanProduct.Cheque;
-            loan.OnlineTransfer = loanProduct.OnlineTransfer;
+            //loan.Cash = loanProduct.Cash;
+            //loan.Cheque = loanProduct.Cheque;
+            //loan.OnlineTransfer = loanProduct.OnlineTransfer;
             //loan.DisbursementMethodId = loanProduct.DisbursementMethod.
 
             if(loan.PrincipalAmount == 0)
@@ -445,7 +461,7 @@
             float min = loanProduct.MinimumPrincipalAmount;
             float max = loanProduct.MaximumPrincipalAmount;
             float lAmount = loan.PrincipalAmount;
-            
+
             var iloan = new LoanMgt.SHARED.LoanTemp()
                 {
                     LoanRate = loanProduct.DefaultLoanInterestRate,
@@ -538,10 +554,10 @@
 
             double rate = Financial.Pmt(loanProduct.DefaultLoanInterestRate/100,(double)iloan.NumberOfMonths, interestBearingCapital * -1) + monthlyFee;
             iloan.MonthlyInstallment = (float)Math.Round(rate,2);
-            
+
             loan.FirstRepaymentAmount = iloan.MonthlyInstallment;
             loan.lastRepaymentAmount = iloan.MonthlyInstallment;
-            
+
             loan.TotalDue = (float)Math.Round(iloan.MonthlyInstallment * iloan.NumberOfMonths,2);
 
             double lValue = double.Parse(lAmount.ToString());
@@ -555,15 +571,33 @@
             }
             loan.TotalReturn = (float)Math.Round(((iloan.TotalDue - iloan.Capital) / iloan.Capital * 100),1);
             loan.TotalReturnPA = (float)Math.Round(((iloan.TotalReturn * 12) / iloan.NumberOfMonths),1);                
-            
+
             //----------------------------------------------------
         }
         catch(Exception ex)
         {              
         }
 
-        
     }
 
-    
+    private void ShowDelete()
+    {        
+        modalType = Component.ModalTypes.Confirm;
+        title = "Approve Loan";
+        childContent = "Do You Want To Approve This Loan(" + loan.LoanTitle + ")?";
+        showModal = true;
+    }
+
+    private void ApproveLoan()
+    {
+        //re-calculate loan values
+
+        //create customer account
+
+        //post all initial transactions to the customer account
+
+        //create repayments structure
+        showModal = false;
+        toastService.ShowSuccess("Loan has been approved", "System Information");
+    }
 }

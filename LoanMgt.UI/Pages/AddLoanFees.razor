@@ -3,6 +3,7 @@
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
+@inject TransactionCodeRepository tranCodeRepo;
 @inherits OwningComponentBase<FeeRepository>
 
 <h3>Add Loan Fees</h3>
@@ -90,7 +91,21 @@
                 <SfCheckBox Label="Deduct Fee from Principal Amount?" @bind-Checked="fee.DeductFromPrincipalAmount"></SfCheckBox>
             </div>
         </div>
-
+         <br />
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4 text-right">
+                <label>Transaction Code</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <InputSelectNumber @bind-Value="fee.TransactionCodeId" placeholder="Country Code" id="countrycode" name="countrycode" class="form-control">
+                    <option value="0">--- select ---</option>
+                    @foreach (var item in transactionCodes)
+                        {
+                        <option value="@item.TransactionCodeId">@item.Description</option>
+                        }
+                </InputSelectNumber>
+            </div>
+        </div>
 
         <hr />
         <div class="text-right pace-md">
@@ -102,7 +117,8 @@
 @code {
     [Parameter]
     public int feeId { get; set; } = 0;    
-    private LoanMgt.SHARED.Fee fee = new LoanMgt.SHARED.Fee();  
+    private LoanMgt.SHARED.Fee fee = new LoanMgt.SHARED.Fee();
+    private List<SHARED.TransactionCode> transactionCodes = new List<SHARED.TransactionCode>(); 
     private string sFixed = "Fixed";
     private string capitalized = "Capitalized";
     private string principal = "Principal";
@@ -148,6 +164,8 @@
         {
             fee = new SHARED.Fee();
         }
+
+        transactionCodes = tranCodeRepo.GetAll().ToList();
     }
 
     protected void Process()

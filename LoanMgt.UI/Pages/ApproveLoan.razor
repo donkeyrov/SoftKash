@@ -1,4 +1,5 @@
 ﻿@page "/approveloan/{loanId:int}"
+@using LoanMgt.SHARED;
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
@@ -10,6 +11,8 @@
 @inject LoanProductRepository loanProductRepo;
 @inject BorrowerRepository BorrowerRepo;
 @inject LoanFeeRepository loanFeeRepo;
+@inject TransactionRepository tranRepo;
+@inject TransactionCodeRepository tranCodeRepo;
 @inherits OwningComponentBase<LoanRepository>
 @using Microsoft.VisualBasic;
 @inject AuthenticationStateProvider GetAuthenticationStateAsync
@@ -322,7 +325,9 @@
     public IEnumerable<LoanMgt.SHARED.RepaymentCycle> repaymentCycles;
     public IEnumerable<LoanMgt.SHARED.LoanProduct> loanProducts;
     public IEnumerable<LoanMgt.SHARED.Borrower> borrowers;
-    private List<SHARED.LoanFee> loanFees = new List<SHARED.LoanFee>();
+    private LoanMgt.SHARED.Transaction transaction;
+    private LoanMgt.SHARED.TransactionCode transactionCode;
+    private List<LoanFee> loanFees = new List<LoanFee>();
     string name = string.Empty;
 
     protected async override void OnInitialized()
@@ -338,8 +343,8 @@
         }
         else
         {
-            branch = new SHARED.Branch();
-            loan = new SHARED.Loan();
+            branch = new Branch();
+            loan = new Loan();
             loan.LoanReleaseDate = DateTime.Now;
         }
 
@@ -356,12 +361,149 @@
         //TODO complete adding of loan products
         if(loan.LoanId == 0)
         {
-            loan.LoanStatusId = 1;
+            loan.LoanStatusId = 2;
             loan.ApproverStage = 2;
             loan.CreatedBy = name;
             loan.CreatedDate = DateTime.Now;
 
             Service.Add(loan);
+
+            //------------------ post loan transactions ------------------------------
+            try
+            {
+
+
+                //------------- calculate loan fees -------------------
+                int duration = loanProduct.MaximumNumberOfRepayments;
+                float step = loanProduct.Step;
+                float min = loanProduct.MinimumPrincipalAmount;
+                float max = loanProduct.MaximumPrincipalAmount;
+                float lAmount = loan.PrincipalAmount;
+
+                var iloan = new LoanMgt.SHARED.LoanTemp()
+                    {
+                        LoanRate = loanProduct.DefaultLoanInterestRate,
+                        NumberOfMonths = loanProduct.DefaultNumberOfRePayments,
+                        Capital = (float)Math.Round(lAmount,2)
+                    };
+
+                float capitalizedFee = 0;
+
+                foreach (var item in loanFees.Where(f => f.Fee.Capitalized == true).ToList() )
+                {
+                    float value = 0;
+                    if (item.Fee.Fixedamount)
+                    {
+                        value = item.Fee.Amount;
+                    }
+                    else
+                    {
+                        value = (item.Fee.Amount / 100) * lAmount;
+                    }
+                    capitalizedFee += (float)Math.Round(value,2);
+
+                    //get transaction code from fee
+                    transactionCode = tranCodeRepo.Get(item.Fee.TransactionCodeId);
+
+                    //create transaction
+                    transaction = new LoanMgt.SHARED.Transaction();
+
+                    transaction = tranRepo.Get(1);
+
+                    if(item.Fee.Name.Contains("origination",StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        iloan.OriginationFee = (float)Math.Round(value,2);
+                    }
+                    else if(item.Fee.Name.Contains("insurance",StringComparison.CurrentCultureIgnoreCase) && item.Fee.Amount > 0)
+                    {
+                        iloan.Insurance1 = (float)Math.Round(value,2);
+                    }
+                    else if(item.Fee.Name.Contains("legislative",StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        iloan.LegislativeFee = (float)Math.Round(value,2);
+                    }
+                    else if(item.Fee.Name.Contains("stamp",StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        iloan.StampDuty = (float)Math.Round(value,2);
+                    }
+                    else if(item.Fee.Name.Contains("levy",StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        iloan.Levy = (float)Math.Round(value,2);
+                    }
+                    else if(item.Fee.Name.Contains("credit",StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        iloan.CreditBureauFee = (float)Math.Round(value,2);
+                    }
+                }
+
+                float totalCapitalized = capitalizedFee + lAmount;
+                iloan.CapitalizedTotal = (float)Math.Round(totalCapitalized,2);                            
+
+                float interimInterest = (totalCapitalized * loanProduct.InterimInterest * 12 * loanProduct.DefaultLoanDuration)/36500;
+                iloan.InterimInterest = (float)Math.Round(interimInterest,2);
+
+                float interestBearingCapital = interimInterest + totalCapitalized;
+                iloan.InterestBearingCapital = (float)Math.Round(interestBearingCapital,2);
+
+                float monthlyFee = 0;
+
+                foreach (var item in loanFees.Where(f => f.Fee.Monthly == true).ToList() )
+                {
+                    float value = 0;
+                    if (item.Fee.Fixedamount)
+                    {
+                        value = item.Fee.Amount;
+                    }
+                    else
+                    {
+                        value = (item.Fee.Amount / 100) * lAmount;
+                    }
+                    monthlyFee += (float)Math.Round(value,2);
+
+                    if(item.Fee.Name.Contains("service",StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        iloan.ServiceFee = (float)Math.Round(value,2);
+                    }
+                    else if(item.Fee.Name.Contains("insurance",StringComparison.CurrentCultureIgnoreCase) && item.Fee.Amount == 0)
+                    {
+                        iloan.Insurance2 = (float)Math.Round(value,2);
+                    }
+                    else if(item.Fee.Name.Contains("collection",StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        iloan.CollectionFee = (float)Math.Round(value,2);
+                    }
+                    else if(item.Fee.Name.Contains("monthly",StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        iloan.MonthlyFee = (float)Math.Round(value,2);
+                    }               
+                }
+                
+                double rate = Financial.Pmt(loanProduct.DefaultLoanInterestRate/100,(double)iloan.NumberOfMonths, interestBearingCapital * -1) + monthlyFee;
+                iloan.MonthlyInstallment = (float)Math.Round(rate,2);
+            
+                loan.FirstRepaymentAmount = iloan.MonthlyInstallment;
+                loan.lastRepaymentAmount = iloan.MonthlyInstallment;
+            
+                loan.TotalDue = (float)Math.Round(iloan.MonthlyInstallment * iloan.NumberOfMonths,2);
+
+                double lValue = double.Parse(lAmount.ToString());
+                try
+                {
+                    loan.EffectivePA = (float)Math.Round(Financial.Rate((double)duration, (double)rate * -1, lValue, 0) * 12 * 100,1);
+                }
+                catch
+                { 
+                    loan.EffectivePA = 0;
+                }
+                loan.TotalReturn = (float)Math.Round(((iloan.TotalDue - iloan.Capital) / iloan.Capital * 100),1);
+                loan.TotalReturnPA = (float)Math.Round(((iloan.TotalReturn * 12) / iloan.NumberOfMonths),1);                
+            
+                //----------------------------------------------------
+            }
+            catch(Exception ex)
+            {              
+            }
+            //------------------------------------------------------------------------
         }
         else
         {
