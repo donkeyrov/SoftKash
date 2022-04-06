@@ -38,8 +38,9 @@ namespace LoanMgt.UI
             Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((context, config) =>
                 {
-                    var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri"));
-                    config.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
+                        var keyVaultEndpoint = new Uri(string.IsNullOrEmpty(Environment.GetEnvironmentVariable("VaultUri"))? $"https://loanmgtuivault.vault.azure.net/" : Environment.GetEnvironmentVariable("VaultUri"));
+                        config.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
+                                        
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
