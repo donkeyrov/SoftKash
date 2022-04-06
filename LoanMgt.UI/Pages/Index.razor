@@ -44,7 +44,7 @@
 </style>
 
 <div class="login-form">
-    <EditForm Model="user" OnValidSubmit="@Process">
+    <EditForm Model="Model" OnValidSubmit="@Process">
         
         <div class="mb-3 text-center title">
             <span>SoftKash Loan Management</span>
@@ -54,16 +54,16 @@
             <ValidationSummary />
         </div>
         <div class="form-group">
-            <InputText @bind-Value="user.Email" class="form-control" placeholder="Username" />
+            <InputText @bind-Value="Model.Email" class="form-control" placeholder="Username" />
             <span asp-validation-for="Input.Email" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <InputText type="password" @bind-Value="user.PasswordHash" class="form-control" placeholder="Password" />
+            <InputText type="password" @bind-Value="Model.Password" class="form-control" placeholder="Password" />
             <span asp-validation-for="Input.Password" class="text-danger"></span>
         </div>
         <div class="checkbox mb-3">
             <label>
-                <input type="checkbox" @bind="user.EmailConfirmed"> Remember me
+                <input type="checkbox" @bind="Model.RememberMe"> Remember me
             </label>
         </div>
         @if (!string.IsNullOrEmpty(Model.Error))
