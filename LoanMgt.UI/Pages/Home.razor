@@ -9,8 +9,12 @@
 
 
 <AuthorizeView>
-<h3>Home @context.User.Identity.Name!</h3>
-
+    <Authorized>
+        <h3>Home @context.User.Identity.Name!</h3>
+    </Authorized>
+    <NotAuthorized>
+       <h3>Not Logged In</h3>
+    </NotAuthorized>
 </AuthorizeView>
 @code {
 
