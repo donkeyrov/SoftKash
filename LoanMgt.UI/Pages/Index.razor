@@ -118,7 +118,8 @@
             if (result.Succeeded)
             {
                 Guid key = BlazorCookieLoginMiddleware<IdentityUser>.AnnounceLogin(Model);
-                UriHelper.NavigateTo($"/login?key={key}", true);
+                //UriHelper.NavigateTo($"/login?key={key}", true);
+                UriHelper.NavigateTo("/home");
             }
             else
             {
