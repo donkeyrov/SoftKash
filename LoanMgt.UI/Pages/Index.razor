@@ -43,7 +43,7 @@
     }
 </style>
 
-@*<div class="login-form">
+<div class="login-form">
     <EditForm Model="user" OnValidSubmit="@Process">
         
         <div class="mb-3 text-center title">
@@ -61,43 +61,102 @@
             <InputText type="password" @bind-Value="user.PasswordHash" class="form-control" placeholder="Password" />
             <span asp-validation-for="Input.Password" class="text-danger"></span>
         </div>
+        <div class="checkbox mb-3">
+            <label>
+                <input type="checkbox" @bind="user.EmailConfirmed"> Remember me
+            </label>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.Error))
+        {
+            <div class="alert alert-danger mt-2 mb-2" role="alert">
+               @Model.Error
+            </div>
+        }
         <div class="form-group">
             <button class="btn btn-primary btn-block">Log in</button>
         </div>
         
     </EditForm>
-</div>*@
+</div>
+@if(processing)
+{
 <div class="row">
       <div class="loader">
           <img src="/images/loadingimage.gif">
       </div>
   </div>
+}
 @code
 {
     SHARED.User user = new SHARED.User();
+    private bool processing = false;
+
+    private LoginModel<IdentityUser> Model { get; set; } = new LoginModel<IdentityUser>();
 
     protected override async void OnInitialized()
     {
         // Clear the existing external cookie to ensure a clean login process
-           // await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        // await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
-        UriHelper.NavigateTo("/Identity/Account/Login",true);
+        //UriHelper.NavigateTo("/Identity/Account/Login",true);
     }
 
     protected async void Process()
     {
-        var myUser = UserManager.FindByEmailAsync(user.Email);
-
-        
-        var result = await SignInManager.PasswordSignInAsync(userName: user.Email,password: user.PasswordHash, isPersistent: true, lockoutOnFailure: true);
-        if (result.Succeeded)
+         Model.Error = null;
+        var usr = await UserManager.FindByEmailAsync(Model.Email);
+        if (usr == null)
         {
-            UriHelper.NavigateTo("/home");
+            Model.Error = "Login failed. Check your username and password.";
+            return;
+        }
+
+
+        if (await SignInManager.CanSignInAsync(usr))
+        {
+            var result = await SignInManager.CheckPasswordSignInAsync(usr, Model.Password, true);
+            if (result.Succeeded)
+            {
+                Guid key = BlazorCookieLoginMiddleware<IdentityUser>.AnnounceLogin(Model);
+                UriHelper.NavigateTo($"/login?key={key}", true);
+            }
+            else
+            {
+                Model.Error = "Login failed. Check your username and password.";
+            }
         }
         else
         {
-            toastService.ShowWarning("User Could Not be Logged In", "System Information");
+            Model.Error = "Your account is blocked";
         }
+
+        //HttpContext httpContext = _context.GetContext();
+
+        //var myUser = UserManager.FindByEmailAsync(user.Email);
+        
+        //var result = await SignInManager.PasswordSignInAsync(user.Email, user.PasswordHash ,isPersistent:false  , lockoutOnFailure: false);
+        //if (result.Succeeded)
+        //{
+        //    UriHelper.NavigateTo("/home");
+        //}        
+        //if (result.IsLockedOut)
+        //{           
+        //    toastService.ShowWarning("User account locked out.", "System Information");
+        //}
+        //else
+        //{            
+        //    toastService.ShowWarning("Invalid login attempt.", "System Information");
+        //}
+
+        //var result = await SignInManager.PasswordSignInAsync(userName: user.Email,password: user.PasswordHash, isPersistent: true, lockoutOnFailure: true);
+        //if (result.Succeeded)
+        //{
+        //    UriHelper.NavigateTo("/home");
+        //}
+        //else
+        //{
+        //    toastService.ShowWarning("User Could Not be Logged In", "System Information");
+        //}
          
     }
 }

@@ -83,6 +83,7 @@ namespace LoanMgt.UI
             services.AddTransient<GroupRepository>();
             services.AddTransient<WorkingStatusRepository>();
             services.AddTransient<LoanRepository>();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -111,6 +112,8 @@ namespace LoanMgt.UI
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseMiddleware<BlazorCookieLoginMiddleware<IdentityUser>>();
 
             app.UseEndpoints(endpoints =>
             {
