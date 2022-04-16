@@ -11,5 +11,6 @@ namespace LoanMgt.UI.Repositories
     /// </summary>
     public interface ITransactionRepository : IGenericRepository<Transaction>
     {
+        public IEnumerable<Transaction> TransactionTotals();
     }
 }

@@ -1,16 +1,22 @@
 {
   "dependencies": {
+    "signalr1": {
+      "ignored": "true",
+      "suggestion": "true",
+      "type": "signalr",
+      "connectionId": ""
+    },
     "mssql1": {
+      "ignored": "true",
+      "suggestion": "true",
       "type": "mssql",
       "connectionId": "ConnectionStrings:DefaultConnection"
     },
-    "signalr1": {
-      "type": "signalr",
-      "connectionId": "Azure:SignalR:ConnectionString"
-    },
     "secrets1": {
+      "ignored": "true",
+      "suggestion": "true",
       "type": "secrets",
-      "connectionId": "VaultUri"
+      "connectionId": ""
     }
   }
 }

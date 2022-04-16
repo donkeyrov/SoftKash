@@ -12,21 +12,6 @@ using Azure.Identity;
 
 namespace LoanMgt.UI
 {
-    //public class Program
-    //{
-    //    public static void Main(string[] args)
-    //    {
-    //        CreateHostBuilder(args).Build().Run();
-    //    }
-
-    //    public static IHostBuilder CreateHostBuilder(string[] args) =>
-    //        Host.CreateDefaultBuilder(args)
-    //            .ConfigureWebHostDefaults(webBuilder =>
-    //            {
-    //                webBuilder.UseStartup<Startup>();
-    //            });
-    //}
-
     public class Program
     {
         public static void Main(string[] args)
@@ -36,12 +21,6 @@ namespace LoanMgt.UI
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((context, config) =>
-                {
-                        var keyVaultEndpoint = new Uri(string.IsNullOrEmpty(Environment.GetEnvironmentVariable("VaultUri"))? $"https://loanmgtuivault.vault.azure.net/" : Environment.GetEnvironmentVariable("VaultUri"));
-                        config.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
-                                        
-                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

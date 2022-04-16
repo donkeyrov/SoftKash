@@ -40,6 +40,7 @@ namespace LoanMgt.SHARED
         public float? CreditScore { get; set; }
         public byte[]? Photo { get; set; }
         public int? StatusId { get; set; }
+        public int? AccountTypeId { get; set; }
         public string? Details { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
@@ -48,6 +49,7 @@ namespace LoanMgt.SHARED
         public Title Title { get; set; }
         public Town Town { get; set; }
         public Province Province { get; set; }
+        public AccountType AccountType { get; set; }
         public Status Status { get; set; }
         //public Group Group { get; set; }
         public WorkingStatus WorkingStatus { get; set; }

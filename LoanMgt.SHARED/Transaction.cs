@@ -25,6 +25,7 @@ namespace LoanMgt.SHARED
         public string UserId { get; set; }
         public string CustomerNo { get; set; }
         public int BranchId { get; set; }
+        public int BorrowerId { get; set; }
         public bool Reconciled { get; set; }
         public bool Archived { get; set; }
         public string TaxMonth { get; set; }

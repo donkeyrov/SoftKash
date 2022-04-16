@@ -4,6 +4,7 @@ using LoanMgt.UI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LoanMgt.UI.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220408103659_added account type to borrower")]
+    partial class addedaccounttypetoborrower
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1963,9 +1965,6 @@ namespace LoanMgt.UI.Data.Migrations
 
                     b.Property<string>("BatchRef")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("BorrowerId")
-                        .HasColumnType("int");
 
                     b.Property<int>("BranchId")
                         .HasColumnType("int");

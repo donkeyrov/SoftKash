@@ -9,6 +9,8 @@
 @inject GroupRepository groupRepo;
 @inject WorkingStatusRepository workingStatusRepo;
 @inject NavigationManager UriHelper
+@inject AccountTypeRepository accountTypeRepo;
+@inject AccountRepository accountRepo;
 @inherits OwningComponentBase<BorrowerRepository>
 
 <h3>Add Borrower</h3>
@@ -69,6 +71,21 @@
                         @foreach(var item in groups)
                         {
                             <option value="@item.GroupId" >@item.Name</option> 
+                        }
+                    </InputSelectNumber>
+                </div>
+                    
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4 pull-right">
+                    <label>Account Type</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="borrower.AccountTypeId" id="accounttype" name="accounttype" class="form-control">
+                        <option value="0" >-- select --</option>
+                        @foreach(var item in accountTypes)
+                        {
+                            <option value="@item.AccountTypeId" >@item.Desciption</option> 
                         }
                     </InputSelectNumber>
                 </div>
@@ -252,7 +269,9 @@
     public IEnumerable<LoanMgt.SHARED.Province> provinces;
     public IEnumerable<LoanMgt.SHARED.Title> titles;
     public IEnumerable<LoanMgt.SHARED.Gender> genders ;
+    public IEnumerable<LoanMgt.SHARED.AccountType> accountTypes;
     public IEnumerable<LoanMgt.SHARED.WorkingStatus> workingStatuses ;
+    private LoanMgt.SHARED.Account account;
 
     protected override void OnInitialized()
     {
@@ -265,6 +284,7 @@
             borrower = new SHARED.Borrower();
         }
 
+        accountTypes = accountTypeRepo.GetAll();
         towns = townRepo.GetAll();
         provinces = provinceRepo.GetAll();
         genders = genderRepo.GetAll();
@@ -282,9 +302,24 @@
             borrower.Town = null;
             borrower.Gender = null;
             borrower.Title = null;
+            borrower.AccountType = null;
 
             borrower.CreatedBy= "sa";
             borrower.CreatedDate = DateTime.Now;
+
+            //create customer account
+            account = new SHARED.Account()
+            {
+                Code = borrower.EmployeeNo,
+                AccountName = borrower.Firstname + " " + borrower.Lastname,
+                AccountTypeId = int.Parse(borrower.AccountTypeId.ToString()),
+                Active = true,
+                CurrencyId = 1,
+                Credit = 0,
+                Debit = 0
+            };
+
+            accountRepo.Add(account);
 
             Service.Add(borrower);
             toastService.ShowSuccess("Borrower has been created", "System Information");
