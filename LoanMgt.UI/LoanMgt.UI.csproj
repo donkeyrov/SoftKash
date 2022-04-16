@@ -68,6 +68,7 @@
     <_ContentIncludedByDefault Remove="Areas\Identity\IdentityHostingStartup.cshtml" />
     <_ContentIncludedByDefault Remove="Pages\AddLoanPenalty.razor" />
     <_ContentIncludedByDefault Remove="Pages\ApproveLoan.razor" />
+    <_ContentIncludedByDefault Remove="Pages\ViewStatement.razor" />
   </ItemGroup>
 
   <ItemGroup>
@@ -79,7 +80,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Uploads\" />
     <Folder Include="Properties\ServiceDependencies\local\" />
+    <Folder Include="wwwroot\Uploads\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\ViewStatement.razor" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,89 @@
+﻿@page "/viewstatement/{borrowerId:int}" 
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inject LoanProductRepository loanProductRepo;
+@inject BorrowerRepository borrowerRepo;
+@inject TransactionRepository tranRepo;
+@inherits OwningComponentBase<LoanRepository>
+
+<h3>View Statement</h3>
+
+<div style="display:flex;">
+    <div style="padding-left:10px;"><b>NAME:</b> @borrower.Firstname @borrower.Lastname</div>
+    <div style="padding-left:10px;"><b>NRC:</B> @borrower.NRC</div>
+    <div style="padding-left:10px;"><b>EMPLOYEE NO:</b> @borrower.EmployeeNo</div>
+</div>
+<div style="display:flex;margin-top:15px;margin-bottom:10px;">
+    <div style="padding-left:10px;"><b>PHONE:</b> @borrower.Mobile</div>
+    <div style="padding-left:10px;"><b>EMAIL:</b> @borrower.Email</div>
+    <div style="padding-left:10px;"><b>ADDRESS:</b> @borrower.Address</div>
+</div>
+
+<div class="col-lg-12 control-section">
+    <div class="content-wrapper">
+        <div class="row">
+            <SfGrid ID="Grid" @ref="Grid" DataSource="@transactions" Toolbar="@(new List<string>()  { "ExcelExport","CsvExport","Search" })" AllowExcelExport=true AllowPdfExport="true">
+                <GridEvents OnToolbarClick="ToolbarClick" TValue="LoanMgt.SHARED.Transaction"></GridEvents>
+                <GridColumns>
+                    <GridColumn Field=@nameof(transaction.TransactionDate) HeaderText="Tran Date"></GridColumn>
+                    <GridColumn Field=@nameof(transaction.TransactionType) HeaderText="Tran Type" TextAlign="TextAlign.Left" ></GridColumn>
+                    <GridColumn Field=@nameof(transaction.Description) HeaderText="Description" TextAlign="TextAlign.Left" ></GridColumn>
+                    <GridColumn Field=@nameof(transaction.Reference) HeaderText="Reference"></GridColumn>
+                    <GridColumn Field=@nameof(transaction.Debit) HeaderText="Debit"></GridColumn>
+                    <GridColumn Field=@nameof(transaction.Credit) HeaderText="Credit"></GridColumn>
+                    <GridColumn Field=@nameof(transaction.Balance) HeaderText="Balance"></GridColumn>
+                    <GridColumn>
+                        <Template>
+                            @{
+                                var mBorrower = (context as LoanMgt.SHARED.Borrower);
+                                <SfButton @onclick="@((args) => EditRecord(args,mBorrower))" IsToggle="true" CssClass="e-success e-small">Statement</SfButton>
+                            }
+                        </Template>
+                    </GridColumn>
+
+                </GridColumns>
+            </SfGrid>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public int borrowerId { get; set; } = 0;  
+    private LoanMgt.SHARED.Transaction transaction = new LoanMgt.SHARED.Transaction();
+    private LoanMgt.SHARED.Borrower borrower = new LoanMgt.SHARED.Borrower();
+    private IEnumerable<LoanMgt.SHARED.Loan> loans { get; set; } = new List<LoanMgt.SHARED.Loan>();
+    private IEnumerable<LoanMgt.SHARED.LoanProduct> loanProducts { get; set; } = new List<LoanMgt.SHARED.LoanProduct>();
+    private IEnumerable<LoanMgt.SHARED.Borrower> borrowers { get; set; } = new List<LoanMgt.SHARED.Borrower>();
+    private IEnumerable<LoanMgt.SHARED.Transaction> transactions { get; set; } = new List<LoanMgt.SHARED.Transaction>();
+    SfGrid<LoanMgt.SHARED.Transaction> Grid;
+
+    protected override void OnInitialized()
+    {
+        borrower = borrowerRepo.Get(borrowerId);
+        transactions = tranRepo.GetAll().Where(t => t.BorrowerId == borrowerId).ToList();
+    }
+
+    protected void EditRecord(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, LoanMgt.SHARED.Borrower myBorrower)
+    {
+        //iHelper.NavigateTo("/viewstatement/"+ myBorrower.BorrowerId);
+    }
+
+    public void ToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        if (args.Item.Id == "Grid_pdfexport")
+        {
+           this.Grid.PdfExport();
+        }
+        else if (args.Item.Id == "Grid_excelexport")
+        {
+           this.Grid.ExcelExport();
+        }
+        else
+        {
+           this.Grid.CsvExport();
+        }
+    }
+}

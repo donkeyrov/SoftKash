@@ -1,11 +1,30 @@
 ﻿@page "/bulkrepayments" 
+
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
+@inject LoanProductRepository loanProductRepo;
+@inject BorrowerRepository borrowerRepo;
+@inject TransactionRepository tranRepo;
+@inherits OwningComponentBase<LoanRepository>
 
+<h3>Bulk Repayments</h3>
 
-<h3>BulkRepayments</h3>
+<SfUploader AllowedExtensions=".csv, .txt" AutoUpload="false">
+    <UploaderEvents ValueChange="OnChange"></UploaderEvents>
+</SfUploader>
 
 @code {
 
+    private void OnChange(UploadChangeEventArgs args)
+    {
+        foreach (var file in args.Files)
+        {
+            var path = @"Uploads/" + file.FileInfo.Name;
+            FileStream filestream = new FileStream(path, FileMode.Create, FileAccess.Write);
+            file.Stream.WriteTo(filestream);
+            filestream.Close();
+            file.Stream.Close();
+        }
+    }
 }
