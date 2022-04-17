@@ -68,5 +68,6 @@ namespace LoanMgt.UI.Data
         public DbSet<OtherIncomeType> OtherIncomeTypes { get; set; }
         public DbSet<Collector> Collectors { get; set; }
         public DbSet<AssetManagementType> AssetManagementTypes { get; set; }
+        public DbSet<TransactionTemp> TransactionTemps { get; set; }
     }
 }

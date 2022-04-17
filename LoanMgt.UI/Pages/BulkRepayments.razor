@@ -1,4 +1,5 @@
 ﻿@page "/bulkrepayments" 
+@using System.Text.RegularExpressions
 
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
@@ -21,10 +22,94 @@
         foreach (var file in args.Files)
         {
             var path = @"Uploads/" + file.FileInfo.Name;
+
+            //check if file exisits
+            if(File.Exists(path))
+            {
+                toastService.ShowError($"File '{file.FileInfo.Name}' has already been uploaded, process terminating", "System Information");
+                return;
+            }
+
             FileStream filestream = new FileStream(path, FileMode.Create, FileAccess.Write);
             file.Stream.WriteTo(filestream);
             filestream.Close();
             file.Stream.Close();
+
+            int counter = 0;
+            Regex rx = new Regex(@"\d{6}/\d{2}/\d{1}", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+            //read uploaded file
+            StreamReader sr = new StreamReader(path);
+            while(sr.Peek() != -1)
+            {
+                counter++;
+                string line = sr.ReadLine();
+
+                if(line.StartsWith("|Pers."))
+                {
+                    counter = 98;
+                }
+                else if(line.StartsWith("|Personnel"))
+                {
+                    counter = 0;
+                }
+
+                if(counter >= 100)
+                {
+                    //process the input line
+                    string[] arLine = line.Split(" ");
+                    string manNo = string.Empty;
+                    string EmployeeNo = string.Empty;
+                    string nrc = string.Empty;
+                    string amount = string.Empty;
+                    string period = string.Empty;
+
+                    foreach (var item in arLine)
+                    {
+                        if(!string.IsNullOrEmpty(item))
+                        {
+                            double outValue = 0;
+
+                            if (amount == string.Empty  && !string.IsNullOrEmpty(period))
+                            {
+                                if (double.TryParse(item, out outValue))
+                                {
+                                    amount = item;
+                                    break;
+                                }
+
+                            }
+
+                            if(period == string.Empty && !string.IsNullOrEmpty(nrc))
+                            {
+                                period = item;
+                            }
+
+                            if(nrc == string.Empty && !string.IsNullOrEmpty(manNo))
+                            {
+                                if (rx.IsMatch(item))
+                                    nrc = item;
+                            }
+
+                            if(manNo == string.Empty && !string.IsNullOrEmpty(EmployeeNo))
+                            {                                
+                                if (double.TryParse(item, out outValue))
+                                    manNo = item;
+                            }
+
+                            if (EmployeeNo == string.Empty)
+                            {
+                                if (double.TryParse(item, out outValue))
+                                    EmployeeNo = item;
+
+                            }                            
+                                                        
+                        }//end foreach
+                    }
+                    //post to transactions temp
+
+                }
+            }
         }
     }
 }
