@@ -2,9 +2,163 @@
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
+@inject LoanProductRepository loanProductRepo;
+@inject BorrowerRepository borrowerRepo;
+@inject TransactionRepository tranRepo;
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inherits OwningComponentBase<TransactionTempRepository>
 
-<h3>ApproveRepayments</h3>
+<h3>Approve Repayments</h3>
+
+<div class="col-lg-12 control-section">
+    <div class="content-wrapper">
+        <div class="row">
+            <SfGrid @ref="Grid"  DataSource="@transactionTemps" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                <GridColumns>
+                    <GridColumn Field=@nameof(transactionTemp.ManNo) HeaderText="Man No."></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.EmployeeNo) HeaderText="Employee No." TextAlign="TextAlign.Left" ></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.Name) HeaderText="Name" TextAlign="TextAlign.Left" ></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.Nrc) HeaderText="Nrc"></GridColumn>
+                    
+                    <GridColumn Field=@nameof(transactionTemp.Description) HeaderText="Description" TextAlign="TextAlign.Left" ></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.Amount) HeaderText="Amount" TextAlign="TextAlign.Left" ></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.Approved) HeaderText="Approve" TextAlign="TextAlign.Left" ></GridColumn>
+
+                    <GridColumn>
+                        <Template>
+                            @{
+                                var tran = (context as LoanMgt.SHARED.TransactionTemp);
+                                if(tran.Approved == false)
+                                {
+                                    <SfButton @onclick="@((args) => EditRecord(args,tran))" IsToggle="true" CssClass="e-success e-small">Approve</SfButton>
+                                }
+                                else
+                                {
+                                    <SfButton @onclick="@((args) => EditRecord2(args,tran))" IsToggle="true" CssClass="e-warn e-small">DisApprove</SfButton>
+                                }
+                            }
+                        </Template>
+                    </GridColumn>
+
+                </GridColumns>
+            </SfGrid>
+        </div>
+    </div>
+</div>
+<div class="pace-md">
+    <button @onclick="@(() => ShowDelete())" class="btn btn-lg btn-info pull-left" >Post RePayments</button>
+</div>
+
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> PostPayments())">
+    @childContent
+</Dialog>
 
 @code {
+    SfGrid<SHARED.TransactionTemp> Grid { get; set; } 
+    string name = string.Empty;
+    string userID = string.Empty;
+    List<SHARED.TransactionTemp> transactionTemps = new List<SHARED.TransactionTemp>();
+    List<SHARED.TransactionTemp> errorTemps = new List<SHARED.TransactionTemp>();
+    SHARED.TransactionTemp transactionTemp = new SHARED.TransactionTemp();
 
+    private bool showModal = false;
+    private string title = "Default Title";
+    private string childContent = "Default Message";
+    private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+    private int tranId = 0;    
+    private bool popup = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        name = user.Identity.Name;
+        userID = UserManager.GetUserId(user);
+
+        transactionTemps = Service.GetAll().Where(t => t.Posted == false).ToList();
+    }
+
+    protected void EditRecord(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, LoanMgt.SHARED.TransactionTemp myTran)
+    {
+        showModal = false;
+        myTran.Approved = true; 
+        transactionTemps.Find(t => t.TransactionTempId == myTran.TransactionTempId).Approved = true;
+        StateHasChanged();
+        //Grid.Refresh(); 
+
+    }
+
+    protected void EditRecord2(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, LoanMgt.SHARED.TransactionTemp myTran)
+    {
+        showModal = false;
+        myTran.Approved = false;
+        transactionTemps.Find(t => t.TransactionTempId == myTran.TransactionTempId).Approved = false;
+        StateHasChanged();
+        // Grid.Refresh(); 
+    }
+
+    private void ShowDelete()
+    {        
+        modalType = Component.ModalTypes.Confirm;
+        title = "Post Payments";
+        childContent = "Do You Want To Process These Payments?";
+        showModal = true;
+    }
+
+    protected void PostPayments()
+    {
+        showModal = false;
+
+        //process payments by posting to transactions
+        var payments = transactionTemps.Where(t=> t.Approved == true).ToList();
+
+        foreach(var item in payments)
+        {
+            //update temp transaction
+            item.Posted = true;
+            item.ApprovedDate = DateTime.Now;
+            item.ApprovedBy = name;
+            item.Approved = true;
+            Service.Update(item);
+
+            var borrower = borrowerRepo.GetAll().Where(b => b.NRC == item.Nrc).FirstOrDefault();
+
+            //post transaction
+            //post repayment amount to CR of customer
+            var transaction = new SHARED.Transaction()
+            {
+                CustomerNo = item.EmployeeNo,
+                Debit = 0,
+                Credit = Math.Round(item.Amount,2),
+                Description = item.Description,
+                TransactionType = "INV",
+                CurrencyCode = "ZMW",
+                TransactionDate = DateTime.Now,
+                AccountCode = item.EmployeeNo,
+                TaxAmount = 0,
+                Balance = 0,
+                Archived = false,
+                Reconciled = false,
+                UnitPrice = 0,
+                UserId = name,
+                BatchRef = "",
+                BranchId = 1,
+                TaxTypeId = 1,
+                AccountingYear = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString(),
+                TaxMonth = DateTime.Now.Month.ToString(),
+                BorrowerId = borrower.BorrowerId
+            };
+            tranRepo.Add(transaction);
+
+            //
+        }
+
+        transactionTemps = Service.GetAll().Where(t => t.Posted == false).ToList();
+
+        toastService.ShowWarning("Payments have been posted!", "System Information");
+    }
 }
+ 

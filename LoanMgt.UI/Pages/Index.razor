@@ -1,4 +1,4 @@
-﻿
+﻿@layout LogonLayout;
 @page "/"
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
@@ -24,7 +24,7 @@
 
 <style>
     body {
-        background: #f7f7f7;
+        background: #4169e1;
         height: 100%;
     }
     .login-form {
@@ -54,8 +54,41 @@
         font-weight: 700;
         font-family: verdana;
     }
+    .container{
+        display:flex;
+        height:100%;
+        margin-top:70px;
+    }
+    .container .left{
+        width:50%;
+        height: 100%;
+        color:#FFF;
+        padding:30px 30px 30px 30px;
+    }
+    .container .right 
+    {
+        width:50%;
+        min-height:500px;
+        border-radius:10px;
+        height: 100%;
+        background-color:#FFF;
+        padding:30px 30px 30px 30px;
+    }
 </style>
 
+<div class="text-right fixed-top">
+    <button @onclick="btnClicked" class="btn btn-lg btn-secondary" style="margin-top:10px;margin-right:10px;" >Member Login</button>
+</div>
+
+<div class="container">
+    <div class="left">
+        left side
+        
+    </div>
+    <div class="right">
+        right side
+    </div>
+</div>
 
 @if(processing)
 {
@@ -76,10 +109,13 @@
     {
         // Clear the existing external cookie to ensure a clean login process
         // await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-        processing = true;
-        UriHelper.NavigateTo("/Identity/Account/Login",true);
+        //processing = true;
+        //UriHelper.NavigateTo("/Identity/Account/Login",true);
     }
 
-    
+    private void btnClicked()
+    {
+        UriHelper.NavigateTo("/Identity/Account/Login",true);
+    }
 }
 

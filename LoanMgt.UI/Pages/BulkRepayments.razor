@@ -6,7 +6,10 @@
 @inject NavigationManager UriHelper
 @inject LoanProductRepository loanProductRepo;
 @inject BorrowerRepository borrowerRepo;
-@inject TransactionRepository tranRepo;
+@inject TransactionTempRepository tranRepo;
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
 @inherits OwningComponentBase<LoanRepository>
 
 <h3>Bulk Repayments</h3>
@@ -15,7 +18,61 @@
     <UploaderEvents ValueChange="OnChange"></UploaderEvents>
 </SfUploader>
 
+<div class="col-lg-12 control-section">
+    <h3>Successful Transactions</h3>
+    <div class="content-wrapper">
+        <div class="row">
+            <SfGrid DataSource="@transactionTemps" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                <GridColumns>
+                    <GridColumn Field=@nameof(transactionTemp.TransactionDate) HeaderText="Date"></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.Nrc) HeaderText="NRC" TextAlign="TextAlign.Left" ></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.ManNo) HeaderText="Man No." TextAlign="TextAlign.Left" ></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.EmployeeNo) HeaderText="Employee No."></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.Name) HeaderText="Name"></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.Description) HeaderText="Description"></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.Amount) HeaderText="Amount"></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.Period) HeaderText="Accounting Period"></GridColumn>                        
+                </GridColumns>
+            </SfGrid>
+        </div>
+    </div>
+</div>
+<div class="col-lg-12 control-section">
+    <h3>Failed Transactions</h3>
+    <div class="content-wrapper">
+        <div class="row">
+            <SfGrid DataSource="@errorTemps" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                <GridColumns>
+                    <GridColumn Field=@nameof(transactionTemp.TransactionDate) HeaderText="Date"></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.Nrc) HeaderText="NRC" TextAlign="TextAlign.Left" ></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.ManNo) HeaderText="Man No." TextAlign="TextAlign.Left" ></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.EmployeeNo) HeaderText="Employee No."></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.Name) HeaderText="Name"></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.Description) HeaderText="Description"></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.Amount) HeaderText="Amount"></GridColumn>
+                    <GridColumn Field=@nameof(transactionTemp.Period) HeaderText="Accounting Period"></GridColumn>                        
+                </GridColumns>
+            </SfGrid>
+        </div>
+    </div>
+</div>
+
 @code {
+    string name = string.Empty;
+    string userID = string.Empty;
+    List<SHARED.TransactionTemp> transactionTemps = new List<SHARED.TransactionTemp>();
+    List<SHARED.TransactionTemp> errorTemps = new List<SHARED.TransactionTemp>();
+    SHARED.TransactionTemp transactionTemp;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        name = user.Identity.Name;
+        userID = UserManager.GetUserId(user);
+
+
+    }
 
     private void OnChange(UploadChangeEventArgs args)
     {
@@ -27,7 +84,7 @@
             if(File.Exists(path))
             {
                 toastService.ShowError($"File '{file.FileInfo.Name}' has already been uploaded, process terminating", "System Information");
-                return;
+                //return;
             }
 
             FileStream filestream = new FileStream(path, FileMode.Create, FileAccess.Write);
@@ -103,13 +160,64 @@
                                     EmployeeNo = item;
 
                             }                            
-                                                        
-                        }//end foreach
-                    }
-                    //post to transactions temp
 
+                        }
+                    }//end foreach
+
+                    //get borrower on nrc
+                    var borrower = borrowerRepo.GetAll().Where(b => b.NRC == nrc).FirstOrDefault();
+
+                    if (borrower != null && !string.IsNullOrEmpty(nrc))
+                    {
+                        //post to transactions temp
+                        SHARED.TransactionTemp temp = new SHARED.TransactionTemp()
+                            {
+                                TransactionDate = DateTime.Now,
+                                Approved = false,
+                                Amount = float.Parse(amount),
+                                EmployeeNo = EmployeeNo,
+                                ManNo = manNo,
+                                Description = "Loan Repayment",
+                                ApprovedBy = "",
+                                Nrc = nrc,
+                                Period = period,
+                                UploadDate = DateTime.Now,
+                                UploadedBy = name,
+                                Posted = false,
+                                Name = $"{borrower.Firstname} {borrower.Lastname}"
+                            };
+
+                        transactionTemps.Add(temp);
+                    }
+                    else if (borrower == null && !string.IsNullOrEmpty(nrc))
+                    {
+                        SHARED.TransactionTemp temp = new SHARED.TransactionTemp()
+                            {
+                                TransactionDate = DateTime.Now,
+                                Approved = false,
+                                Amount = float.Parse(amount),
+                                EmployeeNo = EmployeeNo,
+                                ManNo = manNo,
+                                Description = "Loan Repayment",
+                                ApprovedBy = "",
+                                Nrc = nrc,
+                                Period = period,
+                                UploadDate = DateTime.Now,
+                                UploadedBy = name,
+                                Posted = false,
+                                Name = $"Borrower not found"
+                            };
+
+                        errorTemps.Add(temp);
+                    }
+                    StateHasChanged();
                 }
-            }
+            }//end while
+
+            tranRepo.AddRange(transactionTemps);
+            tranRepo.AddRange(errorTemps);
+
+            toastService.ShowSuccess("Completed Processing Transactions!", "System Information");
         }
     }
 }

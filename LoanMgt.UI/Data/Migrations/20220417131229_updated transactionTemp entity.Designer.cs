@@ -4,6 +4,7 @@ using LoanMgt.UI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LoanMgt.UI.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220417131229_updated transactionTemp entity")]
+    partial class updatedtransactionTempentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2173,9 +2175,6 @@ namespace LoanMgt.UI.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nrc")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Period")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("Posted")
