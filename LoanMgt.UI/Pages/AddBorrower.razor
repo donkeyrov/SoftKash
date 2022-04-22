@@ -11,6 +11,9 @@
 @inject NavigationManager UriHelper
 @inject AccountTypeRepository accountTypeRepo;
 @inject AccountRepository accountRepo;
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
 @inherits OwningComponentBase<BorrowerRepository>
 
 <h3>Add Borrower</h3>
@@ -272,9 +275,14 @@
     public IEnumerable<LoanMgt.SHARED.AccountType> accountTypes;
     public IEnumerable<LoanMgt.SHARED.WorkingStatus> workingStatuses ;
     private LoanMgt.SHARED.Account account;
+    string name = string.Empty;
 
-    protected override void OnInitialized()
+    protected async override void OnInitialized()
     {
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        name = user.Identity.Name;
+
         if(BorrowerId > 0)
         {
             borrower = Service.Get(BorrowerId);
@@ -304,7 +312,7 @@
             borrower.Title = null;
             borrower.AccountType = null;
 
-            borrower.CreatedBy= "sa";
+            borrower.CreatedBy= name;
             borrower.CreatedDate = DateTime.Now;
 
             //create customer account

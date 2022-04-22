@@ -12,7 +12,7 @@ namespace LoanMgt.SHARED
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int BorrowerId { get; set; }
+        public int InvestorId { get; set; }
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the firstname!")]
         public string Firstname { get; set; }
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the lastname!")]
