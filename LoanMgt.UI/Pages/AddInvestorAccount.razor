@@ -1,5 +1,5 @@
 ﻿@page "/addinvestoraccount"
-@page "/addinvestoraccount/{Investor Id:int}"
+@page "/addinvestoraccount/{InvestorId:int}"
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject TownRepository townRepo;
@@ -114,14 +114,7 @@
                 <p><b>Optional Fields</b></p>
             </div>
             <br/>
-            <div class="row col-lg-12 col-md-12 pace-md">
-                <div class="col-lg-4 col-md-4">
-                    <label for="employeeno">Employee Number</label>
-                </div>
-                <div class="col-lg-8 col-md-8">
-                    <InputText @bind-Value="investor.EmployeeNo" placeholder="Employee Number" id="employeeno" name="employeeno" class="form-control"/>
-                </div>
-            </div>
+            
             <div class="row col-lg-12 col-md-12 pace-md">
                 <div class="col-lg-4 col-md-4">
                     <label for="nrc">NRC</label>

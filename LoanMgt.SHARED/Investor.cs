@@ -18,10 +18,7 @@ namespace LoanMgt.SHARED
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the lastname!")]
         public string Lastname { get; set; }
         public string BusinessName { get; set; }
-
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the Employee Number!")]
-        public string EmployeeNo { get; set; }
-
+                
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the NRC!")]
         public string NRC { get; set; }
         public int? GenderId { get; set; }
