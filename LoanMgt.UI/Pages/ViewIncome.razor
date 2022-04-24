@@ -2,9 +2,54 @@
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
+@inject OtherIncomeTypeRepository otherIncomeTypeRepo;
+@inject AccountRepository accountRepo;
+@inherits OwningComponentBase<OtherIncomeRepository >
 
-<h3>ViewIncome</h3>
+<h3>View Income</h3>
+
+<div class="col-lg-12 control-section">
+    <div class="content-wrapper">
+        <div class="row">
+            <SfGrid DataSource="@otherIncomes" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                <GridColumns>
+                    <GridColumn Field=@nameof(otherIncome.IncomeDate) HeaderText="Tran Date" TextAlign="TextAlign.Left" ></GridColumn>
+                    <GridColumn Field=@nameof(otherIncome.ReceiptNo) HeaderText="Receipt No." TextAlign="TextAlign.Left" ></GridColumn>
+                    <GridColumn Field=@nameof(otherIncome.Description) HeaderText="Description"></GridColumn>
+                    <GridColumn Field=@nameof(otherIncome.Amount) HeaderText="Amount"></GridColumn>
+                    <GridForeignColumn Field=@nameof(otherIncome.OtherIncomeTypeId) HeaderText="Income Type" TextAlign="TextAlign.Left" ForeignKeyValue="Name" Format="d" ForeignDataSource="@otherIncomeTypes"  AutoFit=true ></GridForeignColumn>
+                    <GridForeignColumn Field=@nameof(otherIncome.AccountId) HeaderText="Account Type" TextAlign="TextAlign.Left" ForeignKeyValue="AccountName" Format="d" ForeignDataSource="@accounts"  AutoFit=true ></GridForeignColumn>
+                    <GridColumn>
+                        <Template>
+                            @{
+                                var mIncome = (context as LoanMgt.SHARED.OtherIncome);
+                                <SfButton @onclick="@((args) => EditRecord(args,mIncome))" IsToggle="true" CssClass="e-success e-small">Settings</SfButton>
+                            }
+                        </Template>
+                    </GridColumn>
+
+                </GridColumns>
+            </SfGrid>
+        </div>
+    </div>
+</div>
 
 @code {
+    private LoanMgt.SHARED.OtherIncome otherIncome = new LoanMgt.SHARED.OtherIncome();
+    private IEnumerable<LoanMgt.SHARED.OtherIncome> otherIncomes { get; set; } = new List<LoanMgt.SHARED.OtherIncome>();
 
+    private IEnumerable<LoanMgt.SHARED.OtherIncomeType> otherIncomeTypes { get; set; } = new List<LoanMgt.SHARED.OtherIncomeType>();
+    private IEnumerable<LoanMgt.SHARED.Account> accounts { get; set; } = new List<LoanMgt.SHARED.Account>();
+
+    protected override void OnInitialized()
+    {
+        otherIncomes = Service.GetAll();
+        accounts = accountRepo.GetAll();
+        otherIncomeTypes = otherIncomeTypeRepo.GetAll();
+    }
+
+    protected void EditRecord(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, LoanMgt.SHARED.OtherIncome myIncome)
+    {
+        UriHelper.NavigateTo("/addincome/"+ myIncome.OtherIncomeId);
+    }
 }

@@ -26,8 +26,7 @@ namespace LoanMgt.SHARED
         public string? Mobile { get; set; }
         public string? Email { get; set; }
         public DateTime DateOfBirth { get; set; }
-        public string? Address { get; set; }
-        public int? GroupId { get; set; }
+        public string? Address { get; set; }        
         public int TownId { get; set; }
         public int ProvinceId { get; set; }
         public string? ZipCode { get; set; }

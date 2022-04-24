@@ -1,10 +1,153 @@
 ﻿@page "/addexpenses" 
+@page "/addexpenses/{expenseId:int}"
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
+@inject ExpenseTypeRepository expenseTypeRepo;
+@inject AccountRepository accountRepo;
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inherits OwningComponentBase<ExpenseRepository>
 
-<h3>AddExpenses</h3>
+<h3>Add Expenses</h3>
 
+<div class="admin-link">
+    <NavLink href="/viewexpenses">Back to Expenses</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div class="col-lg-12 control-section">
+        <EditForm Model="expense" OnValidSubmit="@Process">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+             <div class="gray new-border pace-md">
+                <p><b>Required Fields</b></p>
+            </div>
+
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4 pull-right">
+                    <label>Expense Type</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="expense.ExpenseTypeId" id="expenseType" name="expenseType" class="form-control">
+                        <option value="0" >-- select --</option>
+                        @foreach(var item in expenseTypes)
+                        {
+                            <option value="@item.ExpenseTypeId" >@item.Name</option>
+                        }
+                    </InputSelectNumber>
+                </div>
+                    
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4 pull-right">
+                    <label>Account</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="expense.AccountId" id="accouuntId" name="acountId" class="form-control">
+                        <option value="0" >-- select --</option>
+                        @foreach(var item in accounts)
+                        {                            
+                            <option value="@item.AccountId" >@item.AccountName</option>  
+                        }
+                    </InputSelectNumber>
+                </div>
+                    
+            </div>
+                        
+            <br/>
+            <hr/>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="expenseDate">Transaction Date</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputDate @bind-Value="expense.ExpenseDate" placeholder="Expense Date" id="expenseDate" name="expenseDate" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="invoiceNo">Invoice No.</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText @bind-Value="expense.InvoiceNo" placeholder="Invoice Number" id="invoiceNo" name="invoiceNo" class="form-control"/>
+                </div>
+            </div>
+            
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="description">Description</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText @bind-Value="expense.Description" placeholder="Description" id="description" name="description" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="amount">Amount</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputNumber @bind-Value="expense.Amount" placeholder="Amount" id="amount" name="amount" class="form-control"/>
+                </div>
+            </div>
+                        
+            <br />
+            <div class="text-right pace-md">
+                <button type="submit" class="btn btn-info" >Submit</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
 @code {
+    [Parameter]
+    public int expenseId { get; set; } = 0;
+    private LoanMgt.SHARED.Expense expense = new SHARED.Expense();
+    public IEnumerable<LoanMgt.SHARED.ExpenseType> expenseTypes;
+    public IEnumerable<LoanMgt.SHARED.Account> accounts;
+    private LoanMgt.SHARED.Account account;
+    string name = string.Empty;
+    string username = string.Empty;
 
+    protected override async void OnInitialized()
+    {
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        name = user.Identity.Name;
+        
+        if(expenseId > 0)
+        {
+            expense = Service.Get(expenseId);
+        }
+        else
+        {
+            expense = new SHARED.Expense();
+        }
+
+        expenseTypes = expenseTypeRepo.GetAll();
+        accounts = accountRepo.GetAllWithType().Where(a => a.AccountType.Desciption.ToUpper().Contains("EXPENSE")).ToList();
+    }
+
+    protected void Process()
+    {
+        //TODO complete adding of loan products
+        if(expense.ExpenseId == 0)
+        {
+            expense.ExpenseType = null;
+            expense.Account = null;            
+            
+            expense.CreatedBy= name;
+            expense.DateCreated = DateTime.Now;            
+
+            Service.Add(expense);
+            toastService.ShowSuccess("Expense has been created", "System Information");
+        }
+        else
+        {
+            Service.Update(expense);
+            toastService.ShowSuccess("Expense has been updated", "System Information");
+        }
+                
+        UriHelper.NavigateTo("/viewexpenses",true);
+    }
 }

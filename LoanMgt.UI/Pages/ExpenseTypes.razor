@@ -1,0 +1,173 @@
+﻿@page "/expensetypes"
+@using LoanMgt.UI.Components
+@using LoanMgt.UI.Repositories
+@using Microsoft.JSInterop
+@using Blazored.Toast.Services
+@using System
+@using LoanMgt.UI.Pages
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inherits OwningComponentBase<ExpenseTypeRepository>
+
+<h3>Other Income Types</h3>
+<div class="admin-link">
+    <NavLink href="/admin">Back to Admin</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div style="margin-bottom:10px;">
+        <button class="btn btn-primary oi oi-plus" @onclick="()=>openModal(true)"> Add New Record</button>
+    </div>
+
+    <br />
+    @if (popup)
+    {
+        <div class="modal modal2" tabindex="-1" style="display:block;">
+            <div class="modal-dialog modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @if (expenseType.ExpenseTypeId > 0)
+                        {
+                            <h5 class="modal-title">Edit Expense Type</h5>
+                        }
+                        else
+                        {
+                            <h5 class="modal-title">Add New Expense Type</h5>
+                        }
+
+                    </div>
+                    <EditForm Model="expenseType" OnValidSubmit="@Process">
+                        <div class="modal-body">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div>
+                                <div class="space">
+                                    <label for="expensetypename">Name</label>
+                                    <InputText @bind-Value="expenseType.Name" placeholder="Expense Type Name" id="expensetypename" name="expensetypename" class="form-control" />
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="closeModal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid DataSource="@expenseTypes" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                    <GridColumns>
+                        <GridColumn Field=@nameof(expenseType.Name) HeaderText="Name"></GridColumn>
+
+                        <GridColumn MaxWidth="70">
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.ExpenseType);
+                                    <SfButton @onclick="@(() => EditRecord(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn MaxWidth="70">
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.ExpenseType);
+                                    <SfButton @onclick="@(() => ShowDelete(rType))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </div>
+    </div>
+</div>
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(expenseType))">
+    @childContent
+</Dialog>
+@code {
+    private LoanMgt.SHARED.ExpenseType expenseType = new LoanMgt.SHARED.ExpenseType();
+    private IEnumerable<LoanMgt.SHARED.ExpenseType> expenseTypes { get; set; } = new List<LoanMgt.SHARED.ExpenseType>();
+
+    private bool showModal = false;
+    private string title = "Default Title";
+    private string childContent = "Default Message";
+    private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+    private int expenseTypeId = 0;
+    private bool popup = false;
+
+    protected override void OnInitialized()
+    {
+        expenseTypes = Service.GetAll();
+    }
+
+    protected void Process()
+    {
+        closeModal();
+
+        if (string.IsNullOrEmpty(expenseType.ExpenseTypeId.ToString()) || expenseType.ExpenseTypeId == 0)
+        {
+            expenseType.CreatedDate = DateTime.Now;
+            expenseType.CreatedBy = "USER";
+
+            Service.Add(expenseType);
+            toastService.ShowSuccess("Expense type has been created", "System Information");
+        }
+        else
+        {
+            Service.Update(expenseType);
+            toastService.ShowInfo("Expense type has been updated!", "System Information");
+        }
+
+        expenseType = new LoanMgt.SHARED.ExpenseType();
+        expenseTypes = Service.GetAll();
+    }
+
+    private void ShowDelete(LoanMgt.SHARED.ExpenseType rType)
+    {
+        expenseTypeId = rType.ExpenseTypeId;
+        expenseType = rType;
+        modalType = Component.ModalTypes.Delete;
+        title = "Delete Record";
+        childContent = "Do You Want To Delete This Record(" + expenseType.Name + ")?";
+        showModal = true;
+    }
+
+    protected void EditRecord(LoanMgt.SHARED.ExpenseType rType)
+    {
+        expenseType = rType;
+        openModal();
+    }
+
+    protected void DeletetRecord(LoanMgt.SHARED.ExpenseType rType)
+    {
+        showModal = false;
+        Service.Remove(rType);
+
+        expenseTypeId = 0;
+        expenseType = new LoanMgt.SHARED.ExpenseType();
+        expenseTypes = Service.GetAll();
+
+        toastService.ShowWarning("Expense type has been Deleted", "System Information");
+    }
+
+    void openModal(bool reset = false)
+    {
+        if (reset == true)
+            expenseType = new SHARED.ExpenseType();
+
+        popup = true;
+    }
+
+    void closeModal()
+    {
+        popup = false;
+    }
+}

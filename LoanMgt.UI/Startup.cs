@@ -86,9 +86,10 @@ namespace LoanMgt.UI
             services.AddTransient<TransactionTempRepository>();
             services.AddTransient<CollateralRepository>();
             services.AddTransient<ExpenseRepository>();
-            services.AddTransient<ExpenseRepository>();
+            services.AddTransient<ExpenseTypeRepository>();
             services.AddTransient<InvestorRepository>();
             services.AddTransient<OtherIncomeRepository>();
+            services.AddTransient<OtherIncomeTypeRepository>();
             services.AddTransient<AttachmentFilesRepository>();
 
         }

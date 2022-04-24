@@ -1,10 +1,154 @@
 ﻿@page "/addincome"
+@page "/addincome/{incomeId:int}"
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
+@inject OtherIncomeTypeRepository incomeTypeRepo;
+@inject AccountRepository accountRepo;
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inherits OwningComponentBase<OtherIncomeRepository>
 
-<h3>AddIncome</h3>
+<h3>Add Income</h3>
+
+<div class="admin-link">
+    <NavLink href="/viewincome">Back to Income</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div class="col-lg-12 control-section">
+        <EditForm Model="otherIncome" OnValidSubmit="@Process">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+             <div class="gray new-border pace-md">
+                <p><b>Required Fields</b></p>
+            </div>
+
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4 pull-right">
+                    <label>Expense Type</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="otherIncome.OtherIncomeTypeId" id="expenseType" name="expenseType" class="form-control">
+                        <option value="0" >-- select --</option>
+                        @foreach(var item in otherIncomeTypes)
+                        {
+                            <option value="@item.OtherIncomeTypeId" >@item.Name</option>
+                        }
+                    </InputSelectNumber>
+                </div>
+                    
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4 pull-right">
+                    <label>Account</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="otherIncome.AccountId" id="accouuntId" name="acountId" class="form-control">
+                        <option value="0" >-- select --</option>
+                        @foreach(var item in accounts)
+                        {                            
+                            <option value="@item.AccountId" >@item.AccountName</option>  
+                        }
+                    </InputSelectNumber>
+                </div>
+                    
+            </div>
+                        
+            <br/>
+            <hr/>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="incomeDate">Transaction Date</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputDate @bind-Value="otherIncome.IncomeDate" placeholder="Income Date" id="incomeDate" name="incomeDate" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="invoiceNo">Invoice No.</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText @bind-Value="otherIncome.ReceiptNo" placeholder="Invoice Number" id="invoiceNo" name="invoiceNo" class="form-control"/>
+                </div>
+            </div>
+            
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="description">Description</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText @bind-Value="otherIncome.Description" placeholder="Description" id="description" name="description" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="amount">Amount</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputNumber @bind-Value="otherIncome.Amount" placeholder="Amount" id="amount" name="amount" class="form-control"/>
+                </div>
+            </div>
+                        
+            <br />
+            <div class="text-right pace-md">
+                <button type="submit" class="btn btn-info" >Submit</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
 
 @code {
+    [Parameter]
+    public int incomeId { get; set; } = 0;
+    private LoanMgt.SHARED.OtherIncome otherIncome = new SHARED.OtherIncome();
+    public IEnumerable<LoanMgt.SHARED.OtherIncomeType> otherIncomeTypes;     
+    public IEnumerable<LoanMgt.SHARED.Account> accounts;       
+    private LoanMgt.SHARED.Account account;
+    string name = string.Empty;
+    string username = string.Empty;
 
+    protected override async void OnInitialized()
+    {
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        name = user.Identity.Name;
+
+        if(incomeId > 0)
+        {
+            otherIncome = Service.Get(incomeId);
+        }
+        else
+        {
+            otherIncome = new SHARED.OtherIncome();
+        }
+
+        otherIncomeTypes = incomeTypeRepo.GetAll();
+        accounts = accountRepo.GetAllWithType().Where(a => a.AccountType.Desciption.ToUpper().Contains("INCOME")).ToList();
+    }
+
+    protected void Process()
+    {
+        //TODO complete adding of loan products
+        if(otherIncome.OtherIncomeId == 0)
+        {
+            otherIncome.OtherIncomeType = null;
+            otherIncome.Account = null;            
+            
+            otherIncome.CreatedBy= name;
+            otherIncome.DateCreated = DateTime.Now;            
+
+            Service.Add(otherIncome);
+            toastService.ShowSuccess("Other Income has been created", "System Information");
+        }
+        else
+        {
+            Service.Update(otherIncome);
+            toastService.ShowSuccess("Other Income has been updated", "System Information");
+        }
+                
+        UriHelper.NavigateTo("/viewincome",true);
+    }
 }

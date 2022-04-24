@@ -2,9 +2,53 @@
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
+@inject ExpenseTypeRepository expenseTypeRepo;
+@inject AccountRepository accountRepo;
+@inherits OwningComponentBase<ExpenseRepository>
 
-<h3>ViewExpenses</h3>
+<h3>View Expenses</h3>
+
+<div class="col-lg-12 control-section">
+    <div class="content-wrapper">
+        <div class="row">
+            <SfGrid DataSource="@expenses" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                <GridColumns>
+                    <GridColumn Field=@nameof(expense.ExpenseDate) HeaderText="Tran Date" TextAlign="TextAlign.Left" ></GridColumn>
+                    <GridColumn Field=@nameof(expense.InvoiceNo) HeaderText="Invoice No." TextAlign="TextAlign.Left" ></GridColumn>
+                    <GridColumn Field=@nameof(expense.Description) HeaderText="Description"></GridColumn>
+                    <GridColumn Field=@nameof(expense.Amount) HeaderText="Amount"></GridColumn>
+                    <GridForeignColumn Field=@nameof(expense.ExpenseTypeId) HeaderText="Expense Type" TextAlign="TextAlign.Left" ForeignKeyValue="Name" Format="d" ForeignDataSource="@expenseTypes"  AutoFit=true ></GridForeignColumn>
+                    <GridForeignColumn Field=@nameof(expense.AccountId) HeaderText="Account Type" TextAlign="TextAlign.Left" ForeignKeyValue="AccountName" Format="d" ForeignDataSource="@accounts"  AutoFit=true ></GridForeignColumn>
+                    <GridColumn>
+                        <Template>
+                            @{
+                                var mExpense = (context as LoanMgt.SHARED.Expense);
+                                <SfButton @onclick="@((args) => EditRecord(args,mExpense))" IsToggle="true" CssClass="e-success e-small">Settings</SfButton>
+                            }
+                        </Template>
+                    </GridColumn>
+
+                </GridColumns>
+            </SfGrid>
+        </div>
+    </div>
+</div>
 
 @code {
+    private LoanMgt.SHARED.Expense expense = new LoanMgt.SHARED.Expense();
+    private IEnumerable<LoanMgt.SHARED.Expense> expenses { get; set; } = new List<LoanMgt.SHARED.Expense>();
+    private IEnumerable<LoanMgt.SHARED.ExpenseType> expenseTypes { get; set; } = new List<LoanMgt.SHARED.ExpenseType>();
+    private IEnumerable<LoanMgt.SHARED.Account> accounts { get; set; } = new List<LoanMgt.SHARED.Account>();
 
+        
+    protected override void OnInitialized()
+    {
+        expenses = Service.GetAll();
+     
+    }
+
+    protected void EditRecord(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, LoanMgt.SHARED.Expense myExpense)
+    {
+        UriHelper.NavigateTo("/addexpenses/"+ myExpense.ExpenseId);
+    }
 }

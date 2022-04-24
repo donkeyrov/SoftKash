@@ -64,22 +64,7 @@
                 </div>
                     
             </div>
-            <div class="row col-lg-12 col-md-12 pace-md">
-                <div class="col-lg-4 col-md-4 pull-right">
-                    <label>Group</label>
-                </div>
-                <div class="col-lg-8 col-md-8">
-                    <InputSelectNumber @bind-Value="investor.GroupId" id="group" name="group" class="form-control">
-                        <option value="0" >-- select --</option>
-                        @foreach(var item in groups)
-                        {
-                            <option value="@item.GroupId" >@item.Name</option> 
-                        }
-                    </InputSelectNumber>
-                </div>
-                    
-            </div>
-            
+                        
             <br/>
             <hr/>
             <div class="row col-lg-12 col-md-12 pace-md">
@@ -305,7 +290,7 @@
             //    Debit = 0
             //};
 
-            accountRepo.Add(account);
+            //accountRepo.Add(account);
 
             Service.Add(investor);
             toastService.ShowSuccess("Investor has been created", "System Information");
