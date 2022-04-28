@@ -23,6 +23,7 @@
     <None Include="Pages\Demo.razor" />
     <None Include="Pages\ExpenseType.razor" />
     <None Include="Pages\ExpenseTypes.razor" />
+    <None Include="wwwroot\Downloads\Application Forms.pdf" />
   </ItemGroup>
 
   <ItemGroup>

@@ -39,6 +39,9 @@
         font-weight: 700;
         font-family: verdana;
     }
+    .corners{
+        border-radius:3px;
+    }
 </style>
 
 @{
@@ -60,13 +63,13 @@
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="form-floating">
             <label asp-for="Input.Email" class="form-label"></label>
-            <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" />            
+            <input asp-for="Input.Email" class="form-control corners" autocomplete="username" aria-required="true" />            
             <span asp-validation-for="Input.Email" class="text-danger"></span>
         </div>
         <br/>
         <div class="form-floating">
             <label asp-for="Input.Password" class="form-label"></label>
-            <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" />            
+            <input asp-for="Input.Password" class="form-control corners" autocomplete="current-password" aria-required="true" />            
             <span asp-validation-for="Input.Password" class="text-danger"></span>
         </div>
         <div>

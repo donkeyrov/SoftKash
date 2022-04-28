@@ -70,6 +70,7 @@
         height: 100%;
         color:#FFF;
         padding:30px 30px 30px 30px;
+        pargin-rght:25px;
     }
     .container .right 
     {
@@ -89,8 +90,20 @@
 
 <div class="container">
     <div class="left">
-        left side
-        
+        Loan Application Requirements
+        <div class="pace-lg">
+            <ol>
+                <li>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters</li>
+                <li>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour</li>
+                <li>Contrary to popular belief, Lore  m Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old</li>
+                <li>The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested.</li>
+                <li>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s</li>
+                <li>Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).</li>
+            </ol>
+        </div>
+        <div class="flex-fill pace-lg" style="color:#FFFFFF;text-decoration:none;position:relative;margin-bottom:0px;">
+            Download Application Forms <a href="/Downloads/Application Forms.pdf" target="_blank" style="color:#FFFFFF;text-decoration:none;"><b>Here</b></a>
+        </div>
     </div>
     <div class="right">
         <div><b>Loan Estimator</b></div>
@@ -102,7 +115,7 @@
                         <label for="loanno">Loan Amount</label>
                     </div>
                     <div class="col-lg-9 col-md-9">
-                        <InputNumber @bind-Value="loanAmount" placeholder="Loan Amount" id="loanno" name="loanno" class="form-control" />                                 
+                        <InputNumber @bind-Value="loanAmount" placeholder="Loan Amount" id="loanno" name="loanno" class="form-control corners" />                                 
                     </div>
                 </div>
                 <div class="row col-lg-12 col-md-12 pace-md">
@@ -110,7 +123,7 @@
                         <label for="loanProductName">Loan Product</label>
                     </div>                    
                     <div class="col-lg-9 col-md-9">
-                        <Select placeholder="Loan Product" id="loanProductName" name="loanProductName" class="form-control" onchange=@OnValueChanged  >
+                        <Select placeholder="Loan Product" id="loanProductName" name="loanProductName" class="form-control corners" onchange=@OnValueChanged  >
                             <option value="0">-- select --</option>
                             @foreach (var item in loanProducts)
                             {
@@ -123,7 +136,27 @@
 
                 
                 <div class="text-right pace-md" style="width:100%;">
-                    <button type="submit" class="btn btn-info pull-right" @*style="float:right;"*@ >Calculate</button>
+                    <button type="submit" class="btn btn-info pull-right" style="border-radius:5px;" >Calculate</button>
+                </div>
+                <div style="margin-top:50px;">
+                    @if(processing)
+                    {
+                        <div class="row">
+                          <div class="loader">
+                              <img src="/images/loadingimage.gif">
+                          </div>
+                        </div>
+                    }
+                    @if (result)
+                    {
+                        <div><b>Loan Estimator</b></div>
+                        <hr/>
+                        <div>
+                            <p style="margin:20px 10px;">Your loan period will be @loanPeriod</p>
+                            <p style="margin:20px 10px;">Your monthly repayment amount will be ZMW @monthlyAmount</p>
+                            <p style="margin:20px 10px;">Your toal loan amount will be ZMW @loanTotal</p>
+                        </div>
+                    }
                 </div>
             </EditForm>
         </div>
@@ -132,9 +165,9 @@
 
 @if(processing)
 {
-<div class="row">
-      <div class="loader">
-          <img src="/images/loadingimage.gif">
+<div class="flex flex-fill">
+      <div class="loader" >
+          <img src="/images/loadingimage.gif" style="max-width:150px;max-height:150px;" />
       </div>
   </div>
 }
@@ -144,6 +177,10 @@
     private bool processing = false;   
     private int loanProductID;
     private float loanAmount = 0;    
+    private float monthlyAmount = 0;    
+    private float loanPeriod = 0;
+    private float loanTotal = 0;
+    private bool result = false;
     private LoanMgt.SHARED.LoanProduct loanProduct = new LoanMgt.SHARED.LoanProduct();
     private LoanMgt.SHARED.LoanTemp loan = new LoanMgt.SHARED.LoanTemp();
     public List<LoanMgt.SHARED.LoanTemp> calcLoans;     
@@ -154,12 +191,18 @@
     public IEnumerable<LoanMgt.SHARED.Borrower> borrowers;
     private List<SHARED.LoanFee> loanFees = new List<SHARED.LoanFee>();
 
-    protected override void OnInitialized()
+    protected override async void OnInitialized()
     {
+        processing = true;
+        StateHasChanged();
+
         loanProducts = Service.GetAll();
         loanInterestPeriods = loanInterestPeriodRepo.GetAll();
         loanDurations = loanDurationRepo.GetAll();
         repaymentCycles = repaymentCycleRepo.GetAll();
+
+        processing = false;
+        StateHasChanged();
     }
 
     private void btnClicked()
@@ -169,11 +212,20 @@
 
     protected void Process()
     {
+        if(loanAmount <= 0)
+        {
+            toastService.ShowInfo("Loan Amount must be greater zero!","System Information");
+            return;
+        }
+        processing = true;
+        StateHasChanged();
+
         //TODO calcu/late loa terms forration of loan
         int duration = loanProduct.MaximumNumberOfRepayments;
+        loanPeriod = duration;
         float step = loanProduct.Step;
-        float min = loanProduct.MinimumPrincipalAmount;
-        float max = loanProduct.MaximumPrincipalAmount;
+        float min = loanAmount;
+        float max = loanAmount;
         calcLoans = new List<SHARED.LoanTemp>();
 
         for(float lAmount = min; lAmount <= max; lAmount+=step)
@@ -270,7 +322,11 @@
 
             double rate = Financial.Pmt(loanProduct.DefaultLoanInterestRate/100,(double)loan.NumberOfMonths, interestBearingCapital * -1) + monthlyFee;
             loan.MonthlyInstallment = (float)Math.Round(rate,2);
+            monthlyAmount = loan.MonthlyInstallment;
+
             loan.TotalDue = (float)Math.Round(loan.MonthlyInstallment * loan.NumberOfMonths,2);
+            loanTotal = loan.TotalDue;
+
             double lValue = double.Parse(lAmount.ToString());
             try
             {
@@ -284,6 +340,12 @@
             loan.TotalReturnPA = (float)Math.Round(((loan.TotalReturn * 12) / loan.NumberOfMonths),1);
 
             calcLoans.Add(loan);
+
+            processing = false;
+            StateHasChanged();
+
+            //show results of loan calculation
+            result = true;
         }
 
         //toastService.ShowSuccess("Loan has been created", "System Information");        
@@ -291,10 +353,15 @@
 
     void OnValueChanged(ChangeEventArgs e)
     {
+        result = false;
         loanProductID = int.Parse(e.Value.ToString());
 
         if (loanProductID == 0)
             return;
+
+        loanProduct = Service.Get(loanProductID);
+
+        loanFees = loanFeeRepo.GetAll2().Where(f => f.LoanId == loanProduct.LoanProductId).ToList();
 
         if(loanAmount <= 0)
         {
@@ -302,9 +369,7 @@
             return;
         }
 
-        loanProduct = Service.Get(loanProductID);
-
-        loanFees = loanFeeRepo.GetAll2().Where(f => f.LoanId == loanProduct.LoanProductId).ToList();
+        
     }
 }
 
