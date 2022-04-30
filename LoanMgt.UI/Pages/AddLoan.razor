@@ -12,8 +12,10 @@
 @inject TransactionRepository tranRepo;
 @inject BorrowerRepository BorrowerRepo;
 @inject LoanFeeRepository loanFeeRepo;
+@inject LoanFileRepository loanFileRepo;
 @inherits OwningComponentBase<LoanRepository>
 @using Microsoft.VisualBasic;
+@inject FileUpload fileUpload;
 @inject AuthenticationStateProvider GetAuthenticationStateAsync
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
@@ -295,6 +297,42 @@
                 <InputText @bind-Value="loan.LoanTitle" placeholder="Loan Description" id="loanScheduleDescription" name="loanScheduleDescription" class="form-control"/>
             </div>
         </div>
+
+        <div class="gray new-border3 pace-md">
+                <p><b>Loan Attachments</b></p>
+            </div>
+            <div class="pace-md" style="width:100%;">                
+                <SfUploader AllowedExtensions=".pdf, .doc, .docx" AutoUpload="false">
+                    <UploaderEvents ValueChange="OnChange2"></UploaderEvents>
+                </SfUploader>
+                <br />
+                @if(loanFiles != null)
+                {
+                    <table class="table table-bordered table-responsive" style="width:100%;">
+                        <thead>
+                            <tr style="width:100%;">
+                                <th>Filename</th><th>Uploaded By</th><th>Date Uploaded</th><th>Actions</th>
+                            </tr>                            
+                        </thead>
+                        <tbody>
+                            @foreach(var item in loanFiles)
+                            {
+                                string path = $"./{item.ActualFile}";
+                                <tr style="width:100%;">
+                                    <td>@item.FileName</td><td>@item.CreatedBy</td><td>@item.CreatedDate</td>
+                                    <td>                                        
+                                        <button type="button" class="btn btn-sm btn-warning" @onclick="@(() => ViewDocument(item.FileName))"><span class="oi oi-pencil" aria-hidden="true"></span>View</button>
+                                        <button type="button" @onclick="()=>ShowDelete2(item)" class="btn btn-sm btn-danger" style="margin: opx 10px;">Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+
+                }
+                
+            </div>
         <br />
         <div class="text-right pace-md">
             @if(loan.LoanStatusId == 1 && loan.ApproverStage == 2 )
@@ -336,6 +374,8 @@
     private List<SHARED.LoanFee> loanFees = new List<SHARED.LoanFee>();
     private LoanMgt.SHARED.Transaction transaction;
     string name = string.Empty;
+    public IEnumerable<LoanMgt.SHARED.LoanFile> loanFiles;
+    private LoanMgt.SHARED.LoanFile loanFile;
 
     private bool showModal = false;
     private string title = "Default Title";
@@ -350,20 +390,21 @@
         var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
         var user = authstate.User;
         name = user.Identity.Name;
-        
-        
+
+
 
         if(loanId > 0)
         {
             loan = Service.Get(loanId);
             loanProductID = loan.LoanProductId;
+            loanFiles = loanFileRepo.GetAll().Where(lf => lf.LoanId == loanId).ToList();
         }
         else
         {
             branch = new SHARED.Branch();
             loan = new SHARED.Loan();
             loan.LoanReleaseDate = DateTime.Now;
-        }
+        } 
 
         interestMethods = interestMethodRepo.GetAll();
         loanInterestPeriods = loanInterestPeriodRepo.GetAll();
@@ -829,5 +870,78 @@
         //create repayments structure
         showModal = false;
         toastService.ShowSuccess("Loan has been approved", "System Information");
+    }
+
+    private void OnChange2(UploadChangeEventArgs args)
+    {
+        if(loan.LoanId == 0)
+        {
+            toastService.ShowError($"No Loan has been selected, process terminating", "System Information");
+            return;
+        }
+
+        int counter = 0;  
+
+        foreach (var file in args.Files)
+        {
+            //var path = @"Uploads/" + file.FileInfo.Name;
+            string fileName = $"Loan_{loanId}_{file.FileInfo.Name}";
+            var path = Path.Combine(fileUpload.GetWebRootPath(), "wwwroot\\Uploads",fileName );
+
+            //check if file exisits
+            if(File.Exists(path))
+            {
+                toastService.ShowError($"File '{fileName}' has already been uploaded, process terminating", "System Information");
+                return;
+            }
+
+            FileStream filestream = new FileStream(path, FileMode.Create, FileAccess.Write);
+            file.Stream.WriteTo(filestream);
+            filestream.Close();
+            file.Stream.Close();                   
+
+            SHARED.LoanFile mFile = new SHARED.LoanFile()
+            {
+                LoanId = loan.LoanId,
+                FileName = fileName,
+                ActualFile = path,
+                CreatedBy = name,
+                CreatedDate = DateTime.Now
+             };
+
+            loanFileRepo.Add(mFile);           
+            counter++;
+        }
+
+        if (counter > 0)
+        {
+            toastService.ShowSuccess("Loan Files Uploaded Successfully!", "System Information");
+            loanFiles = loanFileRepo.GetAll().Where(lf => lf.LoanId == loanId).ToList();
+        }
+    }
+
+    private void ShowDelete2(LoanMgt.SHARED.LoanFile bFile)
+    {
+        loanFile = bFile;
+        modalType = Component.ModalTypes.Delete;
+        title = "Delete Record";
+        childContent = "Do You Want To Delete This Record(" + loanFile.FileName + ")?";
+        showModal = true;
+    }
+
+    protected void DeletetRecord(LoanMgt.SHARED.LoanFile bFile)
+    {
+        showModal = false;
+        loanFileRepo.Remove(bFile);
+            
+        loanFile = new LoanMgt.SHARED.LoanFile();
+        loanFiles = loanFileRepo.GetAll().Where(lf => lf.LoanId == loanId).ToList();
+
+        toastService.ShowWarning("Loan File has been Deleted", "System Information");
+    }
+
+    protected void ViewDocument(string url)
+    {
+        JSRuntime.InvokeAsync<object>("open", "/Uploads/" + url, "");
     }
 }

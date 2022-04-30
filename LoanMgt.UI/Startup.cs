@@ -91,6 +91,7 @@ namespace LoanMgt.UI
             services.AddTransient<OtherIncomeRepository>();
             services.AddTransient<OtherIncomeTypeRepository>();
             services.AddTransient<AttachmentFilesRepository>();
+            services.AddTransient<LoanFileRepository>();
 
         }
 

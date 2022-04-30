@@ -14,6 +14,8 @@
 @inject AuthenticationStateProvider GetAuthenticationStateAsync
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
+@inject BorrowerFileRepository borrowerFileRepo;
+@inject FileUpload fileUpload;
 @inherits OwningComponentBase<BorrowerRepository>
 
 <h3>Add Borrower</h3>
@@ -253,7 +255,41 @@
                     <InputTextArea @bind-Value="borrower.Details" placeholder="Details" id="detials" name="details" class="form-control"/>
                 </div>
             </div>
+            <div class="gray new-border3 pace-md">
+                <p><b>Borrower Attachments</b></p>
+            </div>
+            <div class="pace-md" style="width:100%;">                
+                <SfUploader AllowedExtensions=".pdf, .doc, .docx" AutoUpload="false">
+                    <UploaderEvents ValueChange="OnChange"></UploaderEvents>
+                </SfUploader>
+                <br />
+                @if(borrowerFiles != null)
+                {
+                    <table class="table table-bordered table-responsive" style="width:100%;">
+                        <thead>
+                            <tr style="width:100%;">
+                                <th>Filename</th><th>Uploaded By</th><th>Date Uploaded</th><th>Actions</th>
+                            </tr>                            
+                        </thead>
+                        <tbody>
+                            @foreach(var item in borrowerFiles)
+                            {
+                                string path = $"./{item.ActualFile}";
+                                <tr style="width:100%;">
+                                    <td>@item.FileName</td><td>@item.CreatedBy</td><td>@item.CreatedDate</td>
+                                    <td>                                        
+                                        <button type="button" class="btn btn-sm btn-warning" @onclick="@(() => ViewDocument(item.FileName))"><span class="oi oi-pencil" aria-hidden="true"></span>View</button>
+                                        <button type="button" @onclick="()=>ShowDelete(item)" class="btn btn-sm btn-danger" style="margin: opx 10px;">Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
 
+                    </table>
+
+                }
+                
+            </div>
             <br />
             <div class="text-right pace-md">
                 <button type="submit" class="btn btn-info" >Submit</button>
@@ -262,6 +298,10 @@
     </div>
 </div>
 
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(borrowerFile))">
+    @childContent
+</Dialog>
 @code
 {
     [Parameter]
@@ -274,8 +314,16 @@
     public IEnumerable<LoanMgt.SHARED.Gender> genders ;
     public IEnumerable<LoanMgt.SHARED.AccountType> accountTypes;
     public IEnumerable<LoanMgt.SHARED.WorkingStatus> workingStatuses ;
+    public IEnumerable<LoanMgt.SHARED.BorrowerFile> borrowerFiles;
+    private LoanMgt.SHARED.BorrowerFile borrowerFile;
     private LoanMgt.SHARED.Account account;
     string name = string.Empty;
+
+    private bool showModal = false;
+    private string title = "Default Title";
+    private string childContent = "Default Message";
+    private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+    private int titleId = 0;
 
     protected async override void OnInitialized()
     {
@@ -286,10 +334,11 @@
         if(BorrowerId > 0)
         {
             borrower = Service.Get(BorrowerId);
+            borrowerFiles = borrowerFileRepo.GetAll().Where(bf => bf.BorrowerId == BorrowerId).ToList();
         }
         else
         {
-            borrower = new SHARED.Borrower();
+            borrower = new SHARED.Borrower();            
         }
 
         accountTypes = accountTypeRepo.GetAll();
@@ -337,7 +386,80 @@
             Service.Update(borrower);
             toastService.ShowSuccess("Borrower has been updated", "System Information");
         }
-                
+
         UriHelper.NavigateTo("/viewborrowers",true);
+    }
+
+    private void OnChange(UploadChangeEventArgs args)
+    {
+        if(borrower.BorrowerId == 0)
+        {
+            toastService.ShowError($"No borrower has been selected, process terminating", "System Information");
+            return;
+        }
+
+        int counter = 0;  
+
+        foreach (var file in args.Files)
+        {
+            //var path = @"Uploads/" + file.FileInfo.Name;
+            string fileName = $"Borrower_{borrower.BorrowerId}_{file.FileInfo.Name}";
+            var path = Path.Combine(fileUpload.GetWebRootPath(), "wwwroot\\Uploads", fileName);
+
+            //check if file exisits
+            if(File.Exists(path))
+            {
+                toastService.ShowError($"File '{fileName}' has already been uploaded, process terminating", "System Information");
+                return;
+            }
+
+            FileStream filestream = new FileStream(path, FileMode.Create, FileAccess.Write);
+            file.Stream.WriteTo(filestream);
+            filestream.Close();
+            file.Stream.Close();                   
+
+            SHARED.BorrowerFile mFile = new SHARED.BorrowerFile()
+            {
+                BorrowerId = borrower.BorrowerId,
+                FileName = fileName,
+                ActualFile = path,
+                CreatedBy = name,
+                CreatedDate = DateTime.Now
+             };
+
+            borrowerFileRepo.Add(mFile);           
+            counter++;
+        }
+
+        if (counter > 0)
+        {
+            toastService.ShowSuccess("Borrower Files Uploaded Successfully!", "System Information");
+            borrowerFiles = borrowerFileRepo.GetAll().Where(bf => bf.BorrowerId == BorrowerId).ToList();
+        }
+    }
+
+    private void ShowDelete(LoanMgt.SHARED.BorrowerFile bFile)
+    {
+        borrowerFile = bFile;
+        modalType = Component.ModalTypes.Delete;
+        title = "Delete Record";
+        childContent = "Do You Want To Delete This Record(" + borrowerFile.FileName + ")?";
+        showModal = true;
+    }
+
+    protected void DeletetRecord(LoanMgt.SHARED.BorrowerFile bFile)
+    {
+        showModal = false;
+        borrowerFileRepo.Remove(bFile);
+            
+        borrowerFile = new LoanMgt.SHARED.BorrowerFile();
+        borrowerFiles = borrowerFileRepo.GetAll().Where(bf => bf.BorrowerId == BorrowerId).ToList();
+
+        toastService.ShowWarning("Borrower File has been Deleted", "System Information");
+    }
+
+    protected void ViewDocument(string url)
+    {
+        JSRuntime.InvokeAsync<object>("open", "/Uploads/" + url, "");
     }
 }
