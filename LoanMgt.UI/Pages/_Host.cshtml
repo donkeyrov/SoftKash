@@ -36,8 +36,17 @@
         <a class="dismiss">🗙</a>
     </div>
 
+    <script src="js/JSInterop.js"></script>
     <script src="https://cdn.syncfusion.com/blazor/19.3.43/syncfusion-blazor.min.js"></script>
     <script src="_framework/blazor.server.js"></script>
     <script src="_content/Blazor.ContextMenu/blazorContextMenu.min.js"></script>
+    <script>
+        window.changeHeight = (h) => {
+            //document.body.h
+            //$("#page-content-wrapper").width(screen.availWidth - width);
+            //$("#page-content-wrapper").css("margin-left", width);
+            $(".main").css("height", screen.height);
+        };
+    </script>
 </body>
 </html>

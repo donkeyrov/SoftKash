@@ -1,4 +1,6 @@
-﻿
+﻿@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+
 <nav id="sidebar" class="@myClass">
     <div style="margin-bottom:10px;">
         <button class="btn btn-primary" @onclick="openModal"><i class="fa fa-bars"></i></button>
@@ -263,10 +265,17 @@
     private int prevClickedMenu = 0;
     //private int UserId = 0;
 
-    private void ToggleNavMenu()
+    protected override async Task OnInitializedAsync()
     {        
-        collapseNavMenu = !collapseNavMenu;        
+        Object[] obj = {
+            new { key = "width", value = "270"},
+            new { key = "height", value = "100"},        
+        };
+        //await JSRuntime.InvokeAsync<string>("changeHeight", "100");       
+        StateHasChanged();      
     }
+
+    private void ToggleNavMenu() => collapseNavMenu = !collapseNavMenu;
 
     public void MenuIsClicked(int menu)
     {

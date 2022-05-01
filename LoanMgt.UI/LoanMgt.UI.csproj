@@ -11,10 +11,7 @@
     <Content Remove="compilerconfig.json" />
     <Content Remove="Pages\AddLoanPenalty.razor" />
     <Content Remove="Pages\ApproveLoan.razor" />
-    <Content Remove="Pages\Demo.razor" />
-    <Content Remove="Pages\ExpenseType.razor" />
     <Content Remove="Pages\ExpenseTypes.razor" />
-    <Content Remove="Pages\LoanSubmission.razor" />
     <Content Remove="wwwroot\Uploads\1. SoftKash- Application Forms.pdf" />
     <Content Remove="wwwroot\Uploads\5. E693 - SoftKash Financial Serv.txt" />
     <Content Remove="wwwroot\Uploads\RfP - Loan Management Platform &amp; Website.pdf" />
@@ -24,10 +21,7 @@
     <None Include="compilerconfig.json" />
     <None Include="Pages\AddLoanPenalty.razor" />
     <None Include="Pages\ApproveLoan.razor" />
-    <None Include="Pages\Demo.razor" />
-    <None Include="Pages\ExpenseType.razor" />
     <None Include="Pages\ExpenseTypes.razor" />
-    <None Include="Pages\LoanSubmission.razor" />
     <None Include="wwwroot\Downloads\Application Forms.pdf" />
     <None Include="wwwroot\Uploads\1. SoftKash- Application Forms.pdf" />
     <None Include="wwwroot\Uploads\5. E693 - SoftKash Financial Serv.txt" />
