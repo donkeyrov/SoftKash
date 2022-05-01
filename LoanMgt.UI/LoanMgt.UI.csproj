@@ -14,6 +14,7 @@
     <Content Remove="Pages\Demo.razor" />
     <Content Remove="Pages\ExpenseType.razor" />
     <Content Remove="Pages\ExpenseTypes.razor" />
+    <Content Remove="Pages\LoanSubmission.razor" />
     <Content Remove="wwwroot\Uploads\1. SoftKash- Application Forms.pdf" />
     <Content Remove="wwwroot\Uploads\5. E693 - SoftKash Financial Serv.txt" />
     <Content Remove="wwwroot\Uploads\RfP - Loan Management Platform &amp; Website.pdf" />
@@ -26,6 +27,7 @@
     <None Include="Pages\Demo.razor" />
     <None Include="Pages\ExpenseType.razor" />
     <None Include="Pages\ExpenseTypes.razor" />
+    <None Include="Pages\LoanSubmission.razor" />
     <None Include="wwwroot\Downloads\Application Forms.pdf" />
     <None Include="wwwroot\Uploads\1. SoftKash- Application Forms.pdf" />
     <None Include="wwwroot\Uploads\5. E693 - SoftKash Financial Serv.txt" />
@@ -84,6 +86,7 @@
     <_ContentIncludedByDefault Remove="Pages\Demo.razor" />
     <_ContentIncludedByDefault Remove="Pages\ExpenseType.razor" />
     <_ContentIncludedByDefault Remove="Pages\ExpenseTypes.razor" />
+    <_ContentIncludedByDefault Remove="Pages\LoanSubmission.razor" />
     <_ContentIncludedByDefault Remove="Pages\ViewStatement.razor" />
   </ItemGroup>
 
@@ -113,6 +116,10 @@
 
   <ItemGroup>
     <UpToDateCheckInput Remove="Pages\Demo.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\LoanSubmission.razor" />
   </ItemGroup>
 
 </Project>
