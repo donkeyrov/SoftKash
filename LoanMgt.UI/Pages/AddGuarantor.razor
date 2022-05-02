@@ -73,7 +73,7 @@
                     <label for="firstname">First Name</label>
                 </div>
                 <div class="col-lg-8 col-md-8">
-                    <InputText @bind-Value="guarantor.Firstname" placeholder="First Name" id="firstname" name="firstname" class="form-control"/>
+                    <InputText @bind-Value="guarantor.FirstName" placeholder="First Name" id="firstname" name="firstname" class="form-control"/>
                 </div>
             </div>
             <div class="row col-lg-12 col-md-12 pace-md">
@@ -81,7 +81,7 @@
                     <label for="lastname">Last Name</label>
                 </div>
                 <div class="col-lg-8 col-md-8">
-                    <InputText @bind-Value="guarantor.Lastname" placeholder="Last Name" id="lastname" name="lastname" class="form-control"/>
+                    <InputText @bind-Value="guarantor.LastName" placeholder="Last Name" id="lastname" name="lastname" class="form-control"/>
                 </div>
             </div>
             <div style="" class="text-center">
@@ -183,7 +183,7 @@
                     <label for="phone">Land Line</label>
                 </div>
                 <div class="col-lg-8 col-md-8">
-                    <InputText Type="Tel" @bind-Value="guarantor.LandLine" placeholder="Land Line" id="phone" name="phone" class="form-control"/>
+                    <InputText Type="Tel" @bind-Value="guarantor.LandLinePhone" placeholder="Land Line" id="phone" name="phone" class="form-control"/>
                 </div>
             </div>
 
@@ -201,15 +201,7 @@
                     </InputSelectNumber>
                 </div>                    
             </div>
-
-            <div class="row col-lg-12 col-md-12 pace-md">
-                <div class="col-lg-4 col-md-4">
-                    <label for="creditscore">Credit Score</label>
-                </div>
-                <div class="col-lg-8 col-md-8">
-                    <InputNumber @bind-Value="guarantor.CreditScore" placeholder="Credit Score" id="creditscore" name="creditscore" class="form-control"/>
-                </div>
-            </div>
+                        
             <div class="row col-lg-12 col-md-12 pace-md">
                 <div class="col-lg-4 col-md-4">
                     <label for="detials">Details</label>
