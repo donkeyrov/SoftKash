@@ -1,0 +1,296 @@
+﻿@page "/addguarantor"
+@page "/addgurantor/{guarantorId:int}"
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject TownRepository townRepo;
+@inject ProvinceRepository provinceRepo;
+@inject TitleRepository titleRepo;
+@inject GenderRepository genderRepo;
+@inject GroupRepository groupRepo;
+@inject WorkingStatusRepository workingStatusRepo;
+@inject NavigationManager UriHelper
+@inject AccountTypeRepository accountTypeRepo;
+@inject AccountRepository accountRepo;
+@inject GuarantorFileRepository guarantorFileRepo;
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inherits OwningComponentBase<GuarantorRepository>
+
+<h3>Add Guarantor</h3>
+
+<div class="admin-link">
+    <NavLink href="/guarantors">Back to Guarantors</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <div class="col-lg-12 control-section">
+        <EditForm Model="guarantor" OnValidSubmit="@Process">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+             <div class="gray new-border pace-md">
+                <p><b>Required Fields</b></p>
+            </div>
+
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4 pull-right">
+                    <label>Province</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="guarantor.ProvinceId" id="province" name="province" class="form-control">
+                        <option value="0" >-- select --</option>
+                        @foreach(var item in provinces)
+                        {
+                            <option value="@item.ProvinceId" >@item.Name</option>
+                        }
+                    </InputSelectNumber>
+                </div>
+                    
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4 pull-right">
+                    <label>Town</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="guarantor.TownId" id="town" name="town" class="form-control">
+                        <option value="0" >-- select --</option>
+                        @foreach(var item in towns)
+                        {
+                            if(item.ProvinceId == guarantor.ProvinceId)
+                            {
+                                <option value="@item.TownId" >@item.Name</option>    
+                            }                        
+                        }
+                    </InputSelectNumber>
+                </div>
+                    
+            </div>
+                        
+            <br/>
+            <hr/>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="firstname">First Name</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText @bind-Value="guarantor.FirstName" placeholder="First Name" id="firstname" name="firstname" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="lastname">Last Name</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText @bind-Value="guarantor.LastName" placeholder="Last Name" id="lastname" name="lastname" class="form-control"/>
+                </div>
+            </div>
+            <div style="" class="text-center">
+                AND /OR
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="businessname">Business Name</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText @bind-Value="guarantor.BusinessName" placeholder="Business Name" id="businessname" name="businessname" class="form-control"/>
+                </div>
+            </div>
+
+            <div class="gray new-border3 pace-md">
+                <p><b>Optional Fields</b></p>
+            </div>
+            <br/>
+            
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="nrc">NRC</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText @bind-Value="guarantor.NRC" placeholder="NRC" id="nrc" name="nrc" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4 pull-right">
+                    <label>Gender</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="guarantor.GenderId" id="gender" name="gender" class="form-control">
+                        <option value="0" >-- select --</option>
+                        @foreach(var item in genders)
+                        {                            
+                            <option value="@item.GenderId" >@item.Description</option>                                                       
+                        }
+                    </InputSelectNumber>
+                </div>                    
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4 pull-right">
+                    <label>Title</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="guarantor.TitleId" id="title" name="title" class="form-control">
+                        <option value="0" >-- select --</option>
+                        @foreach(var item in titles)
+                        {                            
+                            <option value="@item.TitleId" >@item.Description</option>                                                       
+                        }
+                    </InputSelectNumber>
+                </div>                    
+            </div>
+
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="mobile">Mobile</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText Type="Tel" @bind-Value="guarantor.Mobile" placeholder="Mobile" id="mobile" name="mobile" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="email">Email</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText Type="Email" @bind-Value="guarantor.Email" placeholder="Email" id="email" name="email" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="dob">Date of Birth</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputDate @bind-Value="guarantor.DateOfBirth" placeholder="Date of Birth" id="dob" name="dob" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="mobile">Address</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText  @bind-Value="guarantor.Address" placeholder="Address" id="address" name="address" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="zipcode">Zip Code</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText @bind-Value="guarantor.ZipCode" placeholder="Zip Code" id="zipcode" name="zipcode" class="form-control"/>
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="phone">Land Line</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText Type="Tel" @bind-Value="guarantor.LandLinePhone" placeholder="Land Line" id="phone" name="phone" class="form-control"/>
+                </div>
+            </div>
+
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4 pull-right">
+                    <label>Working Status</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="guarantor.WorkingStatusId" id="workingstatus" name="workingstatus" class="form-control">
+                        <option value="0" >-- select --</option>
+                        @foreach(var item in workingStatuses)
+                        {                            
+                            <option value="@item.WorkingStatusId" >@item.Description</option>                                                       
+                        }
+                    </InputSelectNumber>
+                </div>                    
+            </div>
+                        
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="detials">Details</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputTextArea @bind-Value="guarantor.Details" placeholder="Details" id="detials" name="details" class="form-control"/>
+                </div>
+            </div>
+
+            <br />
+            <div class="text-right pace-md">
+                <button type="submit" class="btn btn-info" >Submit</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int guarantorId { get; set; } = 0;
+    private LoanMgt.SHARED.Guarantor guarantor = new SHARED.Guarantor();
+    public IEnumerable<LoanMgt.SHARED.Town> towns;     
+    public IEnumerable<LoanMgt.SHARED.Group> groups;     
+    public IEnumerable<LoanMgt.SHARED.Province> provinces;
+    public IEnumerable<LoanMgt.SHARED.Title> titles;
+    public IEnumerable<LoanMgt.SHARED.Gender> genders ;
+    public IEnumerable<LoanMgt.SHARED.AccountType> accountTypes;
+    public IEnumerable<LoanMgt.SHARED.WorkingStatus> workingStatuses ;
+    public IEnumerable<LoanMgt.SHARED.GuarantorFile> guarantorFiles;
+    private LoanMgt.SHARED.GuarantorFile guarantorFile;
+    private LoanMgt.SHARED.Account account;
+    string name = string.Empty;
+    string username = string.Empty;
+
+    protected override async void OnInitialized()
+    {
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        name = user.Identity.Name;
+        
+        if(guarantorId > 0)
+        {
+            guarantor = Service.Get(guarantorId);
+            guarantorFiles = guarantorFileRepo.GetAll().Where(g => g.GuarantorId == guarantorId).ToList();
+        }
+        else
+        {
+            guarantor = new SHARED.Guarantor();
+        }
+
+        accountTypes = accountTypeRepo.GetAll();
+        towns = townRepo.GetAll();
+        provinces = provinceRepo.GetAll();
+        genders = genderRepo.GetAll();
+        titles = titleRepo.GetAll();
+        workingStatuses = workingStatusRepo.GetAll();
+        groups = groupRepo.GetAll();
+    }
+
+    protected void Process()
+    {
+        if(guarantor.GuarantorId == 0)
+        {   
+            guarantor.CreatedBy= name;
+            guarantor.CreatedDate = DateTime.Now;
+
+            //create customer account
+            //account = new SHARED.Account()
+            //{
+            //    Code = guarantor.EmployeeNo,
+            //    AccountName = guarantor.Firstname + " " + guarantor.Lastname,
+            //    AccountTypeId = int.Parse(guarantor.AccountTypeId.ToString()),
+            //    Active = true,
+            //    CurrencyId = 1,
+            //    Credit = 0,
+            //    Debit = 0
+            //};
+
+            //accountRepo.Add(account);
+
+            Service.Add(guarantor);
+            toastService.ShowSuccess("Guarantor has been created", "System Information");
+        }
+        else
+        {
+            Service.Update(guarantor);
+            toastService.ShowSuccess("Guarantor has been updated", "System Information");
+        }
+                
+        UriHelper.NavigateTo("/guarantors",true);
+    }
+}

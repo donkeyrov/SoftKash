@@ -1,0 +1,689 @@
+﻿@page "/cfoapproveloans"
+
+@using LoanMgt.SHARED;
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inject BranchRepository branchRepo;
+@inject InterestMethodRepository interestMethodRepo;
+@inject LoanInterestPeriodRepository loanInterestPeriodRepo;
+@inject LoanDurationRepository loanDurationRepo;
+@inject RepaymentCycleRpository repaymentCycleRepo;
+@inject LoanProductRepository loanProductRepo;
+@inject BorrowerRepository BorrowerRepo;
+@inject LoanFeeRepository loanFeeRepo;
+@inject TransactionRepository tranRepo;
+@inject TransactionCodeRepository tranCodeRepo;
+@inherits OwningComponentBase<LoanRepository>
+@using Microsoft.VisualBasic;
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<h3>CFO Approve Loan</h3>
+
+<div class="admin-link">
+    <NavLink href="/viewallloans">Back to View Loans</NavLink>
+</div>
+<div class="new-border3 blue-top">
+    <EditForm Model="loan" OnValidSubmit="@Process">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="gray new-border2">
+            <b>Required Field:</b>
+        </div>
+               
+        <div class="row col-lg-12 col-md-12 pace-md">
+            <div class="col-lg-4 col-md-4">
+                <label for="borrower">Borrower</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <InputSelectNumber @bind-Value="loan.BorrowerId" placeholder="Select Borrower" id="borrower" name="borrower" class="form-control">
+                    <option value="0">-- select --</option>
+                    @foreach (var item in borrowers)
+                    {
+                        <option value="@item.BorrowerId">@item.NRC - @item.Firstname @item.Lastname </option>
+                    }
+                </InputSelectNumber>                
+            </div>
+        </div>
+
+        <div class="row col-lg-12 col-md-12 pace-md">
+            <div class="col-lg-4 col-md-4">
+                <label for="loanno">Loan #</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <InputText @bind-Value="loan.LoanNumber" placeholder="Loan Number" id="loanno" name="loanno" class="form-control" />                                 
+            </div>
+        </div>
+        <br/>
+        <div class="gray new-border2">
+            <b>Loan Terms (Required Fields):</b>
+        </div>
+        <hr/>
+        <br/>
+        <div class="pull-left">
+            <b style="color:#333;">Principal:</b>
+        </div>
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4">
+                <label></label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label>Disbursed By</label>
+                    </div>
+                    <div class="col-lg-1 col-md-1">
+                        <InputCheckbox @bind-Value="loan.Cash" id="cash" name="cash" class="form-control"/>
+                    </div> 
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label>Cash</label>
+                    </div>
+                </div>
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        
+                    </div>
+                    <div class="col-lg-1 col-md-1">
+                        <InputCheckbox @bind-Value="loan.Cheque" id="cheque" name="cheque" class="form-control"/>
+                    </div> 
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label for="cash">Cheque</label>
+                    </div>
+                </div>
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        
+                    </div>
+                    <div class="col-lg-1 col-md-1">
+                        <InputCheckbox @bind-Value="loan.OnlineTransfer " id="onlineTransfer" name="onlineTransfer" class="form-control"/>
+                    </div>  
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label for="onlineTransfer">Online Transfer</label>
+                    </div>
+                </div>                 
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4">
+                        <label for="PrincipalAmount">Principal Amount</label>
+                    </div>
+                    <div class="col-lg-8 col-md-8">
+                        <InputNumber @bind-Value="loan.PrincipalAmount" placeholder="Principal Amount" id="PrincipalAmount" name="PrincipalAmount" class="form-control"/>
+                    </div>
+                </div>
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4">
+                        <label for="loanproduct">Loan Product</label>
+                    </div>
+                    <div class="col-lg-8 col-md-8">
+                        <select placeholder="Loan Product" id="loanProductName" name="loanProductName" class="form-control" onchange=@OnValueChanged  >
+                            <option value="0">-- select --</option>
+                            @foreach (var item in loanProducts)
+                            {
+                                @if(item.LoanProductId == loan.LoanProductId)
+                                {
+                                    <option value="@item.LoanProductId" selected="selected" >@item.Name </option>
+                                }
+                                else
+                                {
+                                    <option value="@item.LoanProductId" >@item.Name </option>    
+                                }
+                        
+                            }
+                        </select>  
+                    </div>
+                </div>
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4">
+                        <label for="releaseDate">Loan Release Date</label>
+                    </div>
+                    <div class="col-lg-8 col-md-8">
+                        <InputDate @bind-Value="loan.LoanReleaseDate" placeholder="Maximum Amount" id="releaseDate" name="releaseDate" class="form-control"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="pace-md"/>
+        <div class="pull-left">
+            <b style="color:#333;">Interest:</b>
+        </div>
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4">
+                <label></label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label>Interest Method</label>
+                    </div>
+                    <div class="col-lg-8 col-md-8">
+                        <InputSelectNumber @bind-Value="loan.InterestMethodId" id="interestMethod" name="interestMethod" class="form-control">
+                            @foreach(var item in interestMethods)
+                            {
+                                <option value="@item.InterestMethodId" >@item.Description</option>
+                            }
+                        </InputSelectNumber>
+                    </div>
+                    
+                </div>
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label>Interest Type</label>
+                    </div>
+                    <div class="col-lg-8 col-md-8">
+                        <div class="row pace-sm">
+                            <SfRadioButton Label="I want Interest to be percentage % based" Name="interestType" Value="True"  @bind-Checked="loan.InterestIsPercentageBased" ></SfRadioButton>
+                            &nbsp;
+
+                        </div>
+                        <div class="row">
+                            <SfRadioButton Label="I want Interest to be a fixed amount Per Cycle" Name="interestType" Value="False" @bind-Checked="loan.InterestIsFixedAmountPerCycle" ></SfRadioButton>
+                            &nbsp;
+                        </div>
+                        
+                    </div> 
+                    
+                </div>
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label>Loan Interest %</label>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <InputNumber @bind-Value="loan.LoanInterestRate" placeholder="%" id="interestRate" name="interestRate" class="form-control"/>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <InputSelectNumber @bind-Value="loan.LoanInterestPeriodId" id="interestMethod" name="interestMethod" class="form-control">
+                            @foreach(var item in loanInterestPeriods)
+                            {
+                                <option value="@item.LoanInterestPeriodId" >@item.Description</option>
+                            }
+                        </InputSelectNumber>
+                    </div>                    
+                </div>                                            
+            </div>
+        </div>
+
+        <hr class="pace-md"/>
+        <div class="pull-left">
+            <b style="color:#333;">Duration:</b>
+        </div>
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4">
+                <label></label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label>Loan Duration</label>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <InputNumber @bind-Value="loan.LoanPeriod" placeholder="0" id="loanPeriod" name="loanPeriod" class="form-control"/>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <InputSelectNumber @bind-Value="loan.LoanDurationId" id="loanDuration" name="loanDuration" class="form-control">
+                            @foreach(var item in loanDurations)
+                            {
+                                <option value="@item.LoanDurationId" >@item.Description</option>
+                            }
+                        </InputSelectNumber>
+                    </div>                    
+                </div>
+             </div>
+        </div>
+
+        <hr class="pace-md"/>
+        <div class="pull-left">
+            <b style="color:#333;">Repayments:</b>
+        </div>
+        <div class="row col-lg-12 col-md-12">
+            <div class="col-lg-4 col-md-4">
+                <label></label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label>Repayment Cycle</label>
+                    </div>
+                    <div class="col-lg-8 col-md-8">
+                        <InputSelectNumber @bind-Value="loan.RepaymentCycleId" id="repaymentCycle" name="repaymentCycle" class="form-control">
+                            @foreach(var item in repaymentCycles)
+                            {
+                                <option value="@item.RepaymentCycleId" >@item.Name</option>
+                            }
+                        </InputSelectNumber>
+                    </div>                    
+                </div>
+                           
+               
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4">
+                        <label for="defaultlAmount">Number of Repayments</label>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <InputNumber @bind-Value="loan.NumberOfRePayments" placeholder="Number Repayments" id="numberRepayments" name="numberRepayments" class="form-control"/>
+                    </div>
+                </div>    
+                <br/>
+                <div class="row pace-sm">
+                    <div class="col-lg-4 col-md-4">
+                        <label for="monthlyAmount">Monthly Installment</label>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <InputNumber @bind-Value="loan.FirstRepaymentAmount" placeholder="Monthly Installment" id="monthlyAmount" name="monthlyAmount" class="form-control" disabled />
+                    </div>
+                </div> 
+                
+                <div class="row pace-sm">
+                    <div class="col-lg-4 col-md-4">
+                        <label for="totalDue">Total Due</label>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <InputNumber @bind-Value="loan.TotalDue" placeholder="Total Due" id="totalDue" name="totalDue" class="form-control" disabled />
+                    </div>
+                </div> 
+                
+            </div>
+        </div>
+
+        <br/>
+       
+        <br/>
+        <div class="row col-lg-12 col-md-12 pace-md">
+            <div class="col-lg-4 col-md-4">
+                <label for="loanScheduleDescription">Loan Description</label>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <InputText @bind-Value="loan.LoanTitle" placeholder="Loan Description" id="loanScheduleDescription" name="loanScheduleDescription" class="form-control"/>
+            </div>
+        </div>
+        <br />
+        <div class="text-right pace-md">
+            @if(loan.LoanStatusId == 1 && loan.ApproverStage == 2)
+            {
+                <button type="submit" class="btn btn-info" >Approve Loan</button>
+            }
+            else
+            {
+                <h3>Loan has been approved, can not be edited...</h3>
+            }
+
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public int loanId { get; set; } = 0;    
+    public DateTime[] MultipleValues { get; set; }
+    private int loanProductID;
+    private LoanMgt.SHARED.Branch branch = new LoanMgt.SHARED.Branch();
+    private LoanMgt.SHARED.LoanProduct loanProduct = new LoanMgt.SHARED.LoanProduct();
+    private LoanMgt.SHARED.Loan loan = new LoanMgt.SHARED.Loan();
+    public IEnumerable<LoanMgt.SHARED.InterestMethod> interestMethods;     
+    public IEnumerable<LoanMgt.SHARED.LoanInterestPeriod> loanInterestPeriods;     
+    public IEnumerable<LoanMgt.SHARED.LoanDuration> loanDurations;
+    public IEnumerable<LoanMgt.SHARED.RepaymentCycle> repaymentCycles;
+    public IEnumerable<LoanMgt.SHARED.LoanProduct> loanProducts;
+    public IEnumerable<LoanMgt.SHARED.Borrower> borrowers;
+    private LoanMgt.SHARED.Transaction transaction;
+    private LoanMgt.SHARED.TransactionCode transactionCode;
+    private List<LoanFee> loanFees = new List<LoanFee>();
+    string name = string.Empty;
+
+    protected async override void OnInitialized()
+    {
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        name = user.Identity.Name;
+
+        if(loanId > 0)
+        {
+            loan = Service.Get(loanId);
+            loanProductID = loan.LoanProductId;
+        }
+        else
+        {
+            branch = new Branch();
+            loan = new Loan();
+            loan.LoanReleaseDate = DateTime.Now;
+        }
+
+        interestMethods = interestMethodRepo.GetAll();
+        loanInterestPeriods = loanInterestPeriodRepo.GetAll();
+        loanDurations = loanDurationRepo.GetAll();
+        repaymentCycles = repaymentCycleRepo.GetAll();
+        loanProducts = loanProductRepo.GetAll();
+        borrowers = BorrowerRepo.GetAll();
+    }
+
+    protected void Process()
+    {
+        //TODO complete adding of loan products
+        if(loan.LoanId == 0)
+        {
+            loan.LoanStatusId = 2;
+            loan.ApproverStage = 2;
+            loan.CreatedBy = name;
+            loan.CreatedDate = DateTime.Now;
+
+            Service.Add(loan);
+
+            //------------------ post loan transactions ------------------------------
+            try
+            {
+
+
+                //------------- calculate loan fees -------------------
+                int duration = loanProduct.MaximumNumberOfRepayments;
+                float step = loanProduct.Step;
+                float min = loanProduct.MinimumPrincipalAmount;
+                float max = loanProduct.MaximumPrincipalAmount;
+                float lAmount = loan.PrincipalAmount;
+
+                var iloan = new LoanMgt.SHARED.LoanTemp()
+                    {
+                        LoanRate = loanProduct.DefaultLoanInterestRate,
+                        NumberOfMonths = loanProduct.DefaultNumberOfRePayments,
+                        Capital = (float)Math.Round(lAmount,2)
+                    };
+
+                float capitalizedFee = 0;
+
+                foreach (var item in loanFees.Where(f => f.Fee.Capitalized == true).ToList() )
+                {
+                    float value = 0;
+                    if (item.Fee.Fixedamount)
+                    {
+                        value = item.Fee.Amount;
+                    }
+                    else
+                    {
+                        value = (item.Fee.Amount / 100) * lAmount;
+                    }
+                    capitalizedFee += (float)Math.Round(value,2);
+
+                    //get transaction code from fee
+                    transactionCode = tranCodeRepo.Get(item.Fee.TransactionCodeId);
+
+                    //create transaction
+                    transaction = new LoanMgt.SHARED.Transaction();
+
+                    transaction = tranRepo.Get(1);
+
+                    if(item.Fee.Name.Contains("origination",StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        iloan.OriginationFee = (float)Math.Round(value,2);
+                    }
+                    else if(item.Fee.Name.Contains("insurance",StringComparison.CurrentCultureIgnoreCase) && item.Fee.Amount > 0)
+                    {
+                        iloan.Insurance1 = (float)Math.Round(value,2);
+                    }
+                    else if(item.Fee.Name.Contains("legislative",StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        iloan.LegislativeFee = (float)Math.Round(value,2);
+                    }
+                    else if(item.Fee.Name.Contains("stamp",StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        iloan.StampDuty = (float)Math.Round(value,2);
+                    }
+                    else if(item.Fee.Name.Contains("levy",StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        iloan.Levy = (float)Math.Round(value,2);
+                    }
+                    else if(item.Fee.Name.Contains("credit",StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        iloan.CreditBureauFee = (float)Math.Round(value,2);
+                    }
+                }
+
+                float totalCapitalized = capitalizedFee + lAmount;
+                iloan.CapitalizedTotal = (float)Math.Round(totalCapitalized,2);                            
+
+                float interimInterest = (totalCapitalized * loanProduct.InterimInterest * 12 * loanProduct.DefaultLoanDuration)/36500;
+                iloan.InterimInterest = (float)Math.Round(interimInterest,2);
+
+                float interestBearingCapital = interimInterest + totalCapitalized;
+                iloan.InterestBearingCapital = (float)Math.Round(interestBearingCapital,2);
+
+                float monthlyFee = 0;
+
+                foreach (var item in loanFees.Where(f => f.Fee.Monthly == true).ToList() )
+                {
+                    float value = 0;
+                    if (item.Fee.Fixedamount)
+                    {
+                        value = item.Fee.Amount;
+                    }
+                    else
+                    {
+                        value = (item.Fee.Amount / 100) * lAmount;
+                    }
+                    monthlyFee += (float)Math.Round(value,2);
+
+                    if(item.Fee.Name.Contains("service",StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        iloan.ServiceFee = (float)Math.Round(value,2);
+                    }
+                    else if(item.Fee.Name.Contains("insurance",StringComparison.CurrentCultureIgnoreCase) && item.Fee.Amount == 0)
+                    {
+                        iloan.Insurance2 = (float)Math.Round(value,2);
+                    }
+                    else if(item.Fee.Name.Contains("collection",StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        iloan.CollectionFee = (float)Math.Round(value,2);
+                    }
+                    else if(item.Fee.Name.Contains("monthly",StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        iloan.MonthlyFee = (float)Math.Round(value,2);
+                    }               
+                }
+                
+                double rate = Financial.Pmt(loanProduct.DefaultLoanInterestRate/100,(double)iloan.NumberOfMonths, interestBearingCapital * -1) + monthlyFee;
+                iloan.MonthlyInstallment = (float)Math.Round(rate,2);
+            
+                loan.FirstRepaymentAmount = iloan.MonthlyInstallment;
+                loan.lastRepaymentAmount = iloan.MonthlyInstallment;
+            
+                loan.TotalDue = (float)Math.Round(iloan.MonthlyInstallment * iloan.NumberOfMonths,2);
+
+                double lValue = double.Parse(lAmount.ToString());
+                try
+                {
+                    loan.EffectivePA = (float)Math.Round(Financial.Rate((double)duration, (double)rate * -1, lValue, 0) * 12 * 100,1);
+                }
+                catch
+                { 
+                    loan.EffectivePA = 0;
+                }
+                loan.TotalReturn = (float)Math.Round(((iloan.TotalDue - iloan.Capital) / iloan.Capital * 100),1);
+                loan.TotalReturnPA = (float)Math.Round(((iloan.TotalReturn * 12) / iloan.NumberOfMonths),1);                
+            
+                //----------------------------------------------------
+            }
+            catch(Exception ex)
+            {              
+            }
+            //------------------------------------------------------------------------
+        }
+        else
+        {
+            Service.Update(loan);
+        }
+
+        toastService.ShowSuccess("Loan has been created", "System Information");
+        UriHelper.NavigateTo("/viewallloans",true);
+    }
+
+    void OnValueChanged(ChangeEventArgs e)
+    {
+        loanProductID = int.Parse(e.Value.ToString());
+        var loanProduct = loanProductRepo.Get(loanProductID);
+
+        loan.LoanProductId = loanProductID;
+        loanFees = loanFeeRepo.GetAll2().Where(f => f.LoanId == loanProduct.LoanProductId).ToList();
+
+        try
+        {
+            loan.Cash = loanProduct.Cash;
+            loan.Cheque = loanProduct.Cheque;
+            loan.OnlineTransfer = loanProduct.OnlineTransfer;
+            //loan.DisbursementMethodId = loanProduct.DisbursementMethod.
+
+            if(loan.PrincipalAmount == 0)
+                loan.PrincipalAmount = loanProduct.DefaultPrincipalAmount;
+
+            if(loanProduct.InterestMethodId != null)
+                loan.InterestMethodId = int.Parse(loanProduct.InterestMethodId.ToString());
+
+            loan.InterestIsPercentageBased = loanProduct.InterestIsPercentageBased;
+            loan.InterestIsFixedAmountPerCycle = loanProduct.InterestIsFixedAmountPerCycle;
+            loan.InterestFixedAmount = loanProduct.MaturityInterestIsFixedAmount;
+            loan.InterestRateAfterMaturity = loanProduct.InterestRateAfterMaturity;
+
+            if(loanProduct.LoanDurationId != null)
+                loan.LoanDurationId = int.Parse(loanProduct.LoanDurationId.ToString());
+
+            loan.NumberOfRePayments = loanProduct.DefaultNumberOfRePayments;
+
+            if(loanProduct.RepaymentCycleId != null)
+                loan.RepaymentCycleId = int.Parse(loanProduct.RepaymentCycleId.ToString());
+
+            loan.lastRepaymentAmount = loanProduct.lastRepaymentAmount;
+            loan.CalculateInterestOn = loanProduct.CalculateInterestOn;
+            loan.RecurringPeriodAfterMaturity = loanProduct.RecurringPeriodAfterMaturity;
+            loan.ExttendAfterMaturity = loanProduct.ExtendAfterMaturity;
+            loan.DDurationAfterMaturity = loanProduct.DurationAfterMaturity;
+            loan.RecurringPeriodAfterMaturity = loanProduct.RecurringPeriodAfterMaturity;
+            loan.LoanTitle = loanProduct.Name;
+            //loan.OverrideRepaymentAmount = loanProduct.OverrideRepaymentAmountTo
+            loan.ApproverStage = 1;
+
+            //------------- calculate loan fees -------------------
+            int duration = loanProduct.MaximumNumberOfRepayments;
+            float step = loanProduct.Step;
+            float min = loanProduct.MinimumPrincipalAmount;
+            float max = loanProduct.MaximumPrincipalAmount;
+            float lAmount = loan.PrincipalAmount;
+            
+            var iloan = new LoanMgt.SHARED.LoanTemp()
+                {
+                    LoanRate = loanProduct.DefaultLoanInterestRate,
+                    NumberOfMonths = loanProduct.DefaultNumberOfRePayments,
+                    Capital = (float)Math.Round(lAmount,2)
+                };
+
+            float capitalizedFee = 0;
+
+            foreach (var item in loanFees.Where(f => f.Fee.Capitalized == true).ToList() )
+            {
+                float value = 0;
+                if (item.Fee.Fixedamount)
+                {
+                    value = item.Fee.Amount;
+                }
+                else
+                {
+                    value = (item.Fee.Amount / 100) * lAmount;
+                }
+                capitalizedFee += (float)Math.Round(value,2);
+
+                if(item.Fee.Name.Contains("origination",StringComparison.CurrentCultureIgnoreCase))
+                {
+                    iloan.OriginationFee = (float)Math.Round(value,2);
+                }
+                else if(item.Fee.Name.Contains("insurance",StringComparison.CurrentCultureIgnoreCase) && item.Fee.Amount > 0)
+                {
+                    iloan.Insurance1 = (float)Math.Round(value,2);
+                }
+                else if(item.Fee.Name.Contains("legislative",StringComparison.CurrentCultureIgnoreCase))
+                {
+                    iloan.LegislativeFee = (float)Math.Round(value,2);
+                }
+                else if(item.Fee.Name.Contains("stamp",StringComparison.CurrentCultureIgnoreCase))
+                {
+                    iloan.StampDuty = (float)Math.Round(value,2);
+                }
+                else if(item.Fee.Name.Contains("levy",StringComparison.CurrentCultureIgnoreCase))
+                {
+                    iloan.Levy = (float)Math.Round(value,2);
+                }
+                else if(item.Fee.Name.Contains("credit",StringComparison.CurrentCultureIgnoreCase))
+                {
+                    iloan.CreditBureauFee = (float)Math.Round(value,2);
+                }
+            }
+
+            float totalCapitalized = capitalizedFee + lAmount;
+            iloan.CapitalizedTotal = (float)Math.Round(totalCapitalized,2);                            
+
+            float interimInterest = (totalCapitalized * loanProduct.InterimInterest * 12 * loanProduct.DefaultLoanDuration)/36500;
+            iloan.InterimInterest = (float)Math.Round(interimInterest,2);
+
+            float interestBearingCapital = interimInterest + totalCapitalized;
+            iloan.InterestBearingCapital = (float)Math.Round(interestBearingCapital,2);
+
+            float monthlyFee = 0;
+
+            foreach (var item in loanFees.Where(f => f.Fee.Monthly == true).ToList() )
+            {
+                float value = 0;
+                if (item.Fee.Fixedamount)
+                {
+                    value = item.Fee.Amount;
+                }
+                else
+                {
+                    value = (item.Fee.Amount / 100) * lAmount;
+                }
+                monthlyFee += (float)Math.Round(value,2);
+
+                if(item.Fee.Name.Contains("service",StringComparison.CurrentCultureIgnoreCase))
+                {
+                    iloan.ServiceFee = (float)Math.Round(value,2);
+                }
+                else if(item.Fee.Name.Contains("insurance",StringComparison.CurrentCultureIgnoreCase) && item.Fee.Amount == 0)
+                {
+                    iloan.Insurance2 = (float)Math.Round(value,2);
+                }
+                else if(item.Fee.Name.Contains("collection",StringComparison.CurrentCultureIgnoreCase))
+                {
+                    iloan.CollectionFee = (float)Math.Round(value,2);
+                }
+                else if(item.Fee.Name.Contains("monthly",StringComparison.CurrentCultureIgnoreCase))
+                {
+                    iloan.MonthlyFee = (float)Math.Round(value,2);
+                }               
+            }
+
+            double rate = Financial.Pmt(loanProduct.DefaultLoanInterestRate/100,(double)iloan.NumberOfMonths, interestBearingCapital * -1) + monthlyFee;
+            iloan.MonthlyInstallment = (float)Math.Round(rate,2);
+            
+            loan.FirstRepaymentAmount = iloan.MonthlyInstallment;
+            loan.lastRepaymentAmount = iloan.MonthlyInstallment;
+            
+            loan.TotalDue = (float)Math.Round(iloan.MonthlyInstallment * iloan.NumberOfMonths,2);
+
+            double lValue = double.Parse(lAmount.ToString());
+            try
+            {
+                loan.EffectivePA = (float)Math.Round(Financial.Rate((double)duration, (double)rate * -1, lValue, 0) * 12 * 100,1);
+            }
+            catch
+            { 
+                loan.EffectivePA = 0;
+            }
+            loan.TotalReturn = (float)Math.Round(((iloan.TotalDue - iloan.Capital) / iloan.Capital * 100),1);
+            loan.TotalReturnPA = (float)Math.Round(((iloan.TotalReturn * 12) / iloan.NumberOfMonths),1);                
+            
+            //----------------------------------------------------
+        }
+        catch(Exception ex)
+        {              
+        }
+
+        
+    }
+
+    
+}
