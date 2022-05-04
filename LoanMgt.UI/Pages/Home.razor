@@ -22,7 +22,7 @@
 				<ContentTemplate>
 					<div class="root-container">
 						<div class="item-container income">
-							<p>$43,300</p>
+							<p>K43,300</p>
 							<div class="auto-left">
 								<span class="income-icon e-icon"></span>
 							</div>
@@ -37,7 +37,7 @@
 				<ContentTemplate>
 					<div class="root-container">
 						<div class="item-container expense">
-							<p>$38,060</p>
+							<p>K38,060</p>
 							<div class="auto-left">
 								<span class="expense-icon e-icon"></span>
 							</div>
@@ -52,7 +52,7 @@
 				<ContentTemplate>
 					<div class="root-container">
 						<div class="item-container balance">
-							<p>$38,060</p>
+							<p>K38,060</p>
 							<div class="auto-left">
 								<span class="balance-icon e-icon"></span>
 							</div>
@@ -67,7 +67,7 @@
 				<ContentTemplate>
 					<div class="root-container">
 						<div class="item-container transaction">
-							<p>$38,060</p>
+							<p>K38,060</p>
 							<div class="auto-left">
 								<span class="transaction-icon e-icon"></span>
 							</div>
@@ -88,7 +88,7 @@
 						<ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.DateTimeCategory" LabelFormat="MMM" IntervalType="IntervalType.Months" EdgeLabelPlacement="EdgeLabelPlacement.Shift">
 							<ChartAxisMajorGridLines Width="0"></ChartAxisMajorGridLines>
 						</ChartPrimaryXAxis>
-						<ChartPrimaryYAxis LabelFormat="${value}" Minimum="1000" Maximum="9000" Interval="2000">
+						<ChartPrimaryYAxis LabelFormat="K{value}" Minimum="1000" Maximum="9000" Interval="2000">
 							<ChartAxisLineStyle Width="0"></ChartAxisLineStyle>
 							<ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
 						</ChartPrimaryYAxis>
@@ -150,7 +150,7 @@
 										var expense = (context as TransactionData);
 		 								<div class="normalRes">
 		  								<div class='amt-payment @(expense.IsExpense ? "expense-payment" : "income-payment")'>
-		   								<span>$</span><span>@expense.Amount</span>
+		   								<span>K</span><span>@expense.Amount</span>
 		  								</div>
 		 								</div>
 									}
