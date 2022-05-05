@@ -2,9 +2,198 @@
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
+@inherits OwningComponentBase<AccountSettingsRepository>
+@using Microsoft.VisualBasic;
+@inject FileUpload fileUpload;
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+@inject AccountRepository accountRepo;
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
 
 <h3>Account Settings</h3>
 
-@code {
 
+<div class="pace-lg blue-top col-md-12 col-lg-12" style="display:flex;" > 
+    <EditForm Model="accountSettings" OnValidSubmit="@Process" >
+        
+        <div style="" class="col-lg-6 col-md-6">
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="loanno">Loan #</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText @bind-Value="accountSettings.CompanyCode" placeholder="Company Code" id="coyCode" name="coyCode" class="form-control" />                                 
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="loanno">Loan #</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputText @bind-Value="accountSettings.CompanyName" placeholder="Company Name" id="coyName" name="coyName" class="form-control" />                                 
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="loanno">Loan #</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputNumber @bind-Value="accountSettings.MoxPeriodNonPerforming" placeholder="Non Performing Period" id="nonPerforming" name="nonPerforming" class="form-control" />                                 
+                </div>
+            </div>
+        </div>
+        <div style="" class="col-lg-6 col-md-6">
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="bankAcc">Default Bank Account</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="accountSettings.DefaultBankAcc" placeholder="Bank Account" id="bankAcc" name="bankAcc" class="form-control">
+                        <option value="0">-- select --</option>
+                        @foreach (var item in accounts)
+                        {
+                            <option value="@item.AccountId">@item.AccountName </option>
+                            <option class="superscript" disabled>&nbsp;&nbsp;&nbsp;&nbsp; @item.AccountType.Desciption </option>
+                        }
+                    </InputSelectNumber>                
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="cashAcc">Default Cash Account</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="accountSettings.DefaultCashAcc" placeholder="Cash Account" id="cashAcc" name="cashAcc" class="form-control">
+                        <option value="0">-- select --</option>
+                        @foreach (var item in accounts)
+                        {
+                            <option value="@item.AccountId">@item.AccountName </option>
+                            <option class="superscript" disabled>&nbsp;&nbsp;&nbsp;&nbsp; @item.AccountType.Desciption </option>
+                        }
+                    </InputSelectNumber>                
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="salesAcc">Default Sales Account</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="accountSettings.DefaultSalesAccount" placeholder="Sales Account" id="salesAcc" name="salesAcc" class="form-control">
+                        <option value="0">-- select --</option>
+                        @foreach (var item in accounts)
+                        {
+                            <option value="@item.AccountId">@item.AccountName </option>
+                            <option class="superscript" disabled>&nbsp;&nbsp;&nbsp;&nbsp; @item.AccountType.Desciption </option>
+                        }
+                    </InputSelectNumber>                
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="purchasesAcc">Default Purchases Account</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="accountSettings.DefaultPurchasesAcc" placeholder="Purchases Account" id="purchasesAcc" name="purchasesAcc" class="form-control">
+                        <option value="0">-- select --</option>
+                        @foreach (var item in accounts)
+                        {
+                            <option value="@item.AccountId">@item.AccountName </option>
+                            <option class="superscript" disabled>&nbsp;&nbsp;&nbsp;&nbsp; @item.AccountType.Desciption </option>
+                        }
+                    </InputSelectNumber>                
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="receivablesAcc">Default Receivables Account</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="accountSettings.DefaultReceivablesAcc" placeholder="Receivables Account" id="receivablesAcc" name="receivablesAcc" class="form-control">
+                        <option value="0">-- select --</option>
+                        @foreach (var item in accounts)
+                        {
+                            <option value="@item.AccountId">@item.AccountName </option>
+                            <option class="superscript" disabled>&nbsp;&nbsp;&nbsp;&nbsp; @item.AccountType.Desciption </option>
+                        }
+                    </InputSelectNumber>                
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="payablesAcc">Default Payables Account</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="accountSettings.DefaultPayablesAcc" placeholder="Payables Account" id="payablesAcc" name="payablesAcc" class="form-control">
+                        <option value="0">-- select --</option>
+                        @foreach (var item in accounts)
+                        {
+                            <option value="@item.AccountId">@item.AccountName </option>
+                            <option class="superscript" disabled>&nbsp;&nbsp;&nbsp;&nbsp; @item.AccountType.Desciption </option>
+                        }
+                    </InputSelectNumber>                
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="badDebtAcc">Default Bad Debt Account</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="accountSettings.DefaultBadDebtAcc" placeholder="Bad Debt Account" id="badDebtAcc" name="badDebtAcc" class="form-control">
+                        <option value="0">-- select --</option>
+                        @foreach (var item in accounts)
+                        {
+                            <option value="@item.AccountId">@item.AccountName </option>
+                            <option class="superscript" disabled>&nbsp;&nbsp;&nbsp;&nbsp; @item.AccountType.Desciption </option>
+                        }
+                    </InputSelectNumber>                
+                </div>
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4">
+                    <label for="taxAcc">Default Tax Account</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="accountSettings.DefaultTaxAcc" placeholder="Tax Account" id="taxAcc" name="taxAcc" class="form-control">
+                        <option value="0">-- select --</option>
+                        @foreach (var item in accounts)
+                        {
+                            <option value="@item.AccountId">@item.AccountName </option>
+                            <option class="superscript" disabled>&nbsp;&nbsp;&nbsp;&nbsp; @item.AccountType.Desciption </option>
+                        }
+                    </InputSelectNumber>                
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12 col-lg-12 pace-md" style="">
+            <button type="button" @onclick="Process" class="btn btn-info btn-lg">Submit</button>
+        </div>
+    </EditForm>
+</div>
+
+
+@code {
+    string name = string.Empty;
+    public LoanMgt.SHARED.AccountSettings accountSettings;
+    public List<LoanMgt.SHARED.Account> accounts;
+
+    protected async override void OnInitialized()
+    {
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        name = user.Identity.Name;
+
+        accounts = accountRepo.GetAllWithType().ToList();
+        accountSettings = Service.GetAll().FirstOrDefault();
+
+        if(accountSettings == null)
+        {
+            accountSettings = new SHARED.AccountSettings();
+        }
+    }
+
+    private void Process()
+    {
+        
+    }
 }

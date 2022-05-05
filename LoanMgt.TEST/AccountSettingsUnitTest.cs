@@ -37,11 +37,11 @@ namespace LoanMgt.TEST
             {
                 AccountSettingsId = 0,
                 CompanyName = "Netzach Systems",
-                CountryId = 1,
-                CurrencyId = 1,
-                DateFormat =   "DD-MM-yyyy",
-                DaysInMonthInterestCalculation = 30,
-                MonthlyLoanRepaymentCycle = 30,
+                //CountryId = 1,
+                //CurrencyId = 1,
+                //DateFormat =   "DD-MM-yyyy",
+                //DaysInMonthInterestCalculation = 30,
+                //MonthlyLoanRepaymentCycle = 30,
                 
             };
 
@@ -60,11 +60,11 @@ namespace LoanMgt.TEST
             {
                 AccountSettingsId = 0,
                 CompanyName = "Netzach Systems",
-                CountryId = 1,
-                CurrencyId = 1,
-                DateFormat = "DD-MM-yyyy",
-                DaysInMonthInterestCalculation = 30,
-                MonthlyLoanRepaymentCycle = 30,
+                //CountryId = 1,
+                //CurrencyId = 1,
+                //DateFormat = "DD-MM-yyyy",
+                //DaysInMonthInterestCalculation = 30,
+                //MonthlyLoanRepaymentCycle = 30,
 
             };
 
@@ -76,12 +76,12 @@ namespace LoanMgt.TEST
             Assert.That(accountSettings.CompanyName, Is.EqualTo(newAccount.CompanyName));
 
             newAccount.CompanyName = "Netzach";
-            newAccount.CurrencyId = 2;
+           //newAccount.CurrencyId = 2;
             _repository.Update(newAccount);
 
             var myAccount = _repository.Get(accountID);
 
-            Assert.That(myAccount.CurrencyId, Is.EqualTo(2));
+            //Assert.That(myAccount.CurrencyId, Is.EqualTo(2));
             Assert.That(newAccount.CompanyName, Is.EqualTo(myAccount.CompanyName));
         }
     }
