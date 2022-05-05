@@ -6,6 +6,7 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 @inject BranchRepository branchRepo
+@inherits OwningComponentBase<UserRepository>
 
 <h3>Add Staff</h3>
 <div class="admin-link">
@@ -85,7 +86,7 @@
                         <GridColumn MaxWidth="70">
                             <Template>
                                 @{
-                                    var rType = (context as LoanMgt.SHARED.User);
+                                    var rType = (context as IdentityUser);
                                     <SfButton @onclick="@(() => EditRecord(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
                                 }
                             </Template>
@@ -93,7 +94,7 @@
                         <GridColumn MaxWidth="70">
                             <Template>
                                 @{
-                                    var rType = (context as LoanMgt.SHARED.User);
+                                    var rType = (context as IdentityUser);
                                     <SfButton @onclick="@(() => ShowDelete(rType))" IsToggle="true" IconCss="oi oi-trash" CssClass="e-danger e-small">Delete</SfButton>
                                 }
                             </Template>
@@ -134,8 +135,7 @@
     }
 
     protected async Task Process()
-    {
-        closeModal();
+    {       
 
         if(password1 != password2)
         {
@@ -153,22 +153,33 @@
             user.NormalizedUserName = user.UserName.ToUpper();
             user.EmailConfirmed = true;
 
-            await UserManager.CreateAsync(user,password1);            
-            newRec = false;
-            toastService.ShowSuccess("Staff has been created", "System Information");
+            var result = await UserManager.CreateAsync(user,password1);            
+
+            if (result.Errors.Count() > 0)
+            {
+                toastService.ShowError(result.Errors.FirstOrDefault().Description, "System Information");
+                return;
+            }
+            else
+            {
+                newRec = false;
+                toastService.ShowSuccess("Staff has been created", "System Information");
+            }
         }
         else
         {
             await UserManager.UpdateAsync(user);
             toastService.ShowInfo("Staff has been updated!", "System Information");
         }
-
-        await new Task(()=>Load());
+        closeModal();
+        users = UserManager.Users.AsEnumerable();
+        StateHasChanged();
     }
 
     private void Load()
     {
         users = UserManager.Users.AsEnumerable();
+        StateHasChanged();
     }
     private void ShowDelete(IdentityUser rType)
     {
@@ -182,18 +193,21 @@
 
     protected void EditRecord(IdentityUser rType)
     {
-        user = rType;
+        userId = rType.Id;
+        user = rType;     
         openModal();
     }
 
-    protected async void DeletetRecord(IdentityUser rType)
+    protected void DeletetRecord(IdentityUser rType)
     {
         showModal = false;
-        await UserManager.DeleteAsync(rType);
+        //await UserManager.DeleteAsync(rType);
+        Service.DeleteUser(rType.Id);
 
         userId = "0";
         user = new IdentityUser();
         users = UserManager.Users.AsEnumerable();
+        StateHasChanged();
 
         toastService.ShowWarning("Staff has been Deleted", "System Information");
     }

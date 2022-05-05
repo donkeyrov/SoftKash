@@ -11,5 +11,6 @@ namespace LoanMgt.UI.Repositories
     /// </summary>
     public interface IUserRepository : IGenericRepository<User>
     {
+        public bool DeleteUser(string email);
     }
 }
