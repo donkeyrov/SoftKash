@@ -40,7 +40,7 @@ namespace LoanMgt.UI
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddRazorPages();
-            services.AddServerSideBlazor();
+            services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; });
             services.AddAuthorizationCore();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
             services.AddSyncfusionBlazor();
@@ -95,6 +95,7 @@ namespace LoanMgt.UI
             services.AddTransient<GuarantorRepository>();
             services.AddTransient<GuarantorFileRepository>();
             services.AddTransient<UserRepository>();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
