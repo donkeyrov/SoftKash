@@ -56,6 +56,7 @@ namespace LoanMgt.SHARED
         public float? EffectivePA { get; set; }
         public float? TotalReturn { get; set; }
         public float? TotalReturnPA { get; set; }
+        public float Balance { get; set; }
         public DateTime? LoanStart { get; set; }
         public DateTime? LoanEnd { get; set; }
         public int ApproverStage { get; set; }

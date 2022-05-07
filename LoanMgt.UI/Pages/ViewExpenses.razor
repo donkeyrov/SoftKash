@@ -18,7 +18,8 @@
                     <GridColumn Field=@nameof(expense.Description) HeaderText="Description"></GridColumn>
                     <GridColumn Field=@nameof(expense.Amount) HeaderText="Amount"></GridColumn>
                     <GridForeignColumn Field=@nameof(expense.ExpenseTypeId) HeaderText="Expense Type" TextAlign="TextAlign.Left" ForeignKeyValue="Name" Format="d" ForeignDataSource="@expenseTypes"  AutoFit=true ></GridForeignColumn>
-                    <GridForeignColumn Field=@nameof(expense.AccountId) HeaderText="Account Type" TextAlign="TextAlign.Left" ForeignKeyValue="AccountName" Format="d" ForeignDataSource="@accounts"  AutoFit=true ></GridForeignColumn>
+                    <GridForeignColumn Field=@nameof(expense.DrAccountId) HeaderText="Dr Account" TextAlign="TextAlign.Left" ForeignKeyValue="AccountName" Format="d" ForeignDataSource="@accounts"  AutoFit=true ></GridForeignColumn>
+                    <GridForeignColumn Field=@nameof(expense.CrAccountId) HeaderText="Dr Account" TextAlign="TextAlign.Left" ForeignKeyValue="AccountName" Format="d" ForeignDataSource="@accounts"  AutoFit=true ></GridForeignColumn>
                     <GridColumn>
                         <Template>
                             @{

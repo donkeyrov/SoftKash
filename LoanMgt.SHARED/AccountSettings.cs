@@ -22,6 +22,11 @@ namespace LoanMgt.SHARED
         public int DefaultTaxAcc { get; set; }
         public int DefaultSalesAccount { get; set; }
         public int DefaultPurchasesAcc { get; set; }
+        public int DefaultIncomeAcc { get; set; }
+        public int DefaultExpenseAcc { get; set; }
+        public int DefaultDebtorsAcc { get; set; }
+        public int DefaultCreditorsAcc { get; set; }
+        public int LoanTransactionCode { get; set; }
         public byte[] Logo { get; set; }
         public string CreatedBy { get; set; }
         public DateTime DateCreated { get; set; }

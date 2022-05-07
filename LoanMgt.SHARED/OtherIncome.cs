@@ -13,12 +13,17 @@ namespace LoanMgt.SHARED
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OtherIncomeId { get; set; }
-        public int AccountId { get; set; }
+        public int DrAccountId { get; set; }
+        public int CrAccountId { get; set; }
         public DateTime IncomeDate { get; set; }
         public int OtherIncomeTypeId { get; set; }
+        public string Reference { get; set; }
         public float Amount { get; set; }
         public string Description { get; set; }
         public string ReceiptNo { get; set; }
+        public bool Posted { get; set; }
+        public string ApprovedBy { get; set; }
+        public DateTime? ApproveDate { get; set; }
         public string CreatedBy { get; set; }
         public DateTime DateCreated { get; set; }
 

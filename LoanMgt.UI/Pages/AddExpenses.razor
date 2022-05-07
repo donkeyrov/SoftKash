@@ -42,14 +42,31 @@
             </div>
             <div class="row col-lg-12 col-md-12 pace-md">
                 <div class="col-lg-4 col-md-4 pull-right">
-                    <label>Account</label>
+                    <label>Debit Account</label>
                 </div>
                 <div class="col-lg-8 col-md-8">
-                    <InputSelectNumber @bind-Value="expense.AccountId" id="accouuntId" name="acountId" class="form-control">
+                    <InputSelectNumber @bind-Value="expense.DrAccountId" id="drAccouuntId" name="DrAcountId" class="form-control">
                         <option value="0" >-- select --</option>
                         @foreach(var item in accounts)
                         {                            
                             <option value="@item.AccountId" >@item.AccountName</option>  
+                            <option disabled class="superscript" >&nbsp;&nbsp;&nbsp;&nbsp; @item.AccountType.Desciption</option>  
+                        }
+                    </InputSelectNumber>
+                </div>
+                    
+            </div>
+            <div class="row col-lg-12 col-md-12 pace-md">
+                <div class="col-lg-4 col-md-4 pull-right">
+                    <label>Credit Account</label>
+                </div>
+                <div class="col-lg-8 col-md-8">
+                    <InputSelectNumber @bind-Value="expense.CrAccountId" id="crAccouuntId" name="crAcountId" class="form-control">
+                        <option value="0" >-- select --</option>
+                        @foreach(var item in accounts)
+                        {                            
+                            <option value="@item.AccountId" >@item.AccountName</option>  
+                            <option disabled class="superscript" >&nbsp;&nbsp;&nbsp;&nbsp; @item.AccountType.Desciption</option>  
                         }
                     </InputSelectNumber>
                 </div>
@@ -125,7 +142,7 @@
         }
 
         expenseTypes = expenseTypeRepo.GetAll();
-        accounts = accountRepo.GetAllWithType().Where(a => a.AccountType.Desciption.ToUpper().Contains("EXPENSE")).ToList();
+        accounts = accountRepo.GetAllWithType();
     }
 
     protected void Process()
