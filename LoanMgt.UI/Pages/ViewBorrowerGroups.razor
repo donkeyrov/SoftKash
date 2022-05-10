@@ -23,6 +23,7 @@
                             @{
                                 var mGroup = (context as LoanMgt.SHARED.Group);
                                 <SfButton @onclick="@((args) => EditRecord(args,mGroup))" IsToggle="true" CssClass="e-success e-small">Settings</SfButton>
+                                <SfButton @onclick="@((args) => ShowDelete(args,mGroup))" IsToggle="true" CssClass="e-warning e-small">Delete</SfButton>
                             }
                         </Template>
                     </GridColumn>
@@ -33,18 +34,64 @@
     </div>
 </div>
 
+<Dialog Title="@title" showModal="@showModal" modalType="@modalType"
+        OnClickCallback="@(()=> DeletetRecord(group))">
+    @childContent
+</Dialog>
+
 @code {
     private LoanMgt.SHARED.Group group = new LoanMgt.SHARED.Group();
     private IEnumerable<LoanMgt.SHARED.Group> groups { get; set; } = new List<LoanMgt.SHARED.Group>();
-    
+    private bool showModal = false;
+    private string title = "Default Title";
+    private string childContent = "Default Message";
+    private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
+    private int groupId = 0;
+    private bool popup = false;
+
     protected override void OnInitialized()
     {
         groups = Service.GetAll();
-     
+
     }
 
     protected void EditRecord(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, LoanMgt.SHARED.Group myGroup)
     {
         UriHelper.NavigateTo("/addborrowergroup/"+ myGroup.GroupId);
+    }
+
+    private void ShowDelete(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, LoanMgt.SHARED.Group oGroup)
+    {
+        groupId = oGroup.GroupId;
+        group = oGroup;
+        modalType = Component.ModalTypes.Delete;
+        title = "Delete Record";
+        childContent = "Do You Want To Delete This Record(" + oGroup.Name + ")?";
+        showModal = true;
+    }
+
+    protected void DeletetRecord(LoanMgt.SHARED.Group oGroup)
+    {
+        showModal = false;
+        Service.Remove(oGroup);
+
+        groupId = 0;
+        group = new LoanMgt.SHARED.Group();
+        groups = Service.GetAll();
+
+        toastService.ShowWarning("Group has been Deleted", "System Information");
+    }
+
+    void openModal(bool reset = false)
+    {
+        if (reset)
+            group = new SHARED.Group();
+
+        popup = true;
+    }
+
+    void closeModal()
+    {
+        popup = false;
     }
 }

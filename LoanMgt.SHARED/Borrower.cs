@@ -24,10 +24,12 @@ namespace LoanMgt.SHARED
         public string EmployeeNo { get; set; }
 
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the NRC!")]
+        [Index("IDX_NRC",IsUnique =true)]
         public string NRC { get; set; }
         public int? GenderId { get; set; }
         public int? TitleId { get; set; }
         public string? Mobile { get; set; }
+        [Index("IDX_Email", IsUnique = true)]
         public string? Email { get; set; }
         public DateTime DateOfBirth { get; set; }
         public string? Address { get; set; }
@@ -39,8 +41,7 @@ namespace LoanMgt.SHARED
         public int? WorkingStatusId { get; set; }
         public float? CreditScore { get; set; }
         public byte[]? Photo { get; set; }
-        public int? StatusId { get; set; }
-        public int? AccountTypeId { get; set; }
+        public int? StatusId { get; set; }        
         public string? Details { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }

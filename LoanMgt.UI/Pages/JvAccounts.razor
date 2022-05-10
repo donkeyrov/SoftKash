@@ -48,6 +48,7 @@
                                         @foreach (var aType in accountTypes)
                                             {
                                             <option value="@aType.AccountTypeId">@aType.Desciption</option>                                            
+                                            <option disabled class="superscript">@aType.Code</option>
                                             }
                                     </InputSelectNumber>
                                 </div>
@@ -72,18 +73,18 @@
                                     <InputText @bind-Value="account.AccountName" placeholder="Account Name" id="accountname" name="accountname" class="form-control" />
                                 </div>
                                 <div class="space row col-md-12 col-lg-12"> 
-                                    <div class="col-md-6 col-lg-12">
+                                    <div class="col-md-6 col-lg-6">
                                         <label for="debitbalance">Debit Opening Balance</label>
                                         <InputNumber @bind-Value="account.Debit" placeholder="Debit Opening Balance" id="debitbalance" name="debitbalance" class="form-control" />
                                     </div>
-                                    <div class="col-md-6 col-lg-12">
+                                    <div class="col-md-6 col-lg-6">
                                         <label for="creditbalance">Credit Opening Balance</label>
                                         <InputNumber @bind-Value="account.Credit" placeholder="Credit Opening Balance" id="creditbalance" name="creditbalance" class="form-control" />
                                     </div>
                                 </div>
                                 <div class="space">
                                     <label for="active">Account is Active</label>
-                                    <InputCheckbox @bind-Value="account.Active" id="active" name="active" class="form-control" />
+                                    <InputCheckbox @bind-Value="account.Active" id="active" name="active"  />
                                 </div>
                             </div>
                         </div>

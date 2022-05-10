@@ -59,6 +59,7 @@ namespace LoanMgt.SHARED
         public float Balance { get; set; }
         public DateTime? LoanStart { get; set; }
         public DateTime? LoanEnd { get; set; }
+        public bool Closed { get; set; }
         public int ApproverStage { get; set; }
         public string FirstApprover { get; set; }
         public DateTime FirstApproverDate { get; set; }

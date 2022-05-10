@@ -135,20 +135,21 @@
             titles = Service.GetAll();
         }
 
-        private void ShowDelete(LoanMgt.SHARED.Title oTitle)
-        {
-            titleId = oTitle.TitleId;
-            objtitle = oTitle;// Service.Get(id);
-            modalType = Component.ModalTypes.Delete;
-            title = "Delete Record";
-            childContent = "Do You Want To Delete This Record(" + objtitle.Description + ")?";
-            showModal = true;
-        }
-
+         
         protected void EditRecord(LoanMgt.SHARED.Title oTitle)
         {
             objtitle = oTitle;// Service.Get(id);
             openModal();
+        }
+
+        private void ShowDelete( LoanMgt.SHARED.Title oTitle)
+        {
+            titleId = oTitle.TitleId;
+            objtitle = oTitle;
+            modalType = Component.ModalTypes.Delete;
+            title = "Delete Record";
+            childContent = "Do You Want To Delete This Record(" + oTitle.Description + ")?";
+            showModal = true;
         }
 
         protected void DeletetRecord(LoanMgt.SHARED.Title oTitle)

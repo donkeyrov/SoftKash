@@ -25,8 +25,17 @@
                     <GridColumn>
                         <Template>
                             @{
-                                var mBorrower = (context as LoanMgt.SHARED.Loan);
-                                <SfButton @onclick="@((args) => EditRecord(args,mBorrower))" IsToggle="true" CssClass="e-success e-small">Settings</SfButton>
+                                var mLoan = (context as LoanMgt.SHARED.Loan);
+                                
+                                @if(mLoan.LoanStatusId == 2)
+                                {
+                                    <SfButton @onclick="@((args) => EditRecord(args,mLoan))" IsToggle="true" CssClass="e-success e-small">View</SfButton>
+                                }
+                                else
+                                {
+                                    <SfButton @onclick="@((args) => EditRecord(args,mLoan))" IsToggle="true" CssClass="e-warn e-small">Approve</SfButton>
+                                }
+                                
                             }
                         </Template>
                     </GridColumn>
@@ -45,7 +54,7 @@
 
     protected override void OnInitialized()
     {
-        loans = Service.GetAll();
+        loans = Service.GetAll().Where(l=> l.LoanStatusId == 2 || (l.LoanStatusId == 1 && l.ApproverStage == 1) ).ToList();
         borrowers = borrowerRepo.GetAll();
         loanProducts = loanProductRepo.GetAll();
     }

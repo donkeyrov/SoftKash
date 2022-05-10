@@ -81,21 +81,7 @@
                 </div>
                     
             </div>
-            <div class="row col-lg-12 col-md-12 pace-md">
-                <div class="col-lg-4 col-md-4 pull-right">
-                    <label>Account Type</label>
-                </div>
-                <div class="col-lg-8 col-md-8">
-                    <InputSelectNumber @bind-Value="borrower.AccountTypeId" id="accounttype" name="accounttype" class="form-control">
-                        <option value="0" >-- select --</option>
-                        @foreach(var item in accountTypes)
-                        {
-                            <option value="@item.AccountTypeId" >@item.Desciption</option> 
-                        }
-                    </InputSelectNumber>
-                </div>
-                    
-            </div>
+            
             <br/>
             <hr/>
             <div class="row col-lg-12 col-md-12 pace-md">
@@ -368,8 +354,7 @@
             account = new SHARED.Account()
             {
                 Code = borrower.EmployeeNo,
-                AccountName = borrower.Firstname + " " + borrower.Lastname,
-                AccountTypeId = int.Parse(borrower.AccountTypeId.ToString()),
+                AccountName = borrower.Firstname + " " + borrower.Lastname,                
                 Active = true,
                 CurrencyId = 1,
                 Credit = 0,

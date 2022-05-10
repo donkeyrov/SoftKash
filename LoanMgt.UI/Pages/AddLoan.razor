@@ -335,17 +335,24 @@
             </div>
         <br />
         <div class="text-right pace-md">
+            @if((loan.LoanStatusId == 1 || loan.LoanStatusId == 0)  && (loan.ApproverStage == 1 || loan.ApproverStage == 0))
+            {
+                <button type="submit" class="btn btn-info" style="margin-right:10px;">Submit</button>
+            }
+            
+            @if(loan.LoanStatusId == 1 && loan.ApproverStage == 1 )
+            {
+                <button type="button" class="btn btn-warning" @onclick="@(() => ShowDelete())" >Send to Approver</button>
+            } 
+                         
             @if(loan.LoanStatusId == 1 && loan.ApproverStage == 2 )
             {
-                <button type="button" class="btn btn-info" @onclick="@(() => ShowDelete())" >Approve</button>
-            }
-            else if(loan.LoanStatusId != 2)
+                <button type="button" class="btn btn-warning" @onclick="@(() => ShowDelete())" >Send to CFO</button>
+            } 
+            
+            @if(loan.ApproverStage > 1)
             {
-                <button type="submit" class="btn btn-info" >Submit</button>
-            }
-            else
-            {
-                <h3>Loan has been approved, can not be edited...</h3>
+                <h3>Loan can not be edited...</h3>
             }
 
         </div>
@@ -420,7 +427,7 @@
         if(loan.LoanId == 0)
         {
             loan.LoanStatusId = 1;
-            loan.ApproverStage = 2;
+            loan.ApproverStage = 1;
             loan.CreatedBy = name;
             loan.CreatedDate = DateTime.Now;
 
@@ -649,8 +656,6 @@
             loan.RecurringPeriodAfterMaturity = loanProduct.RecurringPeriodAfterMaturity;
             loan.LoanTitle = loanProduct.Name;
             //loan.OverrideRepaymentAmount = loanProduct.OverrideRepaymentAmountTo
-            loan.ApproverStage = 3;
-            loan.LoanStatusId = 2;
 
             //------------- calculate loan fees -------------------
             int duration = loanProduct.MaximumNumberOfRepayments;
@@ -660,39 +665,39 @@
             float lAmount = loan.PrincipalAmount;
 
             //post loan amount to DR of customer
-            transaction = new SHARED.Transaction()
-            {
-                CustomerNo = borrower.EmployeeNo,
-                Debit = lAmount,
-                Credit = 0,
-                Description = "Loan issue",
-                TransactionType = "INV",
-                CurrencyCode = "ZMW",
-                TransactionDate = DateTime.Now,
-                AccountCode = borrower.EmployeeNo,
-                TaxAmount = 0,
-                Balance = 0,
-                Archived = false,
-                Reconciled = false,
-                UnitPrice = 0,
-                UserId = name,
-                BatchRef = "",
-                BranchId = 1,
-                TaxTypeId = 1,
-                AccountingYear = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString(),
-                TaxMonth = DateTime.Now.Month.ToString(),
-                BorrowerId = borrower.BorrowerId
-            };
-            tranRepo.Add(transaction);
+            //transaction = new SHARED.Transaction()
+            //{
+            //    CustomerNo = borrower.EmployeeNo,
+            //    Debit = lAmount,
+            //    Credit = 0,
+            //    Description = "Loan issue",
+            //    TransactionType = "INV",
+            //    CurrencyCode = "ZMW",
+            //    TransactionDate = DateTime.Now,
+            //    AccountCode = borrower.EmployeeNo,
+            //    TaxAmount = 0,
+            //    Balance = 0,
+            //    Archived = false,
+            //    Reconciled = false,
+            //    UnitPrice = 0,
+            //    UserId = name,
+            //    BatchRef = "",
+            //    BranchId = 1,
+            //    TaxTypeId = 1,
+            //    AccountingYear = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString(),
+            //    TaxMonth = DateTime.Now.Month.ToString(),
+            //    BorrowerId = borrower.BorrowerId
+            //};
+            //tranRepo.Add(transaction);
 
             //TODO post credit to bank account
 
             var iloan = new LoanMgt.SHARED.LoanTemp()
-                {
-                    LoanRate = loanProduct.DefaultLoanInterestRate,
-                    NumberOfMonths = loanProduct.DefaultNumberOfRePayments,
-                    Capital = (float)Math.Round(lAmount,2)
-                };
+            {
+                LoanRate = loanProduct.DefaultLoanInterestRate,
+                NumberOfMonths = loanProduct.DefaultNumberOfRePayments,
+                Capital = (float)Math.Round(lAmount,2)
+            };
 
             float capitalizedFee = 0;
 
@@ -710,33 +715,33 @@
                 capitalizedFee += (float)Math.Round(value,2);
 
                 //post fee to DR of customer if amount is > 0
-                if(value > 0)
-                {
-                    transaction = new SHARED.Transaction()
-                    {
-                        CustomerNo = borrower.EmployeeNo,
-                        Debit = Math.Round(value,2),
-                        Credit = 0,
-                        Description = item.Fee.Name,
-                        TransactionType = "INV",
-                        CurrencyCode = "ZMW",
-                        TransactionDate = DateTime.Now,
-                        AccountCode = borrower.EmployeeNo,
-                        TaxAmount = 0,
-                        Balance = 0,
-                        Archived = false,
-                        Reconciled = false,
-                        UnitPrice = 0,
-                        UserId = name,
-                        BatchRef = "",
-                        BranchId = 1,
-                        TaxTypeId = 1,
-                        AccountingYear = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString(),
-                        TaxMonth = DateTime.Now.Month.ToString(),
-                        BorrowerId = borrower.BorrowerId
-                    };
-                    tranRepo.Add(transaction);
-                }
+                //if(value > 0)
+                //{
+                //    transaction = new SHARED.Transaction()
+                //    {
+                //        CustomerNo = borrower.EmployeeNo,
+                //        Debit = Math.Round(value,2),
+                //        Credit = 0,
+                //        Description = item.Fee.Name,
+                //        TransactionType = "INV",
+                //        CurrencyCode = "ZMW",
+                //        TransactionDate = DateTime.Now,
+                //        AccountCode = borrower.EmployeeNo,
+                //        TaxAmount = 0,
+                //        Balance = 0,
+                //        Archived = false,
+                //        Reconciled = false,
+                //        UnitPrice = 0,
+                //        UserId = name,
+                //        BatchRef = "",
+                //        BranchId = 1,
+                //        TaxTypeId = 1,
+                //        AccountingYear = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString(),
+                //        TaxMonth = DateTime.Now.Month.ToString(),
+                //        BorrowerId = borrower.BorrowerId
+                //    };
+                //    tranRepo.Add(transaction);
+                //}
 
                 if(item.Fee.Name.Contains("origination",StringComparison.CurrentCultureIgnoreCase))
                 {
@@ -789,33 +794,33 @@
                 monthlyFee += (float)Math.Round(value,2);
 
                 //post fee to DR of customer if value > 0
-                if(value > 0)
-                {
-                    transaction = new SHARED.Transaction()
-                    {
-                        CustomerNo = borrower.EmployeeNo,
-                        Debit = Math.Round(value,2),
-                        Credit = 0,
-                        Description = item.Fee.Name,
-                        TransactionType = "INV",
-                        CurrencyCode = "ZMW",
-                        TransactionDate = DateTime.Now,
-                        AccountCode = borrower.EmployeeNo,
-                        TaxAmount = 0,
-                        Balance = 0,
-                        Archived = false,
-                        Reconciled = false,
-                        UnitPrice = 0,
-                        UserId = name,
-                        BatchRef = "",
-                        BranchId = 1,
-                        TaxTypeId = 1,
-                        AccountingYear = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString(),
-                        TaxMonth = DateTime.Now.Month.ToString(),
-                        BorrowerId = borrower.BorrowerId
-                    };
-                    tranRepo.Add(transaction);
-                }
+                //if(value > 0)
+                //{
+                //    transaction = new SHARED.Transaction()
+                //    {
+                //        CustomerNo = borrower.EmployeeNo,
+                //        Debit = Math.Round(value,2),
+                //        Credit = 0,
+                //        Description = item.Fee.Name,
+                //        TransactionType = "INV",
+                //        CurrencyCode = "ZMW",
+                //        TransactionDate = DateTime.Now,
+                //        AccountCode = borrower.EmployeeNo,
+                //        TaxAmount = 0,
+                //        Balance = 0,
+                //        Archived = false,
+                //        Reconciled = false,
+                //        UnitPrice = 0,
+                //        UserId = name,
+                //        BatchRef = "",
+                //        BranchId = 1,
+                //        TaxTypeId = 1,
+                //        AccountingYear = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString(),
+                //        TaxMonth = DateTime.Now.Month.ToString(),
+                //        BorrowerId = borrower.BorrowerId
+                //    };
+                //    tranRepo.Add(transaction);
+                //}
 
                 if(item.Fee.Name.Contains("service",StringComparison.CurrentCultureIgnoreCase))
                 {
@@ -861,8 +866,19 @@
         {              
         }
 
-        loan.FirstApprover = name;
-        loan.FirstApproverDate = DateTime.Now;
+        
+        if(loan.ApproverStage == 1)
+        {
+            loan.ApproverStage = 2;
+            loan.FirstApprover = name;
+            loan.FirstApproverDate = DateTime.Now;
+        }
+        else if(loan.ApproverStage == 2)
+        {
+            loan.ApproverStage = 3;
+            loan.SecondApprover = name;
+            loan.SecondApproverDate = DateTime.Now;
+        }
         Service.Update(loan);
 
         //post all initial transactions to the customer account

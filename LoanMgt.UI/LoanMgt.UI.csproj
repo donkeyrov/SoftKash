@@ -77,6 +77,7 @@
     <_ContentIncludedByDefault Remove="Areas\Identity\IdentityHostingStartup.cshtml" />
     <_ContentIncludedByDefault Remove="Pages\AddLoanPenalty.razor" />
     <_ContentIncludedByDefault Remove="Pages\ApproveLoan.razor" />
+    <_ContentIncludedByDefault Remove="Pages\CfoViewLoans.razor" />
     <_ContentIncludedByDefault Remove="Pages\Demo.razor" />
     <_ContentIncludedByDefault Remove="Pages\ExpenseType.razor" />
     <_ContentIncludedByDefault Remove="Pages\ExpenseTypes.razor" />
@@ -114,6 +115,10 @@
 
   <ItemGroup>
     <UpToDateCheckInput Remove="Pages\LoanSubmission.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\CfoViewLoans.razor" />
   </ItemGroup>
 
 </Project>
