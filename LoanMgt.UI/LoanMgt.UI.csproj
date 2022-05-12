@@ -13,7 +13,6 @@
     <Content Remove="Pages\ApproveLoan.razor" />
     <Content Remove="Pages\ExpenseTypes.razor" />
     <Content Remove="wwwroot\Uploads\1. SoftKash- Application Forms.pdf" />
-    <Content Remove="wwwroot\Uploads\5. E693 - SoftKash Financial Serv.txt" />
     <Content Remove="wwwroot\Uploads\RfP - Loan Management Platform &amp; Website.pdf" />
   </ItemGroup>
 
@@ -24,7 +23,6 @@
     <None Include="Pages\ExpenseTypes.razor" />
     <None Include="wwwroot\Downloads\Application Forms.pdf" />
     <None Include="wwwroot\Uploads\1. SoftKash- Application Forms.pdf" />
-    <None Include="wwwroot\Uploads\5. E693 - SoftKash Financial Serv.txt" />
     <None Include="wwwroot\Uploads\RfP - Loan Management Platform &amp; Website.pdf" />
   </ItemGroup>
 

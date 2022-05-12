@@ -9,14 +9,21 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 @inherits OwningComponentBase<TransactionTempRepository>
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Spinner
 
 <h3>Approve Repayments</h3>
 
 <div class="col-lg-12 control-section">
     <div class="content-wrapper">
         <div class="row">
-            <SfGrid @ref="Grid"  DataSource="@transactionTemps" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+            <SfGrid @ref="Grid"  DataSource="@transactionTemps" EnableHeaderFocus="true" AllowSelection="true" AllowSorting="true" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                                          
+                @*<GridSelectionSettings CheckboxOnly="true" EnableToggle="true" PersistSelection="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
+                *@<GridEvents RowSelected="GetSelectedRecords" TValue="SHARED.TransactionTemp"></GridEvents>
+
                 <GridColumns>
+                   @* <GridColumn Type="ColumnType.CheckBox" AllowFiltering="false" AllowSorting="false" Width="60"></GridColumn>*@
                     <GridColumn Field=@nameof(transactionTemp.ManNo) HeaderText="Man No."></GridColumn>
                     <GridColumn Field=@nameof(transactionTemp.EmployeeNo) HeaderText="Employee No." TextAlign="TextAlign.Left" ></GridColumn>
                     <GridColumn Field=@nameof(transactionTemp.Name) HeaderText="Name" TextAlign="TextAlign.Left" ></GridColumn>
@@ -44,6 +51,7 @@
 
                 </GridColumns>
             </SfGrid>
+            <SfSpinner @ref="@SpinnerObj"></SfSpinner>
         </div>
     </div>
 </div>
@@ -60,16 +68,18 @@
     SfGrid<SHARED.TransactionTemp> Grid { get; set; } 
     string name = string.Empty;
     string userID = string.Empty;
+    List<SHARED.TransactionTemp> selectedTemps = new List<SHARED.TransactionTemp>();
     List<SHARED.TransactionTemp> transactionTemps = new List<SHARED.TransactionTemp>();
     List<SHARED.TransactionTemp> errorTemps = new List<SHARED.TransactionTemp>();
     SHARED.TransactionTemp transactionTemp = new SHARED.TransactionTemp();
-
+    SfSpinner SpinnerObj;
     private bool showModal = false;
     private string title = "Default Title";
     private string childContent = "Default Message";
     private Component.ModalTypes modalType = Component.ModalTypes.Confirm;
     private int tranId = 0;    
     private bool popup = false;
+    public List<double> SelectedRowIndexes { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
@@ -153,12 +163,29 @@
             };
             tranRepo.Add(transaction);
 
-            //
+        //
         }
 
         transactionTemps = Service.GetAll().Where(t => t.Posted == false).ToList();
 
         toastService.ShowWarning("Payments have been posted!", "System Information");
+    }
+
+    public async Task GetSelectedRecords(RowSelectEventArgs<SHARED.TransactionTemp> args)
+    {
+        var rec = args.Data as SHARED.TransactionTemp;
+        SelectedRowIndexes = await this.Grid.GetSelectedRowIndexes();
+
+        if(!selectedTemps.Contains(rec))
+        {
+            selectedTemps.Add(rec);
+        }
+        else
+        {
+            selectedTemps.Remove(rec);
+        }
+
+        StateHasChanged();
     }
 }
  

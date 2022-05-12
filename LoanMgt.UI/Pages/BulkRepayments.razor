@@ -10,6 +10,7 @@
 @inject AuthenticationStateProvider GetAuthenticationStateAsync
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
+@inject FileUpload fileUpload;
 @inherits OwningComponentBase<LoanRepository>
 
 <h3>Bulk Repayments</h3>
@@ -41,7 +42,7 @@
     <h3>Failed Transactions</h3>
     <div class="content-wrapper">
         <div class="row">
-            <SfGrid DataSource="@errorTemps" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+            <SfGrid DataSource="@errorTemps" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">                
                 <GridColumns>
                     <GridColumn Field=@nameof(transactionTemp.TransactionDate) HeaderText="Date"></GridColumn>
                     <GridColumn Field=@nameof(transactionTemp.Nrc) HeaderText="NRC" TextAlign="TextAlign.Left" ></GridColumn>
@@ -78,7 +79,9 @@
     {
         foreach (var file in args.Files)
         {
-            var path = @"Uploads/" + file.FileInfo.Name;
+            //var path = @"Uploads/" + file.FileInfo.Name;
+            string fileName = $"{file.FileInfo.Name}";
+            var path = Path.Combine(fileUpload.GetWebRootPath(), "wwwroot\\Uploads", fileName);
 
             //check if file exisits
             if(File.Exists(path))
