@@ -24,6 +24,7 @@ namespace LoanMgt.SHARED
         public bool DeductFromPrincipalAmount { get; set; }
         public bool Capitalized { get; set; }
         public bool Monthly { get; set; }
+        public bool Recurring { get; set; }
         public int TransactionCodeId { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }

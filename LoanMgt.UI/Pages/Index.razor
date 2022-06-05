@@ -83,7 +83,17 @@
     }
 </style>
 
-<div class="text-right fixed-top">
+@if(processing)
+{
+<div class="flex flex-fill">
+      <div class="loader" >
+          <img src="/images/loadingimage.gif" style="max-width:150px;max-height:150px;" />
+      </div>
+  </div>
+}
+else
+{
+    <div class="text-right fixed-top">
     <img src="/images/final logo.png" style="position:absolute;top:5px;left:5px;width:250px;height:80px;filter:drop-shadow(30px 10px 4 #FFFFFF); "/>
     <button @onclick="btnClicked" class="btn btn-lg btn-secondary" style="margin-top:10px;margin-right:10px;" >Member Login</button>
 </div>
@@ -163,18 +173,12 @@
     </div>
 </div>
 
-@if(processing)
-{
-<div class="flex flex-fill">
-      <div class="loader" >
-          <img src="/images/loadingimage.gif" style="max-width:150px;max-height:150px;" />
-      </div>
-  </div>
 }
+
 @code
 {
     SHARED.User user = new SHARED.User();
-    private bool processing = false;   
+    private bool processing = true;   
     private int loanProductID;
     private float loanAmount = 0;    
     private float monthlyAmount = 0;    
@@ -196,13 +200,15 @@
         processing = true;
         StateHasChanged();
 
-        loanProducts = Service.GetAll();
-        loanInterestPeriods = loanInterestPeriodRepo.GetAll();
-        loanDurations = loanDurationRepo.GetAll();
-        repaymentCycles = repaymentCycleRepo.GetAll();
+        UriHelper.NavigateTo("/Identity/Account/Login",true);
 
-        processing = false;
-        StateHasChanged();
+        //loanProducts = Service.GetAll();
+        //loanInterestPeriods = loanInterestPeriodRepo.GetAll();
+        //loanDurations = loanDurationRepo.GetAll();
+        //repaymentCycles = repaymentCycleRepo.GetAll();
+
+        //processing = false;
+        //StateHasChanged();
     }
 
     private void btnClicked()

@@ -485,6 +485,7 @@
                 loan.lastRepaymentAmount = iloan.MonthlyInstallment;
             
                 loan.TotalDue = (float)Math.Round(iloan.MonthlyInstallment * iloan.NumberOfMonths,2);
+                loan.Balance = loan.TotalDue;
 
                 double lValue = double.Parse(lAmount.ToString());
                 try

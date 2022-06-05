@@ -45,11 +45,11 @@
                                 </div>
                                 <div class="space">
                                     <label for="password1">Password</label>
-                                    <InputText @bind-Value="password1" placeholder="Password" id="password1" name="password1" class="form-control" />
+                                    <InputText type="password" @bind-Value="password1" placeholder="Password" id="password1" name="password1" class="form-control" />
                                 </div>
                                 <div class="space">
                                     <label for="password2">Confirm Password</label>
-                                    <InputText @bind-Value="password2" placeholder="Confirm Password" id="password2" name="password2" class="form-control" />
+                                    <InputText type="password" @bind-Value="password2" placeholder="Confirm Password" id="password2" name="password2" class="form-control" />
                                 </div>
                                 @*<div class="space">
                                     <label for="branch">Branch</label>
@@ -77,7 +77,7 @@
     <div class="col-lg-12 control-section">
         <div class="content-wrapper">
             <div class="row">
-                <SfGrid DataSource="@users" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
+                <SfGrid @ref="Grid" DataSource="@users" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
                     <GridColumns>
                         <GridColumn Field=@nameof(user.UserName) HeaderText="Username"></GridColumn>
                         <GridColumn Field=@nameof(user.Email) HeaderText="Email"></GridColumn>
@@ -123,6 +123,7 @@
     private string password2 = "";
     private bool popup = false;
     private bool newRec = false;
+    SfGrid<IdentityUser> Grid { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
@@ -164,12 +165,14 @@
             {
                 newRec = false;
                 toastService.ShowSuccess("Staff has been created", "System Information");
+                Grid.Refresh();
             }
         }
         else
         {
             await UserManager.UpdateAsync(user);
             toastService.ShowInfo("Staff has been updated!", "System Information");
+            Grid.Refresh();
         }
         closeModal();
         users = UserManager.Users.AsEnumerable();
