@@ -54,7 +54,7 @@
 
     protected override void OnInitialized()
     {
-        loans = Service.GetAll().Where(l=> l.LoanStatusId == 2 || (l.LoanStatusId == 1 && l.ApproverStage == 1) ).ToList();
+        loans = Service.GetAll().Where(l=> (l.LoanStatusId == 2 || (l.LoanStatusId == 1 && l.ApproverStage == 1) ) && l.Closed == false).ToList();
         borrowers = borrowerRepo.GetAll();
         loanProducts = loanProductRepo.GetAll();
     }
