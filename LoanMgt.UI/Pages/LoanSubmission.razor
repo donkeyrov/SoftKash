@@ -5,49 +5,101 @@
 @inject NavigationManager UriHelper
 @inject LoanProductRepository loanProductRepo;
 @inject BorrowerRepository borrowerRepo;
+@using Microsoft.Extensions.Azure
 @inherits OwningComponentBase<LoanRepository>
 
 <h3>Loan Submission</h3>
 
-<div class="col-lg-12 control-section">
-    <div class="content-wrapper">
-        <div class="row">
-            <SfGrid DataSource="@loans" Toolbar="@(new List<string>() { "Search" })" AllowPaging="true">
-                <GridColumns>
-                    <GridForeignColumn Field=@nameof(loan.BorrowerId) HeaderText="EMPLOYEE NUMBER" TextAlign="TextAlign.Left" ForeignKeyValue="EmployeeNo" Format="d" ForeignDataSource="@borrowers" ></GridForeignColumn>
-                    <GridColumn HeaderText="OLD WAGE TYPE" TextAlign="TextAlign.Left" ></GridColumn>
-                    <GridColumn HeaderText="NEW WAGE TYPE" TextAlign="TextAlign.Left" >8000</GridColumn>
-                    <GridColumn Field=@nameof(loan.LoanEnd) HeaderText="END DATE"></GridColumn>
-                    <GridColumn Field=@nameof(loan.LoanStart) HeaderText="START DATE"></GridColumn>
-                    <GridColumn Field=@nameof(loan.FirstRepaymentAmount) HeaderText="INSTALMENT" TextAlign="TextAlign.Left" ></GridColumn>
-                    <GridColumn HeaderText="PAYMENT METHOD ELECTRONIC/CHEQUE" TextAlign="TextAlign.Left" >E693</GridColumn>
-                    <GridColumn  HeaderText="ZLSCH">E</GridColumn>
-
-                    <GridForeignColumn Field=@nameof(loan.BorrowerId) HeaderText="NRC. NO" TextAlign="TextAlign.Left" ForeignKeyValue="NRC" Format="d" ForeignDataSource="@borrowers" ></GridForeignColumn>
-                    <GridForeignColumn Field=@nameof(loan.BorrowerId) HeaderText="FIRST NAME" TextAlign="TextAlign.Left" ForeignKeyValue="Firstname" Format="d" ForeignDataSource="@borrowers" ></GridForeignColumn>
-                    <GridForeignColumn Field=@nameof(loan.BorrowerId) HeaderText="SURNAME" TextAlign="TextAlign.Left" ForeignKeyValue="Lastname" Format="d" ForeignDataSource="@borrowers" ></GridForeignColumn>
-                </GridColumns>
-            </SfGrid>
+@if (tempLoans.Count > 0)
+{
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+            <div class="row">
+                <SfGrid ID="Grid" @ref="Grid" DataSource="@tempLoans" Toolbar="@(new List<string>() { "ExcelExport","CsvExport","Search" })" AllowExcelExport=true AllowPdfExport="true" AllowPaging="true">
+                    <GridEvents OnToolbarClick="ToolbarClick" TValue="LoanMgt.SHARED.TempLoan"></GridEvents>
+                    <GridColumns>
+                        <GridColumn Field=@nameof(tempLoan.EmployeeNo) HeaderText="EMPLOYEE NUMBER" TextAlign="TextAlign.Left"></GridColumn>
+                        <GridColumn Field=@nameof(tempLoan.OldWageType) HeaderText="OLD WAGE TYPE" TextAlign="TextAlign.Left"></GridColumn>
+                        <GridColumn Field=@nameof(tempLoan.NewWageType) HeaderText="NEW WAGE TYPE" TextAlign="TextAlign.Left"></GridColumn>
+                        <GridColumn Field=@nameof(tempLoan.EndDate) HeaderText="END DATE"></GridColumn>
+                        <GridColumn Field=@nameof(tempLoan.StartDate) HeaderText="START DATE"></GridColumn>
+                        <GridColumn Field=@nameof(tempLoan.Instalment) HeaderText="INSTALMENT" TextAlign="TextAlign.Left"></GridColumn>
+                        <GridColumn Field=@nameof(tempLoan.Cheque) HeaderText="PAYMENT METHOD ELECTRONIC_CHEQUE" TextAlign="TextAlign.Left"></GridColumn>
+                        <GridColumn Field=@nameof(tempLoan.ZLSCH) HeaderText="ZLSCH"></GridColumn>
+                        <GridColumn Field=@nameof(tempLoan.Nrc) HeaderText="NRC. NO" TextAlign="TextAlign.Left"></GridColumn>
+                        <GridColumn Field=@nameof(tempLoan.Firstname) HeaderText="FIRST NAME" TextAlign="TextAlign.Left"></GridColumn>
+                        <GridColumn Field=@nameof(tempLoan.Surname) HeaderText="SURNAME" TextAlign="TextAlign.Left"></GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
         </div>
     </div>
-</div>
+}
+else
+{
+    <div class="text-center col-lg-12 control-section">
+        <p>No records found...</p>
+    </div>
+}
 
 @code {
     private LoanMgt.SHARED.Loan loan = new LoanMgt.SHARED.Loan();
+    private LoanMgt.SHARED.TempLoan tempLoan = new LoanMgt.SHARED.TempLoan();
     private IEnumerable<LoanMgt.SHARED.Loan> loans { get; set; } = new List<LoanMgt.SHARED.Loan>();
+    private List<LoanMgt.SHARED.TempLoan> tempLoans { get; set; } = new List<LoanMgt.SHARED.TempLoan>();
     private IEnumerable<LoanMgt.SHARED.LoanProduct> loanProducts { get; set; } = new List<LoanMgt.SHARED.LoanProduct>();
     private IEnumerable<LoanMgt.SHARED.Borrower> borrowers { get; set; } = new List<LoanMgt.SHARED.Borrower>();
+    SfGrid<LoanMgt.SHARED.TempLoan> Grid;
 
     protected override void OnInitialized()
     {
         loans = Service.GetAll().Where(l=> (l.LoanStatusId == 2 || (l.LoanStatusId == 1 && l.ApproverStage == 1) ) && l.Closed == false && l.Suspended == false).ToList();
         borrowers = borrowerRepo.GetAll();
         loanProducts = loanProductRepo.GetAll();
+
+        foreach (var vLoan in loans)
+        {
+            var borrower = borrowerRepo.Get(vLoan.BorrowerId);
+
+            LoanMgt.SHARED.TempLoan tLoan = new LoanMgt.SHARED.TempLoan()
+            {
+                Selected = false,
+                EmployeeNo = borrower.EmployeeNo,
+                OldWageType = "",
+                NewWageType = "8000",
+                EndDate = vLoan.LoanEnd.Value.ToShortDateString(),
+                StartDate = vLoan.LoanStart.Value.ToShortDateString(),
+                Instalment = vLoan.FirstRepaymentAmount.ToString(),
+                Cheque = "E693",
+                ZLSCH = "E",
+                Nrc = borrower.NRC,
+                Firstname = borrower.Firstname,
+                Surname = borrower.Lastname
+            };
+
+            tempLoans.Add(tLoan);
+        }
     }
 
     protected void EditRecord(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, LoanMgt.SHARED.Loan myLoan)
     {
         UriHelper.NavigateTo("/addloan/"+ myLoan.LoanId);
+    }
+
+    public void ToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        if (args.Item.Id == "Grid_pdfexport")
+        {
+            this.Grid.PdfExport();
+        }
+        else if (args.Item.Id == "Grid_excelexport")
+        {
+            this.Grid.ExcelExport();
+        }
+        else
+        {
+            this.Grid.CsvExport();
+        }
     }
 }
 
