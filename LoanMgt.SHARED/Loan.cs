@@ -65,7 +65,7 @@ namespace LoanMgt.SHARED
         [DefaultValue(false)]
         public bool Closed { get; set; }
 
-        public bool Suspened { get; set; }
+        public bool Suspended { get; set; }
         public string SuspendReason { get; set; }
         public string SuspendedBy { get; set; }
         public DateTime SuspendedDate { get; set; }
