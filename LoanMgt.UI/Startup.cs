@@ -104,7 +104,8 @@ namespace LoanMgt.UI
         {
             // Register Syncfusion license
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NTIwNDg4QDMxMzkyZTMzMmUzMFN6YXdUdWZxZVU1UFJ1dHNwVmkyTFVBNVRBaGlLVkFBazZ6RzRFeDFRZUk9");
-
+            //Register Bold license
+            Bold.Licensing.BoldLicenseProvider.RegisterLicense("EYMyDobfUIHK24dtm0sUuepcwGUPG4Xv/qxBuQwN/7s=");
 
             if (env.IsDevelopment())
             {
