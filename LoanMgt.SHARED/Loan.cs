@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
@@ -57,9 +58,17 @@ namespace LoanMgt.SHARED
         public float? TotalReturn { get; set; }
         public float? TotalReturnPA { get; set; }
         public float Balance { get; set; }
+        [Required]
         public DateTime? LoanStart { get; set; }
+        [Required]
         public DateTime? LoanEnd { get; set; }
+        [DefaultValue(false)]
         public bool Closed { get; set; }
+
+        public bool Suspened { get; set; }
+        public string SuspendReason { get; set; }
+        public string SuspendedBy { get; set; }
+        public DateTime SuspendedDate { get; set; }
         public int ApproverStage { get; set; }
         public string FirstApprover { get; set; }
         public DateTime FirstApproverDate { get; set; }
