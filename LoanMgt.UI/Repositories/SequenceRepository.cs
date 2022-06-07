@@ -28,13 +28,27 @@ namespace LoanMgt.UI.Repositories
 
         public Sequence Increment(Sequence sequence)
         {
-            int len = sequence.SeqNumber.Length;
+            //int len = sequence.SeqNumber.Length;
 
-            float seq = float.Parse(sequence.SeqNumber);
+            //float seq = float.Parse(sequence.SeqNumber);
             int step = sequence.Step;
 
-            float newSeq = seq + step;
-            sequence.SeqNumber = newSeq.ToString($"D{len}");
+            //float newSeq = seq + step;
+            //sequence.SeqNumber = newSeq.ToString($"D{len}");
+            //--------------------------------------------------
+            string ManNo = sequence.SeqNumber;
+            int manNoLength = ManNo.Length;
+            string preFix = new String(ManNo.Where(Char.IsLetter).ToArray());
+            int preFixLength = preFix.Length;
+
+            string EmployeeNo = new String(ManNo.Where(Char.IsDigit).ToArray());
+            int suffixLength = manNoLength - preFixLength;
+
+            string OldEmployeNo = int.Parse(EmployeeNo).ToString();
+            string NewEmployeeNo = (int.Parse(EmployeeNo) + step).ToString($"D{suffixLength}");
+
+            sequence.SeqNumber = $"{preFix}{NewEmployeeNo}";
+
             return sequence;
         }
     }
