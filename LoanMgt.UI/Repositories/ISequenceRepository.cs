@@ -11,5 +11,9 @@ namespace LoanMgt.UI.Repositories
     /// </summary>
     public interface ISequenceRepository : IGenericRepository<Sequence>
     {
+        public Sequence GetByName(string name);
+
+        public Sequence Increment(Sequence sequence);
+
     }
 }

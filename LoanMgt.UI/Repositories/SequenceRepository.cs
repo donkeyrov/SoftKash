@@ -20,5 +20,22 @@ namespace LoanMgt.UI.Repositories
         {
 
         }
+
+        public Sequence GetByName(string name)
+        {
+            return dbContext.Set<Sequence>().Where(s => s.Name.ToUpper() == name.ToUpper()).FirstOrDefault();
+        }
+
+        public Sequence Increment(Sequence sequence)
+        {
+            int len = sequence.SeqNumber.Length;
+
+            float seq = float.Parse(sequence.SeqNumber);
+            int step = sequence.Step;
+
+            float newSeq = seq + step;
+            sequence.SeqNumber = newSeq.ToString($"D{len}");
+            return sequence;
+        }
     }
 }
