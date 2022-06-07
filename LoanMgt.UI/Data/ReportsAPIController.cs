@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
 using System.IO;
 using System.Collections.Generic;
+using BoldReports.Web;
+using Microsoft.Extensions.Configuration;
 
 namespace LoanMgt.UI.Data
 {
@@ -16,11 +18,13 @@ namespace LoanMgt.UI.Data
 
         // IWebHostEnvironment used with sample to get the application data from wwwroot.
         private IWebHostEnvironment _hostingEnvironment;
+        public IConfiguration _configuration { get; }
 
-        public ReportsAPIController(IMemoryCache memoryCache, IWebHostEnvironment hostingEnvironment)
+        public ReportsAPIController(IMemoryCache memoryCache, IWebHostEnvironment hostingEnvironment, IConfiguration configuration)
         {
             _cache = memoryCache;
             _hostingEnvironment = hostingEnvironment;
+            _configuration = configuration;
         }
         //Get action for getting resources from the report
         [ActionName("GetResource")]
@@ -43,6 +47,19 @@ namespace LoanMgt.UI.Data
             reportStream.Position = 0;
             inputStream.Close();
             reportOption.ReportModel.Stream = reportStream;
+
+            DataSourceCredentials dataSourceCredentials = new DataSourceCredentials();
+
+            string connectionString = _configuration.GetSection("DBSettings").GetValue<string>("connectionString");
+
+            //You have to provide the shared data source name used with the report or the data source name available with the report.
+            dataSourceCredentials.Name = "DataSource1";
+            dataSourceCredentials.IntegratedSecurity = false;
+            dataSourceCredentials.UserId = _configuration.GetSection("DBSettings").GetValue<string>("username");
+            dataSourceCredentials.Password = _configuration.GetSection("DBSettings").GetValue<string>("pwd");
+
+            dataSourceCredentials.ConnectionString = connectionString;
+            reportOption.ReportModel.DataSourceCredentials = new List<DataSourceCredentials> { dataSourceCredentials };
         }
 
         // Method will be called when report is loaded internally to start the layout process with ReportHelper.

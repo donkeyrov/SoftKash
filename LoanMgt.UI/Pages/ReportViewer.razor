@@ -1,4 +1,5 @@
 ﻿@page "/reporting"
+@page "/reporting/{ReportName}"
 
 @using Microsoft.JSInterop
 @using Microsoft.AspNetCore.Components
@@ -11,13 +12,16 @@
 <div id="reportViewerControl" style="width: 100%;height:800px" />
 
 @code {
+    [Parameter]
+    public string ReportName { get; set; }
+
     // ReportViewer options
     ReportOptions viewerOptions = new ReportOptions();
 
     // Used to render the Bold Report Viewer component in Blazor page.
     public async void RenderReportViewer()
     {
-        viewerOptions.ReportName = "sales-order-detail";
+        viewerOptions.ReportName = ReportName;
         viewerOptions.ServiceURL = "/api/ReportsAPI";
         await JSRuntime.InvokeVoidAsync("BoldReports.RenderViewer", "reportViewerControl", viewerOptions);
     }

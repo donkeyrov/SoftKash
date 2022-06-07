@@ -6,6 +6,8 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using BoldReports.Web;
+using Microsoft.Extensions.Configuration;
 
 namespace LoanMgt.UI.Data
 {
@@ -14,11 +16,13 @@ namespace LoanMgt.UI.Data
     {
         private Microsoft.Extensions.Caching.Memory.IMemoryCache _cache;
         private IWebHostEnvironment _hostingEnvironment;
+        public IConfiguration _configuration { get; }
 
-        public ReportDesignerAPIController(Microsoft.Extensions.Caching.Memory.IMemoryCache memoryCache, IWebHostEnvironment hostingEnvironment)
+        public ReportDesignerAPIController(Microsoft.Extensions.Caching.Memory.IMemoryCache memoryCache, IWebHostEnvironment hostingEnvironment, IConfiguration configuration)
         {
             _cache = memoryCache;
             _hostingEnvironment = hostingEnvironment;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -69,6 +73,18 @@ namespace LoanMgt.UI.Data
         public void OnInitReportOptions(ReportViewerOptions reportOption)
         {
             //You can update report options here
+            DataSourceCredentials dataSourceCredentials = new DataSourceCredentials();
+
+            string connectionString = _configuration.GetSection("DBSettings").GetValue<string>("connectionString");
+
+            //You have to provide the shared data source name used with the report or the data source name available with the report.
+            dataSourceCredentials.Name = "DataSource2";
+            dataSourceCredentials.IntegratedSecurity = false;
+            dataSourceCredentials.UserId = _configuration.GetSection("DBSettings").GetValue<string>("username");
+            dataSourceCredentials.Password = _configuration.GetSection("DBSettings").GetValue<string>("pwd");
+
+            dataSourceCredentials.ConnectionString = connectionString;
+            reportOption.ReportModel.DataSourceCredentials = new List<DataSourceCredentials> { dataSourceCredentials };
         }
 
         /// <summary>
