@@ -1,0 +1,348 @@
+<?xml version="1.0"?>
+<Report xmlns:df="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition/defaultfontfamily" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition">
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <Style>
+          <Border>
+            <Style>None</Style>
+          </Border>
+        </Style>
+        <ReportItems>
+          <Textbox Name="Provinces_Code1">
+            <Left>25.5pt</Left>
+            <Top>9pt</Top>
+            <Height>18.75pt</Height>
+            <Width>51.75pt</Width>
+            <Style>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>=First(Fields!Provinces_Code.Value, "DataSet1")</Value>
+                    <Style>
+                      <FontSize>6pt</FontSize>
+                      <Color>Black</Color>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+          </Textbox>
+          <Textbox Name="Provinces_Name1">
+            <Left>85.5pt</Left>
+            <Top>9pt</Top>
+            <Height>18.75pt</Height>
+            <Width>97.5pt</Width>
+            <Style>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>=First(Fields!Provinces_Name.Value, "DataSet1")</Value>
+                    <Style>
+                      <FontSize>6pt</FontSize>
+                      <Color>Black</Color>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+          </Textbox>
+          <Textbox Name="Code1">
+            <Left>185.25pt</Left>
+            <Top>9.75pt</Top>
+            <Height>18.75pt</Height>
+            <Width>97.5pt</Width>
+            <Style>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>=First(Fields!Code.Value, "DataSet1")</Value>
+                    <Style>
+                      <FontSize>6pt</FontSize>
+                      <Color>Black</Color>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+          </Textbox>
+          <Textbox Name="Name1">
+            <Left>285pt</Left>
+            <Top>10.5pt</Top>
+            <Height>18.75pt</Height>
+            <Width>97.5pt</Width>
+            <Style>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>=First(Fields!Name.Value, "DataSet1")</Value>
+                    <Style>
+                      <FontSize>6pt</FontSize>
+                      <Color>Black</Color>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+          </Textbox>
+        </ReportItems>
+        <Height>33.75pt</Height>
+      </Body>
+      <Width>6.5in</Width>
+      <Page>
+        <PageHeader>
+          <Style>
+            <Border>
+              <Style>None</Style>
+            </Border>
+          </Style>
+          <Height>87pt</Height>
+          <PrintOnFirstPage>true</PrintOnFirstPage>
+          <PrintOnLastPage>true</PrintOnLastPage>
+          <ReportItems>
+            <Textbox Name="TextBox1">
+              <Left>189.375pt</Left>
+              <Top>42.375pt</Top>
+              <Height>21pt</Height>
+              <Width>89.25pt</Width>
+              <Style>
+                <PaddingLeft>2pt</PaddingLeft>
+                <PaddingRight>2pt</PaddingRight>
+                <PaddingTop>2pt</PaddingTop>
+                <PaddingBottom>2pt</PaddingBottom>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>TOWNS REPORT</Value>
+                      <Style>
+                        <Color>Black</Color>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+            </Textbox>
+            <Line Name="Line1">
+              <Left>4.5pt</Left>
+              <Top>83.25pt</Top>
+              <Height>0pt</Height>
+              <Width>458.25pt</Width>
+              <Style>
+                <Border>
+                  <Style>Solid</Style>
+                </Border>
+              </Style>
+            </Line>
+          </ReportItems>
+        </PageHeader>
+        <PageFooter>
+          <Style>
+            <Border>
+              <Style>None</Style>
+            </Border>
+          </Style>
+          <Height>0.72917in</Height>
+          <PrintOnFirstPage>true</PrintOnFirstPage>
+          <PrintOnLastPage>true</PrintOnLastPage>
+        </PageFooter>
+        <LeftMargin>1in</LeftMargin>
+        <RightMargin>1in</RightMargin>
+        <TopMargin>1in</TopMargin>
+        <BottomMargin>1in</BottomMargin>
+        <Style>
+          <Border>
+            <Style>None</Style>
+          </Border>
+        </Style>
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="DataSource1">
+      <ConnectionProperties>
+        <DataProvider>SQL</DataProvider>
+        <ConnectString>Data Source=MMUMBA;Initial Catalog=SOFTKASHLOANMGT;</ConnectString>
+        <rd:IsDesignState>true</rd:IsDesignState>
+      </ConnectionProperties>
+      <rd:SecurityType>DataBase</rd:SecurityType>
+      <rd:ImpersonateUser>false</rd:ImpersonateUser>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="DataSet1">
+      <Fields>
+        <Field Name="TownId">
+          <DataField>TownId</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="ProvinceId">
+          <DataField>ProvinceId</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Code">
+          <DataField>Code</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Name">
+          <DataField>Name</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="CreatedBy">
+          <DataField>CreatedBy</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="CreatedDate">
+          <DataField>CreatedDate</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="Provinces_ProvinceId">
+          <DataField>Provinces_ProvinceId</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="CountryId">
+          <DataField>CountryId</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Provinces_Code">
+          <DataField>Provinces_Code</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Provinces_Name">
+          <DataField>Provinces_Name</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Provinces_CreatedBy">
+          <DataField>Provinces_CreatedBy</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Provinces_CreatedDate">
+          <DataField>Provinces_CreatedDate</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>DataSource1</DataSourceName>
+        <CommandType>Text</CommandType>
+        <CommandText>SELECT [dbo].[Towns].[TownId],
+[dbo].[Towns].[ProvinceId],
+[dbo].[Towns].[Code],
+[dbo].[Towns].[Name],
+[dbo].[Towns].[CreatedBy],
+[dbo].[Towns].[CreatedDate],
+[dbo].[Provinces].[ProvinceId] AS [Provinces_ProvinceId],
+[dbo].[Provinces].[CountryId],
+[dbo].[Provinces].[Code] AS [Provinces_Code],
+[dbo].[Provinces].[Name] AS [Provinces_Name],
+[dbo].[Provinces].[CreatedBy] AS [Provinces_CreatedBy],
+[dbo].[Provinces].[CreatedDate] AS [Provinces_CreatedDate] FROM [dbo].[Provinces] INNER JOIN [dbo].[Towns] ON [dbo].[Provinces].[ProvinceId]=[dbo].[Towns].[ProvinceId]</CommandText>
+        <QueryDesignerState xmlns="http://schemas.microsoft.com/ReportingServices/QueryDefinition/Relational">
+          <Tables>
+            <Table Name="Towns" Schema="dbo">
+              <Columns>
+                <Column Name="TownId" IsDuplicate="False" IsSelected="True" />
+                <Column Name="ProvinceId" IsDuplicate="False" IsSelected="True" />
+                <Column Name="Code" IsDuplicate="False" IsSelected="True" />
+                <Column Name="Name" IsDuplicate="False" IsSelected="True" />
+                <Column Name="CreatedBy" IsDuplicate="False" IsSelected="True" />
+                <Column Name="CreatedDate" IsDuplicate="False" IsSelected="True" />
+              </Columns>
+              <SchemaLevels>
+                <SchemaInfo Name="dbo" SchemaType="Schema" />
+                <SchemaInfo Name="Tables" SchemaType="Category" />
+                <SchemaInfo Name="Towns" SchemaType="Table" />
+              </SchemaLevels>
+            </Table>
+            <Table Name="Provinces" Schema="dbo">
+              <Columns>
+                <Column Name="ProvinceId" AliasName="Provinces_ProvinceId" IsDuplicate="True" IsSelected="True" />
+                <Column Name="CountryId" IsDuplicate="False" IsSelected="True" />
+                <Column Name="Code" AliasName="Provinces_Code" IsDuplicate="True" IsSelected="True" />
+                <Column Name="Name" AliasName="Provinces_Name" IsDuplicate="True" IsSelected="True" />
+                <Column Name="CreatedBy" AliasName="Provinces_CreatedBy" IsDuplicate="True" IsSelected="True" />
+                <Column Name="CreatedDate" AliasName="Provinces_CreatedDate" IsDuplicate="True" IsSelected="True" />
+              </Columns>
+              <SchemaLevels>
+                <SchemaInfo Name="dbo" SchemaType="Schema" />
+                <SchemaInfo Name="Tables" SchemaType="Category" />
+                <SchemaInfo Name="Provinces" SchemaType="Table" />
+              </SchemaLevels>
+            </Table>
+          </Tables>
+          <Joins>
+            <Join LeftTable="Provinces" RightTable="Towns" JoinType="Inner">
+              <JoinFields>
+                <JoinField LeftField="ProvinceId" RightField="ProvinceId" OperatorType="=" />
+              </JoinFields>
+            </Join>
+          </Joins>
+        </QueryDesignerState>
+      </Query>
+    </DataSet>
+  </DataSets>
+  <ReportParametersLayout>
+    <GridLayoutDefinition>
+      <NumberOfColumns>4</NumberOfColumns>
+      <NumberOfRows>2</NumberOfRows>
+    </GridLayoutDefinition>
+  </ReportParametersLayout>
+  <rd:ReportUnitType>Inch</rd:ReportUnitType>
+  <rd:PageUnit>Px</rd:PageUnit>
+  <df:DefaultFontFamily>Segoe UI</df:DefaultFontFamily>
+</Report>

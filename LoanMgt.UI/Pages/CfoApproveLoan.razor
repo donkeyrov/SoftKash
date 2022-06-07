@@ -464,7 +464,8 @@
                 TaxTypeId = 1,
                 AccountingYear = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString(),
                 TaxMonth = DateTime.Now.Month.ToString(),
-                BorrowerId = borrower.BorrowerId
+                BorrowerId = borrower.BorrowerId, 
+                Reference = loan.LoanNumber
             };
             tranRepo.Add(transaction);
 
@@ -515,7 +516,8 @@
                         TaxTypeId = 1,
                         AccountingYear = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString(),
                         TaxMonth = DateTime.Now.Month.ToString(),
-                        BorrowerId = borrower.BorrowerId
+                        BorrowerId = borrower.BorrowerId,
+                        Reference = loan.LoanNumber
                     };
                     tranRepo.Add(transaction);
 
@@ -541,7 +543,8 @@
                         TaxTypeId = 1,
                         AccountingYear = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString(),
                         TaxMonth = DateTime.Now.Month.ToString(),
-                        BorrowerId = borrower.BorrowerId
+                        BorrowerId = borrower.BorrowerId,
+                        Reference = loan.LoanNumber
                     };
                     tranRepo.Add(transaction);
                 }
@@ -620,7 +623,8 @@
                         TaxTypeId = 1,
                         AccountingYear = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString(),
                         TaxMonth = DateTime.Now.Month.ToString(),
-                        BorrowerId = borrower.BorrowerId
+                        BorrowerId = borrower.BorrowerId,
+                        Reference = loan.LoanNumber
                     };
                     tranRepo.Add(transaction);
 
@@ -646,7 +650,8 @@
                         TaxTypeId = 1,
                         AccountingYear = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString(),
                         TaxMonth = DateTime.Now.Month.ToString(),
-                        BorrowerId = borrower.BorrowerId
+                        BorrowerId = borrower.BorrowerId,
+                        Reference = loan.LoanNumber
                     };
                     tranRepo.Add(transaction);
                 }
@@ -676,6 +681,7 @@
             loan.lastRepaymentAmount = iloan.MonthlyInstallment;
 
             loan.TotalDue = (float)Math.Round(iloan.MonthlyInstallment * iloan.NumberOfMonths,2);
+            loan.Balance = (float)loan.TotalDue;
 
             double lValue = double.Parse(lAmount.ToString());
             try
@@ -865,6 +871,7 @@
             loan.lastRepaymentAmount = iloan.MonthlyInstallment;
             
             loan.TotalDue = (float)Math.Round(iloan.MonthlyInstallment * iloan.NumberOfMonths,2);
+            loan.Balance = (float)loan.TotalDue;
 
             double lValue = double.Parse(lAmount.ToString());
             try

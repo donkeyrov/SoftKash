@@ -3,6 +3,7 @@
 @inject IJSRuntime JSRuntime
 @inject NavigationManager UriHelper
 @inject LoanProductRepository loanProductRepo;
+@inject LoanRepository loanRepo;
 @inject BorrowerRepository borrowerRepo;
 @inject TransactionRepository tranRepo;
 @inject AuthenticationStateProvider GetAuthenticationStateAsync
@@ -136,6 +137,9 @@
 
             var borrower = borrowerRepo.GetAll().Where(b => b.NRC == item.Nrc).FirstOrDefault();
 
+            //get open loan for borrower
+            var loan = loanRepo.GetAll().Where(l => l.BorrowerId == borrower.BorrowerId).FirstOrDefault();
+
             //post transaction
             //post repayment amount to CR of customer
             var transaction = new SHARED.Transaction()
@@ -154,7 +158,8 @@
                 Reconciled = false,
                 UnitPrice = 0,
                 UserId = name,
-                BatchRef = "",
+                BatchRef = borrower.EmployeeNo,
+                Reference = loan == null? "":loan.LoanNumber,
                 BranchId = 1,
                 TaxTypeId = 1,
                 AccountingYear = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString(),
@@ -163,7 +168,9 @@
             };
             tranRepo.Add(transaction);
 
-        //
+            //reduce loan balance
+            loan.Balance = loan.Balance - (float)Math.Round(item.Amount, 2);
+            loanRepo.Update(loan);
         }
 
         transactionTemps = Service.GetAll().Where(t => t.Posted == false).ToList();
