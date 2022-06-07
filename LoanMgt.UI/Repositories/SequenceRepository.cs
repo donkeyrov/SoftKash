@@ -38,14 +38,17 @@ namespace LoanMgt.UI.Repositories
             //--------------------------------------------------
             string ManNo = sequence.SeqNumber;
             int manNoLength = ManNo.Length;
-            string preFix = new String(ManNo.Where(Char.IsLetter).ToArray());
+
+            string suffix = new String(ManNo.Where(Char.IsDigit).ToArray());
+            int suffixLength = suffix.Length;
+
+            string preFix = ManNo.Replace(suffix, string.Empty);
             int preFixLength = preFix.Length;
 
-            string EmployeeNo = new String(ManNo.Where(Char.IsDigit).ToArray());
-            int suffixLength = manNoLength - preFixLength;
+            
 
-            string OldEmployeNo = int.Parse(EmployeeNo).ToString();
-            string NewEmployeeNo = (int.Parse(EmployeeNo) + step).ToString($"D{suffixLength}");
+            string OldEmployeNo = int.Parse(suffix).ToString();
+            string NewEmployeeNo = (int.Parse(suffix) + step).ToString($"D{suffixLength}");
 
             sequence.SeqNumber = $"{preFix}{NewEmployeeNo}";
 

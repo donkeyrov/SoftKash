@@ -13,6 +13,7 @@
 @inject BorrowerRepository BorrowerRepo;
 @inject LoanFeeRepository loanFeeRepo;
 @inject LoanFileRepository loanFileRepo;
+@inject SequenceRepository sequenceRepo;
 @inherits OwningComponentBase<LoanRepository>
 @using Microsoft.VisualBasic;
 @inject FileUpload fileUpload;
@@ -54,7 +55,7 @@
                 <label for="loanno">Loan #</label>
             </div>
             <div class="col-lg-8 col-md-8">
-                <InputText @bind-Value="loan.LoanNumber" placeholder="Loan Number" id="loanno" name="loanno" class="form-control" />                                 
+                <InputText @bind-Value="loan.LoanNumber" placeholder="Loan Number" id="loanno" name="loanno" class="form-control" readonly="readonly" />                                 
             </div>
         </div>
         <br/>
@@ -229,6 +230,17 @@
                         </InputSelectNumber>
                     </div>                    
                 </div>
+                <div class="row pace-md">
+                    <div class="col-lg-4 col-md-4 pull-right">
+                        <label>Loan Period</label>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <InputDate @bind-Value="loan.LoanStart" placeholder="Loan Start" id="loanStart" name="loanStart" class="form-control"/>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <InputDate @bind-Value="loan.LoanEnd" placeholder="Loan End" id="loanEnd" name="loanEnd" class="form-control"/>
+                    </div>                 
+                </div>
              </div>
         </div>
 
@@ -356,7 +368,7 @@
         <div class="text-right pace-md">
             @if((loan.LoanStatusId == 1 || loan.LoanStatusId == 0)  && (loan.ApproverStage == 1 || loan.ApproverStage == 0))
             {
-                <button type="submit" class="btn btn-info" style="margin-right:10px;">Submit</button>
+                <button type="submit" class="btn btn-info" style="margin-right:10px;">Save</button>
             }
             
             @if(loan.LoanStatusId == 1 && loan.ApproverStage == 1 )
@@ -445,6 +457,13 @@
         //TODO complete adding of loan products
         if(loan.LoanId == 0)
         {
+            //get next sequence
+            var seq = sequenceRepo.GetByName("LoanNumber");
+            seq = sequenceRepo.Increment(seq);
+            sequenceRepo.Update(seq);
+            
+            //create new loan
+            loan.LoanNumber = seq.SeqNumber;
             loan.LoanStatusId = 1;
             loan.ApproverStage = 1;
             loan.CreatedBy = name;
