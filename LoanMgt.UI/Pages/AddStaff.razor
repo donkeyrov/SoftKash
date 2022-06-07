@@ -210,7 +210,7 @@
         userId = "0";
         user = new IdentityUser();
         users = UserManager.Users.AsEnumerable();
-        StateHasChanged();
+        Grid.Refresh();
 
         toastService.ShowWarning("Staff has been Deleted", "System Information");
     }
