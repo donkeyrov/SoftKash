@@ -67,6 +67,14 @@
                             <Template>
                                 @{
                                     var rType = (context as LoanMgt.SHARED.Role);
+                                    <SfButton @onclick="@(() => EditPermissions(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-success e-small">Permissions</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn MaxWidth="70">
+                            <Template>
+                                @{
+                                    var rType = (context as LoanMgt.SHARED.Role);
                                     <SfButton @onclick="@(() => EditRecord(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
                                 }
                             </Template>
@@ -146,6 +154,12 @@
         title = "Delete Record";
         childContent = "Do You Want To Delete This Record(" + role.Name + ")?";
         showModal = true;
+    }
+
+
+    protected void EditPermissions(LoanMgt.SHARED.Role rType)
+    {
+        UriHelper.NavigateTo("/staffrolepermissions/"+rType.Id);
     }
 
     protected void EditRecord(LoanMgt.SHARED.Role rType)

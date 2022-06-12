@@ -27,6 +27,20 @@ body header a {
   display: block;
   text-transform: uppercase;
 }
+body Div .login-header h1 {
+  color: #FFFFFF !important;
+  display: none;
+}
+@media (min-width: 840px) {
+  body Div .login-header h1 {
+    display: block;
+  }
+}
+@media (min-width: 600px) {
+  body Div .login-header h1 {
+    display: block;
+  }
+}
 body Div .admin-link {
   font-size: small;
   text-decoration: none;

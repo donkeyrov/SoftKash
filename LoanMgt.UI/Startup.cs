@@ -95,6 +95,7 @@ namespace LoanMgt.UI
             services.AddTransient<GuarantorRepository>();
             services.AddTransient<GuarantorFileRepository>();
             services.AddTransient<UserRepository>();
+            services.AddTransient<RoleClaimRepository>();
             services.AddTransient<AccountSettingsRepository>();
 
         }

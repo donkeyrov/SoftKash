@@ -6,7 +6,7 @@ using System.Text;
 
 namespace LoanMgt.SHARED
 { 
-    [Table("AspNetUserRole")]
+    [Table("AspNetUserRoles")]
     public class UserRole: IdentityUserRole
     {
     }

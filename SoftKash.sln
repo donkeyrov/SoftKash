@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoanMgt.UI", "LoanMgt.UI\Lo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoanMgt.SHARED", "LoanMgt.SHARED\LoanMgt.SHARED.csproj", "{CF4B387B-578F-4CEA-AEAA-E955BBD4AE8D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoanMgt.TEST", "LoanMgt.TEST\LoanMgt.TEST.csproj", "{A66D99E1-F5B1-4B0D-9B5A-9B564A9FE773}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoanMgt.TEST", "LoanMgt.TEST\LoanMgt.TEST.csproj", "{857B3BE6-C2B5-4FEC-B802-42B8ECA93BDE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{CF4B387B-578F-4CEA-AEAA-E955BBD4AE8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF4B387B-578F-4CEA-AEAA-E955BBD4AE8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF4B387B-578F-4CEA-AEAA-E955BBD4AE8D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A66D99E1-F5B1-4B0D-9B5A-9B564A9FE773}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A66D99E1-F5B1-4B0D-9B5A-9B564A9FE773}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A66D99E1-F5B1-4B0D-9B5A-9B564A9FE773}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A66D99E1-F5B1-4B0D-9B5A-9B564A9FE773}.Release|Any CPU.Build.0 = Release|Any CPU
+		{857B3BE6-C2B5-4FEC-B802-42B8ECA93BDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{857B3BE6-C2B5-4FEC-B802-42B8ECA93BDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{857B3BE6-C2B5-4FEC-B802-42B8ECA93BDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{857B3BE6-C2B5-4FEC-B802-42B8ECA93BDE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

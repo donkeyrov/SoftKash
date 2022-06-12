@@ -1,0 +1,233 @@
+﻿@page "/staffrolepermissions/{roleId}"
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inject RoleRepository roleRepo;
+@inject UserRoleRepository userRoleRepo;
+@inject RoleClaimRepository roleClaimRepo;
+@using LoanMgt.SHARED
+@using System.Security.Claims
+@inherits OwningComponentBase<MenuRepository>
+
+
+@if (loggedInUser > 0)
+{
+    <h3>Staff Role Permissions</h3>
+    <br />
+    <div class="admin-link">
+        <NavLink href="/staffroles">Back to Staff Roles</NavLink>
+    </div>
+    <div class="new-border3 blue-top">
+
+        @if (!string.IsNullOrEmpty(role.Id))
+        {
+            <h4>Role : @role.Name</h4>
+        }
+        <br/>
+
+        <div id="accordion">
+            @foreach (var item in menuList)
+            {
+                @if (item.ParentMenuId == 0)
+                {
+                    string id = item.Name.Substring(0, 1) + item.MenuId.ToString();
+                    bool Checked = false;
+                    if (SelectedValues != null)
+                    {
+                        if (SelectedValues.Contains(item.Name))
+                        {
+                            Checked = true;
+                        }
+                    }
+
+                    <div class="card">
+                        <div class="card-header" id="headingOne">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-toggle="collapse" data-target="#@id" aria-expanded="true" aria-controls="collapseOne">
+                                    <input type="checkbox" checked=@Checked
+                           @onchange="eventArgs => { CheckboxClicked(item.Name, eventArgs.Value); }"/> &nbsp;
+                                    @item.Name
+                                </button>
+                            </h5>
+                        </div>
+
+                        <div id="@id" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                            <div class="card-body">
+                                @item.SubText
+                                @foreach (var item2 in menuList)
+                                {
+                                    @if (item2.ParentMenuId == item.MenuId)
+                                    {
+                                        string id2 = item2.Name.Substring(0, 1) + item2.MenuId.ToString();
+                                        bool Checked2 = false;
+                                        if (SelectedValues != null)
+                                        {
+                                            if (SelectedValues.Contains(item2.Name))
+                                            {
+                                                Checked2 = true;
+                                            }
+                                        }
+
+                                        <div class="card">
+                                            <div class="card-header" id="headingOne">
+                                                <h5 class="mb-0">
+                                                    <button class="btn btn-link" data-toggle="collapse" data-target="#@id2" aria-expanded="true" aria-controls="collapseOne">
+                                                        <input type="checkbox" checked=@Checked2
+                                       @onchange="eventArgs => { CheckboxClicked(item2.Name, eventArgs.Value); }"/> &nbsp;
+                                                        {@item.Name}&nbsp; @item2.Name
+                                                    </button>
+                                                </h5>
+                                            </div>
+
+                                            <div id="@id2" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                                                <div class="card-body">
+                                                    @item2.SubText
+                                                    @foreach (var item3 in menuList)
+                                                    {
+                                                        @if (item3.ParentMenuId == item2.MenuId)
+                                                        {
+                                                            string id3 = item3.Name.Substring(0, 1) + item3.MenuId.ToString();
+                                                            bool Checked3 = false;
+                                                            if (SelectedValues != null)
+                                                            {
+                                                                if (SelectedValues.Contains(item3.Name))
+                                                                {
+                                                                    Checked3 = true;
+                                                                }
+                                                            }
+
+                                                            <div class="card">
+                                                                <div class="card-header" id="headingOne">
+                                                                    <h5 class="mb-0">
+                                                                        <button class="btn btn-link" data-toggle="collapse" data-target="#@id3" aria-expanded="true" aria-controls="collapseOne">
+                                                                            <input type="checkbox" checked=@Checked3
+                                                   @onchange="eventArgs => { CheckboxClicked(item3.Name, eventArgs.Value); }"/> &nbsp;
+                                                                            {@item.Name}&nbsp;{@item2.Name}&nbsp; @item3.Name
+                                                                        </button>
+                                                                    </h5>
+                                                                </div>
+
+                                                                <div id="@id3" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                                                                    <div class="card-body">
+                                                                        @item3.SubText
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    }
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <br/>
+        <div>
+            <button type="button" class="btn btn-lg btn-primary" @onclick="Processed">Submit</button>
+        </div>
+        <br/>
+
+    </div>
+
+}
+else
+{
+    <div class="loader">
+        <img src="/images/loadingimage.gif" />
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string roleId { get; set; }
+    private int UserId = 0;
+    private List<SHARED.Menu> menuList;
+    SHARED.Role role;
+    SHARED.UserRole userRole;
+    List<SHARED.Role> roles = new List<SHARED.Role>();
+    List<SHARED.UserRole> userRoles = new List<SHARED.UserRole>();
+    List<SHARED.RoleClaim> roleClaims = new List<SHARED.RoleClaim>();
+    public List<string> SelectedValues { get; set; } = new List<string>();
+    private int loggedInUser = 0;
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrEmpty(roleId))
+        {
+            role = roleRepo.GetAllRole().Where(r => r.Id == roleId).FirstOrDefault();
+        }
+
+        menuList = Service.GetAll().ToList();
+
+        //load role permissions
+        var mylist = roleClaimRepo.GetAllRoleClaims().Where(r => r.RoleId == roleId).ToList();
+
+        foreach (var item in mylist)
+        {
+            SelectedValues.Add(item.ClaimValue);
+        }
+        loggedInUser = 10;
+        StateHasChanged();
+    }
+
+    public void CheckboxClicked(string aSelectedId, object aChecked)
+    {
+        if ((bool)aChecked)
+        {
+            if (!SelectedValues.Contains(aSelectedId))
+            {
+                SelectedValues.Add(aSelectedId);
+            }
+        }
+        else
+        {
+            if (SelectedValues.Contains(aSelectedId))
+            {
+                SelectedValues.Remove(aSelectedId);
+            }
+        }
+        StateHasChanged();
+    }
+
+    public async void Processed()
+    {
+        if (SelectedValues.Count <= 0)
+        {
+            toastService.ShowWarning("No permissions have been selected", "System Information");
+            return;
+        }
+
+        //empty claim permissions for the role
+        roleClaimRepo.DeleteClaimsByRole(roleId);
+
+        foreach (var item in SelectedValues)
+        {
+            RoleClaim claim = new RoleClaim()
+                {
+                    RoleId = roleId,
+                    ClaimType = ClaimTypes.Role,
+                    ClaimValue = item
+                };
+
+            roleClaims.Add(claim);
+        }
+
+        if (roleClaimRepo.AddRoleClaims(roleClaims))
+        {
+            toastService.ShowSuccess("Permissions have been set", "System Information");
+            UriHelper.NavigateTo("/staffroles");
+        }
+        else
+        {
+            toastService.ShowError("Permissions could not be added, consult the system admin!", "System Information");
+        }
+    }
+}

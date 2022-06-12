@@ -60,6 +60,22 @@ body {
     }
 
     Div {
+        .login-header {
+
+            h1 {
+                color: #FFFFFF !important;
+                display: none;
+
+                @include desktop {
+                    display: block;
+                }
+
+                @include tablet {
+                    display: block;                   
+                }
+            }
+        }
+
         .admin-link {
             font-size: small;
             text-decoration: none;
