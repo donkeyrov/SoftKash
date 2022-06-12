@@ -223,7 +223,7 @@ else
         if (roleClaimRepo.AddRoleClaims(roleClaims))
         {
             toastService.ShowSuccess("Permissions have been set", "System Information");
-            UriHelper.NavigateTo("/staffroles");
+            UriHelper.NavigateTo("/staffroles",true);
         }
         else
         {

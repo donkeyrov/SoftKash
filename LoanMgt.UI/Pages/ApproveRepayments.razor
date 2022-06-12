@@ -170,6 +170,10 @@
 
             //reduce loan balance
             loan.Balance = loan.Balance - (float)Math.Round(item.Amount, 2);
+            if (loan.Balance <= 0)
+            {
+                loan.Closed = true;
+            }
             loanRepo.Update(loan);
         }
 

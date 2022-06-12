@@ -6,7 +6,7 @@
 <AuthorizeView>
     <Authorized>
         <a href="Identity/Account/Manage" class="btn btn-success">Hello, @context.User.Identity.Name!</a>&nbsp;&nbsp;
-        <a href="/admin" class="btn btn-info">Admin</a>&nbsp;&nbsp;&nbsp;
+        @*<a href="/admin" class="btn btn-info">Admin</a>&nbsp;&nbsp;&nbsp;*@
         
         <form method="post" action="/Identity/Account/Logout">
             <button type="button" @onclick="Logout" class="nav-link btn btn-outline-warning">Log out</button>
