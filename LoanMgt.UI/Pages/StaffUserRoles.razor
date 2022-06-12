@@ -1,0 +1,157 @@
+﻿@page "/staffuserroles/{userId}"
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager UriHelper
+@inject RoleRepository roleRepo;
+@inject UserRoleRepository userRoleRepo;
+@inject RoleClaimRepository roleClaimRepo;
+@using LoanMgt.SHARED
+@using System.Security.Claims
+@inherits OwningComponentBase<UserRepository>
+
+
+@if (loggedInUser > 0)
+{
+    <h3>Staff User Roles</h3>
+    <br />
+    <div class="admin-link">
+        <NavLink href="/addstaff">Back to Staff</NavLink>
+    </div>
+    <div class="new-border3 blue-top">
+
+        @if (!string.IsNullOrEmpty(user.Id))
+        {
+            <h4>User : @user.Email</h4>
+        }
+        <br/>
+
+        <div id="accordion">
+            @foreach (var item in roles)
+            {
+                string id = item.Name.Substring(0, 1) + item.Id.ToString();
+                bool Checked = false;
+                if (SelectedValues != null)
+                {
+                    if (SelectedValues.Contains(item.Id))
+                    {
+                        Checked = true;
+                    }
+                }
+
+                <div class="card">
+                    <div class="card-header" id="headingOne">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link" data-toggle="collapse" data-target="#@id" aria-expanded="true" aria-controls="collapseOne">
+                                <input type="checkbox" checked=@Checked
+                       @onchange="eventArgs => { CheckboxClicked(item.Id, eventArgs.Value); }"/> &nbsp;
+                                @item.Name
+                            </button>
+                        </h5>
+                    </div>
+
+                </div>
+            }
+        </div>
+
+        <br/>
+        <div>
+            <button type="button" class="btn btn-lg btn-primary" @onclick="Processed">Submit</button>
+        </div>
+        <br/>
+
+    </div>
+
+}
+else
+{
+    <div class="loader">
+        <img src="/images/loadingimage.gif" />
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string userId { get; set; }
+    private int UserId = 0;
+    private List<SHARED.User> users;
+    SHARED.User user;
+    SHARED.Role role;
+    SHARED.UserRole userRole;
+    List<SHARED.Role> roles = new List<SHARED.Role>();
+    List<SHARED.UserRole> userRoles = new List<SHARED.UserRole>();
+    List<SHARED.RoleClaim> roleClaims = new List<SHARED.RoleClaim>();
+    public List<string> SelectedValues { get; set; } = new List<string>();
+    private int loggedInUser = 0;
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrEmpty(userId))
+        {
+            user = Service.GetAllUsers().Where(u => u.Id == userId).FirstOrDefault();
+        }
+
+        roles = roleRepo.GetAllRole().ToList();
+
+        //load role permissions
+        var mylist = userRoleRepo.GetAllUserRoles().Where(r => r.UserId == userId).ToList();
+
+        foreach (var item in mylist)
+        {
+            SelectedValues.Add(item.RoleId);
+        }
+        loggedInUser = 10;
+        StateHasChanged();
+    }
+
+    public void CheckboxClicked(string aSelectedId, object aChecked)
+    {
+        if ((bool)aChecked)
+        {
+            if (!SelectedValues.Contains(aSelectedId))
+            {
+                SelectedValues.Add(aSelectedId);
+            }
+        }
+        else
+        {
+            if (SelectedValues.Contains(aSelectedId))
+            {
+                SelectedValues.Remove(aSelectedId);
+            }
+        }
+        StateHasChanged();
+    }
+
+    public void Processed()
+    {
+        if (SelectedValues.Count <= 0)
+        {
+            toastService.ShowWarning("No roles have been selected", "System Information");
+            return;
+        }
+
+        //empty roles for the user
+        userRoleRepo.DeleteRolesByUserID(userId);
+
+        foreach (var item in SelectedValues)
+        {
+            userRole = new UserRole()
+            {
+                RoleId = item,
+                UserId = userId
+            }; 
+
+            userRoles.Add(userRole);
+        }
+
+        if (userRoleRepo.AddUserRoles(userRoles))
+        {
+            toastService.ShowSuccess("User roles have been set", "System Information");
+            UriHelper.NavigateTo("/addstaff",true);
+        }
+        else
+        {
+            toastService.ShowError("User roles could not be added, consult the system admin!", "System Information");
+        }
+    }
+}

@@ -87,6 +87,14 @@
                             <Template>
                                 @{
                                     var rType = (context as IdentityUser);
+                                    <SfButton @onclick="@(() => EditRoles(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-success e-small">User Roles</SfButton>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn MaxWidth="70">
+                            <Template>
+                                @{
+                                    var rType = (context as IdentityUser);
                                     <SfButton @onclick="@(() => EditRecord(rType))" IsToggle="true" IconCss="oi oi-pencil" CssClass="e-warning e-small">Edit</SfButton>
                                 }
                             </Template>
@@ -199,6 +207,11 @@
         userId = rType.Id;
         user = rType;     
         openModal();
+    }
+
+    protected void EditRoles(IdentityUser rType)
+    {
+        UriHelper.NavigateTo($"/staffuserroles/{rType.Id}");
     }
 
     protected void DeletetRecord(IdentityUser rType)
