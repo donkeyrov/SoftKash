@@ -1,5 +1,15 @@
-﻿@inject IJSRuntime JSRuntime
+﻿@using Microsoft.AspNetCore.Identity
 @inject NavigationManager UriHelper
+@inject IJSRuntime JSRuntime
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authentication
+@using LoanMgt.SHARED
+@using System.Security.Claims
+@inject UserRoleRepository userRoleRepo;
+@inject RoleClaimRepository roleClaimRepo;
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
 
 <nav id="sidebar" class="@myClass">
     <div style="margin-bottom:10px;">
@@ -14,235 +24,333 @@
             <span class="oi oi-list-rich" aria-hidden="true"></span> HOME
         </NavLink>
     </li>
-                
-    <li class="nav-item px-3">
-        <NavLink class="nav-link" href="/home"  @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=2;}">
+    
+
+
+<li class="nav-item px-3">
+    @if (userRoles.Contains("BORROWERS"))
+    {
+        <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu = 2;}">
             <span class="oi oi-list-rich" aria-hidden="true"></span> BORROWERS
         </NavLink>
-        
-        @if (expandSubMenu && clickedMenu == 2)
-        {            
+    }
+
+    @if (expandSubMenu && clickedMenu == 2)
+    {
+        @if (userRoles.Contains("BORROWERS"))
+        {
             <NavLink class="expand-menu" href="/viewborrowers">
                 &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Borrowers
-            </NavLink>            
+            </NavLink>
+        }
+
+        @if (userRoles.Contains("BORROWERS"))
+        {
             <NavLink class="expand-menu" href="/addborrower">
                 &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Borrower
-            </NavLink>            
+            </NavLink>
+        }
+        @if (userRoles.Contains("View Borrower Group"))
+        {
             <NavLink class="expand-menu" href="/viewborrowergroups">
                 &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Borrower Group
-            </NavLink>  
+            </NavLink>
+        }
+        @if (userRoles.Contains("View Borrower Group"))
+        {
+            <NavLink class="expand-menu" href="/viewborrowergroups">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Borrower Group
+            </NavLink>
+        }
+        @if (userRoles.Contains("Add Borrower Group"))
+        {
             <NavLink class="expand-menu" href="/addborrowergroup">
                 &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Borrower Group
-            </NavLink>            
-        }            
-    </li>
-        
-<li class="nav-item px-3">
-    <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=3;}">
-        <span class="oi oi-list-rich" aria-hidden="true"></span> LOANS
-    </NavLink>
-    @if(expandSubMenu && clickedMenu == 3)
-    {                
-        <NavLink class="expand-menu" href="/viewallloans">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View All Loans
-        </NavLink>
-        <NavLink class="expand-menu" href="/loancalculator">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Loan Calculator
-        </NavLink>
-        <NavLink class="expand-menu" href="/addloan">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Loan
-        </NavLink>
-        <NavLink class="expand-menu" href="/approveloans">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Approve Loans
-        </NavLink> 
-        <NavLink class="expand-menu" href="/cfoviewloans">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> CFO Approve Loans
-        </NavLink>  
-        @*<NavLink class="expand-menu" href="/loanbook">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Loan Book
-        </NavLink>
-        <NavLink class="expand-menu" href="/partialperformingloans">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Partial Performing Loans
-        </NavLink>
-        <NavLink class="expand-menu" href="/adjustedloans">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Adjusted Installments Loan
-        </NavLink>
-        <NavLink class="expand-menu" href="/nonperformingloans">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Non Performing Loans
-        </NavLink>
-        <NavLink class="expand-menu" href="/guarantors">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Guarantors
-        </NavLink> *@ 
-                      
+            </NavLink>
+        }
     }
 </li>
 
 <li class="nav-item px-3">
-    <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=4;}">
-        <span class="oi oi-plus" aria-hidden="true"></span> REPAYMENTS
-    </NavLink>
-    @if(expandSubMenu && clickedMenu == 4)    
-    {                
-        <NavLink class="expand-menu" href="/viewrepayments">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View  Repayments
+    @if (userRoles.Contains("LOANS"))
+    {
+        <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu = 3;}">
+            <span class="oi oi-list-rich" aria-hidden="true"></span> LOANS
         </NavLink>
-        <NavLink class="expand-menu" href="/bulkrepayments">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Bulk Repayments
+    }
+
+    @if (expandSubMenu && clickedMenu == 3)
+    {
+        @if (userRoles.Contains("View All Loans"))
+        {
+            <NavLink class="expand-menu" href="/viewallloans">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View All Loans
+            </NavLink>
+        }
+        @if (userRoles.Contains("Loan Calculator"))
+        {
+            <NavLink class="expand-menu" href="/loancalculator">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Loan Calculator
+            </NavLink>
+        }
+        @if (userRoles.Contains("Add Loan"))
+        {
+            <NavLink class="expand-menu" href="/addloan">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Loan
+            </NavLink>
+        }
+        @if (userRoles.Contains("Approve Loans"))
+        {
+            <NavLink class="expand-menu" href="/approveloans">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Approve Loans
+            </NavLink>
+        }
+        @if (userRoles.Contains("CFO Approve Loans"))
+        {
+            <NavLink class="expand-menu" href="/cfoviewloans">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> CFO Approve Loans
+            </NavLink>
+        }
+    }
+</li>
+
+<li class="nav-item px-3">
+    @if (userRoles.Contains("REPAYMENTS"))
+    {
+        <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu = 4;}">
+            <span class="oi oi-plus" aria-hidden="true"></span> REPAYMENTS
         </NavLink>
-        @*<NavLink class="expand-menu" href="/uploadrepayments">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Upload Repayments - CSV
-        </NavLink>*@
-        <NavLink class="expand-menu" href="/approverepayments">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Approve Repayments
-        </NavLink>
+    }
+
+    @if (expandSubMenu && clickedMenu == 4)
+    {
+        @if (userRoles.Contains("View Repayments"))
+        {
+            <NavLink class="expand-menu" href="/viewrepayments">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Repayments
+            </NavLink>
+        }
+        @if (userRoles.Contains("Bulk Repayments"))
+        {
+            <NavLink class="expand-menu" href="/bulkrepayments">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Bulk Repayments
+            </NavLink>
+        }
+            @*<NavLink class="expand-menu" href="/uploadrepayments">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Upload Repayments - CSV
+            </NavLink>*@
+        @if (userRoles.Contains("Approve Repayments"))
+        {
+            <NavLink class="expand-menu" href="/approverepayments">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Approve Repayments
+            </NavLink>
+        }
     }
 </li>
 
 @*<li class="nav-item px-3">
-    <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=5;}">
-        <span class="oi oi-list-rich" aria-hidden="true"></span> COLLATERAL REGISTER
-    </NavLink>
-    @if(expandSubMenu && clickedMenu == 5)    
-    {                
-        <NavLink class="expand-menu" href="/home">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Register
+        <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=5;}">
+            <span class="oi oi-list-rich" aria-hidden="true"></span> COLLATERAL REGISTER
         </NavLink>
-        <NavLink class="expand-menu" href="/home">
-           &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Collateral
-        </NavLink>
-    }
-</li>*@
+        @if(expandSubMenu && clickedMenu == 5)    
+        {                
+            <NavLink class="expand-menu" href="/home">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Register
+            </NavLink>
+            <NavLink class="expand-menu" href="/home">
+               &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Collateral
+            </NavLink>
+        }
+    </li>*@
 <li class="nav-item px-3">
-    <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=6;}">
-        <span class="oi oi-plus" aria-hidden="true"></span> COLLECTION SHEET
-    </NavLink>
-    @if(expandSubMenu && clickedMenu == 6)
-    {   
-        <NavLink class="expand-menu" href="/loansubmission">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Loan Submission
-        </NavLink>
-        <NavLink class="expand-menu" href="/Dailycollection">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Daily Collection
-        </NavLink>
-        <NavLink class="expand-menu" href="/missedrepayments">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Missed Repayments
-        </NavLink>
-        <NavLink class="expand-menu" href="/passedmaturitydate">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Passed Maturity Date Loans
+    @if (userRoles.Contains("COLLECTION SHEET"))
+    {
+        <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu = 6;}">
+            <span class="oi oi-plus" aria-hidden="true"></span> COLLECTION SHEET
         </NavLink>
     }
-</li>
-        
-@*<li class="nav-item px-3">
-    <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=7;}">
-        <span class="oi oi-list-rich" aria-hidden="true"></span> INVESTOR ACCOUNTS
-    </NavLink>
-    @if(expandSubMenu && clickedMenu == 7)
-    {                
-        <NavLink class="expand-menu" href="/viewinvestoraccounts">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Investor Accounts
-        </NavLink>
-        <NavLink class="expand-menu" href="/addinvestoraccount">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Investor Account
-        </NavLink>
 
-        <NavLink class="expand-menu" href="/viewloaninvestments">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View All Loan Investments
-        </NavLink>
-        <NavLink class="expand-menu" href="/investortransactions">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Investor Transactions
-        </NavLink>
-        <NavLink class="expand-menu" href="/approveloaninvestments">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Approve Loan Investments
-        </NavLink>
-    } 
-</li>*@
-<li class="nav-item px-3">
-    <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=8;}">
-        <span class="oi oi-plus" aria-hidden="true"></span> EXPENSES
-    </NavLink>
-    @if(expandSubMenu && clickedMenu == 8)
-    {                
-        <NavLink class="expand-menu" href="/viewexpenses">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Expenses
-        </NavLink>
-        <NavLink class="expand-menu" href="/addexpenses">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Expenses
-        </NavLink>
+    @if (expandSubMenu && clickedMenu == 6)
+    {
+        @if (userRoles.Contains("Loan Submission"))
+        {
+            <NavLink class="expand-menu" href="/loansubmission">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Loan Submission
+            </NavLink>
+        }
+        @if (userRoles.Contains("Daily Collection"))
+        {
+            <NavLink class="expand-menu" href="/Dailycollection">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Daily Collection
+            </NavLink>
+        }
+        @if (userRoles.Contains("Missed Repayments"))
+        {
+            <NavLink class="expand-menu" href="/missedrepayments">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Missed Repayments
+            </NavLink>
+        }
+        @if (userRoles.Contains("Passed Maturity Date Loans"))
+        {
+            <NavLink class="expand-menu" href="/passedmaturitydate">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Passed Maturity Date Loans
+            </NavLink>
+        }
     }
 </li>
-        
-<li class="nav-item px-3">
-    <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=9;}">
-        <span class="oi oi-list-rich" aria-hidden="true"></span> OTHER INCOME
-    </NavLink>
-    @if(expandSubMenu && clickedMenu == 9)
-    {                
-        <NavLink class="expand-menu" href="/viewincome">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Other Income
-        </NavLink>
-        <NavLink class="expand-menu" href="/addincome">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Other Income
-        </NavLink>
-    }
-</li>                
+
 @*<li class="nav-item px-3">
-    <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=10;}">
-        <span class="oi oi-plus" aria-hidden="true"></span> ACCOUTNING
-    </NavLink>
-    @if(expandSubMenu && clickedMenu == 10)
-    {                
-        <NavLink class="expand-menu" href="/cashflowaccumulated">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Cash Flow Accumulated
+        <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=7;}">
+            <span class="oi oi-list-rich" aria-hidden="true"></span> INVESTOR ACCOUNTS
         </NavLink>
-        <NavLink class="expand-menu" href="/cashflowmonthly">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Cash Flow Monthly
-        </NavLink>
-        <NavLink class="expand-menu" href="/cashflowprojection">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Cash Flow Projection
-        </NavLink>
-        <NavLink class="expand-menu" href="/cashbook">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Cash Book
-        </NavLink>
-        <NavLink class="expand-menu" href="/trailbalance">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Trail Balance
-        </NavLink>
-        <NavLink class="expand-menu" href="/balancesheet">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Balance Sheet
-        </NavLink>
-        <NavLink class="expand-menu" href="/profitandloss">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Profit and Loss
-        </NavLink>               
-    }
-</li>*@
+        @if(expandSubMenu && clickedMenu == 7)
+        {                
+            <NavLink class="expand-menu" href="/viewinvestoraccounts">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Investor Accounts
+            </NavLink>
+            <NavLink class="expand-menu" href="/addinvestoraccount">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Investor Account
+            </NavLink>
+
+            <NavLink class="expand-menu" href="/viewloaninvestments">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View All Loan Investments
+            </NavLink>
+            <NavLink class="expand-menu" href="/investortransactions">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Investor Transactions
+            </NavLink>
+            <NavLink class="expand-menu" href="/approveloaninvestments">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Approve Loan Investments
+            </NavLink>
+        } 
+    </li>*@
 <li class="nav-item px-3">
-    <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=11;}">
-        <span class="oi oi-list-rich" aria-hidden="true"></span> REPORTS
-    </NavLink>
-    @if(expandSubMenu && clickedMenu == 11)
-    {                
-        <NavLink class="expand-menu" href="/reporting">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Sales Report - Syncfusion Demo
+    @if (userRoles.Contains("EXPENSES"))
+    {
+        <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu = 8;}">
+            <span class="oi oi-plus" aria-hidden="true"></span> EXPENSES
         </NavLink>
-        <NavLink class="expand-menu" href="/reporting/Towns">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Towns
+    }
+
+    @if (expandSubMenu && clickedMenu == 8)
+    {
+        @if (userRoles.Contains("View Expenses"))
+        {
+            <NavLink class="expand-menu" href="/viewexpenses">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Expenses
+            </NavLink>
+        }
+        @if (userRoles.Contains("Add Expenses"))
+        {
+            <NavLink class="expand-menu" href="/addexpenses">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Expenses
+            </NavLink>
+        }
+    }
+</li>
+
+<li class="nav-item px-3">
+    @if (userRoles.Contains("OTHER INCOME"))
+    {
+        <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu = 9;}">
+            <span class="oi oi-list-rich" aria-hidden="true"></span> OTHER INCOME
         </NavLink>
+    }
+
+    @if (expandSubMenu && clickedMenu == 9)
+    {
+        @if (userRoles.Contains("View Other Income"))
+        {
+            <NavLink class="expand-menu" href="/viewincome">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Other Income
+            </NavLink>
+        }
+        @if (userRoles.Contains("Add Other Income"))
+        {
+            <NavLink class="expand-menu" href="/addincome">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Other Income
+            </NavLink>
+        }
+    }
+</li>
+@*<li class="nav-item px-3">
+        <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=10;}">
+            <span class="oi oi-plus" aria-hidden="true"></span> ACCOUTNING
+        </NavLink>
+        @if(expandSubMenu && clickedMenu == 10)
+        {                
+            <NavLink class="expand-menu" href="/cashflowaccumulated">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Cash Flow Accumulated
+            </NavLink>
+            <NavLink class="expand-menu" href="/cashflowmonthly">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Cash Flow Monthly
+            </NavLink>
+            <NavLink class="expand-menu" href="/cashflowprojection">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Cash Flow Projection
+            </NavLink>
+            <NavLink class="expand-menu" href="/cashbook">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Cash Book
+            </NavLink>
+            <NavLink class="expand-menu" href="/trailbalance">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Trail Balance
+            </NavLink>
+            <NavLink class="expand-menu" href="/balancesheet">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Balance Sheet
+            </NavLink>
+            <NavLink class="expand-menu" href="/profitandloss">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Profit and Loss
+            </NavLink>               
+        }
+    </li>*@
+<li class="nav-item px-3">
+    @if (userRoles.Contains("REPORTS"))
+    {
+        <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu = 11;}">
+            <span class="oi oi-list-rich" aria-hidden="true"></span> REPORTS
+        </NavLink>
+    }
+
+    @if (expandSubMenu && clickedMenu == 11)
+    {
+        @if (userRoles.Contains("Sales Report - Syncfusion Demo"))
+        {
+            <NavLink class="expand-menu" href="/reporting">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Sales Report - Syncfusion Demo
+            </NavLink>
+        }
+        @if (userRoles.Contains("Towns"))
+        {
+            <NavLink class="expand-menu" href="/reporting/Towns">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Towns
+            </NavLink>
+        }
     }
 </li>
 <li class="nav-item px-3">
-    <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu=12;}" >
-        <span class="oi oi-list-rich" aria-hidden="true"></span> SETTINGS
-    </NavLink>
-    @if(expandSubMenu && clickedMenu == 12)
-    {                
-        <NavLink class="expand-menu" href="/admin">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Administration
-        </NavLink>      
-        <NavLink class="expand-menu" href="/designer">
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Report Designer
-        </NavLink> 
+    @if (userRoles.Contains("SETTINGS"))
+    {
+        <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu = 12;}">
+            <span class="oi oi-list-rich" aria-hidden="true"></span> SETTINGS
+        </NavLink>
+    }
+
+    @if (expandSubMenu && clickedMenu == 12)
+    {
+        @if (userRoles.Contains("Administration"))
+        {
+            <NavLink class="expand-menu" href="/admin">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Administration
+            </NavLink>
+        }
+        @if (userRoles.Contains("Report Designer"))
+        {
+            <NavLink class="expand-menu" href="/designer">
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Report Designer
+            </NavLink>
+        }
     }
 </li>
+
+
 </ul>
 
     <div class="footer">
@@ -264,6 +372,8 @@
     private int clickedMenu = 0;
     private bool hasPageName = true;
     private int prevClickedMenu = 0;
+    private List<string> userRoles = new List<string>();
+    
     //private int UserId = 0;
 
     protected override async Task OnInitializedAsync()
@@ -271,9 +381,30 @@
         Object[] obj = {
             new { key = "width", value = "270"},
             new { key = "height", value = "100"},        
-        };
-        //await JSRuntime.InvokeAsync<string>("changeHeight", "100");       
-        StateHasChanged();      
+            };
+
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        var name = user.Identity.Name;
+
+        var userID = UserManager.GetUserId(user);   
+
+        
+        //get roles for user
+        var roles = userRoleRepo.GetAllUserRoles().Where(u => u.UserId == userID).ToList();
+        foreach (var role in roles)
+        {
+            var roleClaims = roleClaimRepo.GetAllRoleClaims().Where(r => r.RoleId == role.RoleId).ToList();
+
+            foreach (var roleClaim in roleClaims)
+            {
+                userRoles.Add(roleClaim.ClaimValue);
+                
+            }
+        }
+        
+        StateHasChanged();
+        
     }
 
     private void ToggleNavMenu() => collapseNavMenu = !collapseNavMenu;

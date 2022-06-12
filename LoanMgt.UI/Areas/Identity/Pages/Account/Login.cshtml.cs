@@ -26,6 +26,8 @@ namespace LoanMgt.UI.Areas.Identity.Pages.Account
         {
             _signInManager = signInManager;
             _logger = logger;
+
+            _signInManager.Context.SignOutAsync(IdentityConstants.ExternalScheme);
         }
 
         /// <summary>
