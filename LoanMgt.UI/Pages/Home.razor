@@ -10,11 +10,13 @@
 @inject TransactionRepository tranRepo;
 @inject OtherIncomeRepository incomeRepo;
 @inject ExpenseRepository expenseRepo;
+@inject BorrowerRepository borrowerRepo;
 @inject NavigationManager UriHelper
 @inject AuthenticationStateProvider GetAuthenticationStateAsync
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 @using Microsoft.VisualBasic;
+@using LoanMgt.SHARED
 
 
 @if(processing)
@@ -139,34 +141,16 @@ else
 					<span class="title">Recent Transactions</span>
 				</HeaderTemplate>
 				<ContentTemplate>
-					<SfGrid TValue="TransactionData" DataSource="@TransactData" Width="100%" Height="100%" AllowSorting="true" EnableHover="false" AllowPaging="false">
+					<SfGrid TValue="Transaction" DataSource="@transactions" Width="100%" Height="100%" AllowSorting="true" EnableHover="false" AllowPaging="false">
 						<GridColumns>
-							<GridColumn Field="@nameof(TransactionData.TransactoinId)" HeaderText="Transaction ID" Width="120"  TextAlign="@TextAlign.Center"></GridColumn>
-							<GridColumn Field="@nameof(TransactionData.Category)" HeaderText="Category" Width="120">
-								<Template>
-									@{
-										var expense = (context as TransactionData);
-		 								<div class="normalRes">
-		  								<div class="category-icon @expense.IconCss"></div>
-		  								<div class='category-text'>@expense.Category</div>
-		 								</div>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(TransactionData.PaymentMode)" HeaderText="Payment Mode" Width="160"  TextAlign="@TextAlign.Center"></GridColumn>
-							<GridColumn Field="@nameof(TransactionData.Description)" HeaderText="Description" Width="160"  TextAlign="@TextAlign.Center"></GridColumn>
-							<GridColumn Field="@nameof(TransactionData.Amount)" HeaderText="Amount" Width="120" TextAlign="@TextAlign.Center">
-								<Template>
-									@{
-										var expense = (context as TransactionData);
-		 								<div class="normalRes">
-		  								<div class='amt-payment @(expense.IsExpense ? "expense-payment" : "income-payment")'>
-		   								<span>K</span><span>@expense.Amount</span>
-		  								</div>
-		 								</div>
-									}
-								</Template>
-							</GridColumn>
+							<GridColumn Field="@nameof(Transaction.TransactionDate)" HeaderText="Transaction Date" Width="120"  TextAlign="@TextAlign.Center"></GridColumn>
+                            <GridColumn Field="@nameof(Transaction.CustomerNo)" HeaderText="Customer No" Width="120"  TextAlign="@TextAlign.Center"></GridColumn>
+                            <GridForeignColumn Field=@nameof(Transaction.BorrowerId) HeaderText="Firstname" TextAlign="TextAlign.Left" ForeignKeyValue="Firstname" Format="d" ForeignDataSource="@borrowers" ></GridForeignColumn>
+                            <GridForeignColumn Field=@nameof(Transaction.BorrowerId) HeaderText="Lastname" TextAlign="TextAlign.Left" ForeignKeyValue="Lastname" Format="d" ForeignDataSource="@borrowers" ></GridForeignColumn>
+
+                            <GridColumn Field="@nameof(Transaction.Debit)" HeaderText="Amount" Width="120"  TextAlign="@TextAlign.Center"></GridColumn>
+							<GridColumn Field="@nameof(Transaction.Description)" HeaderText="Description" Width="160"  TextAlign="@TextAlign.Center"></GridColumn>
+							
 						</GridColumns>
 					</SfGrid>
 				</ContentTemplate>
@@ -181,13 +165,10 @@ else
 	private Theme Theme { get; set; }
 	private double[] Spacing = new double[] { 15, 15 };
 	private double Ratio = 160 / 100;
-	private List<TransactionData> TransactData = new List<TransactionData> {
-	new TransactionData { Category = "Food", Amount = 6, PaymentMode = "Debit Card", IconCss = "food", IsExpense = true, IsIncome = false, TransactoinId = "#131614678", Description = "Palmetto Cheese, Mint julep" },
-	new TransactionData { Category = "Transportation", Amount = 7, PaymentMode = "Debit Card", IconCss = "travel", IsExpense = true, IsIncome = false, TransactoinId = "#131416876", Description = "Other vehicle expenses" },
-	new TransactionData { Category = "Housing", Amount = 20, PaymentMode = "Credit Card", IconCss = "housing", IsExpense = true, IsIncome = false, TransactoinId = "#1711148579", Description = "Laundry and cleaning supplies" },
-	new TransactionData { Category = "Extra Income", Amount = 110, PaymentMode = "Cash", IconCss = "extra-income", IsExpense = false, IsIncome = true, TransactoinId = "#1922419785", Description = "Income from Sale" },
-	new TransactionData { Category = "Food", Amount = 10, PaymentMode = "Credit Card", IconCss = "food", IsExpense = true, IsIncome = false, TransactoinId = "#2744145880", Description = "Muffuletta sandwich, Mint julep" }
-	};
+    private List<Transaction> transactions = new List<Transaction>();
+    private List<Borrower> borrowers = new List<Borrower>();
+
+	
 	private List<RenderingData> PieRenderingData = new List<RenderingData>
 	{
 	new RenderingData { X = "Mortgage / Rent", Text="15.76%", Y = 6000 },
@@ -226,6 +207,8 @@ else
 
         var userID = UserManager.GetUserId(user);
 
+	    transactions = tranRepo.GetAll().Where(t=> t.TransactionType == "PAY").OrderByDescending(t => t.TransactionDate).Take(50).ToList();
+	    borrowers = borrowerRepo.GetAll().ToList();
 		processing = false;
 		StateHasChanged();
     }
