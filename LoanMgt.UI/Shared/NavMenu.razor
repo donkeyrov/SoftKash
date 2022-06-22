@@ -21,7 +21,7 @@
 <ul class="list-unstyled components mb-5">
     <li class="nav-item px-3">
         <NavLink class="nav-link" href="/home" >
-            <span class="oi oi-list-rich" aria-hidden="true"></span> HOME
+            <span class="oi oi-monitor" aria-hidden="true"></span> HOME
         </NavLink>
     </li>
     
@@ -31,7 +31,7 @@
     @if (userRoles.Contains("BORROWERS"))
     {
         <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu = 2;}">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> BORROWERS
+            <span class="oi oi-people" aria-hidden="true"></span> BORROWERS
         </NavLink>
     }
 
@@ -40,7 +40,7 @@
         @if (userRoles.Contains("BORROWERS"))
         {
             <NavLink class="expand-menu" href="/viewborrowers">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Borrowers
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> View Borrowers
             </NavLink>
         }
 
@@ -53,19 +53,19 @@
         @if (userRoles.Contains("View Borrower Group"))
         {
             <NavLink class="expand-menu" href="/viewborrowergroups">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Borrower Group
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> View Borrower Group
             </NavLink>
         }
         @if (userRoles.Contains("View Borrower Group"))
         {
             <NavLink class="expand-menu" href="/viewborrowergroups">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Borrower Group
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> View Borrower Group
             </NavLink>
         }
         @if (userRoles.Contains("Add Borrower Group"))
         {
             <NavLink class="expand-menu" href="/addborrowergroup">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Borrower Group
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> Add Borrower Group
             </NavLink>
         }
     }
@@ -84,31 +84,31 @@
         @if (userRoles.Contains("View All Loans"))
         {
             <NavLink class="expand-menu" href="/viewallloans">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View All Loans
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> View All Loans
             </NavLink>
         }
         @if (userRoles.Contains("Loan Calculator"))
         {
             <NavLink class="expand-menu" href="/loancalculator">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Loan Calculator
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> Loan Calculator
             </NavLink>
         }
         @if (userRoles.Contains("Add Loan"))
         {
             <NavLink class="expand-menu" href="/addloan">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Loan
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> Add Loan
             </NavLink>
         }
         @if (userRoles.Contains("Approve Loans"))
         {
             <NavLink class="expand-menu" href="/approveloans">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Approve Loans
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> Approve Loans
             </NavLink>
         }
         @if (userRoles.Contains("CFO Approve Loans"))
         {
             <NavLink class="expand-menu" href="/cfoviewloans">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> CFO Approve Loans
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> CFO Approve Loans
             </NavLink>
         }
     }
@@ -118,7 +118,7 @@
     @if (userRoles.Contains("REPAYMENTS"))
     {
         <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu = 4;}">
-            <span class="oi oi-plus" aria-hidden="true"></span> REPAYMENTS
+            <span class="oi oi-calculator" aria-hidden="true"></span> REPAYMENTS
         </NavLink>
     }
 
@@ -127,13 +127,13 @@
         @if (userRoles.Contains("View Repayments"))
         {
             <NavLink class="expand-menu" href="/viewrepayments">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Repayments
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> View Repayments
             </NavLink>
         }
         @if (userRoles.Contains("Bulk Repayments"))
         {
             <NavLink class="expand-menu" href="/bulkrepayments">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Bulk Repayments
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> Bulk Repayments
             </NavLink>
         }
             @*<NavLink class="expand-menu" href="/uploadrepayments">
@@ -142,7 +142,7 @@
         @if (userRoles.Contains("Approve Repayments"))
         {
             <NavLink class="expand-menu" href="/approverepayments">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Approve Repayments
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> Approve Repayments
             </NavLink>
         }
     }
@@ -166,7 +166,7 @@
     @if (userRoles.Contains("COLLECTION SHEET"))
     {
         <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu = 6;}">
-            <span class="oi oi-plus" aria-hidden="true"></span> COLLECTION SHEET
+            <span class="oi oi-book" aria-hidden="true"></span> COLLECTION SHEET
         </NavLink>
     }
 
@@ -175,25 +175,25 @@
         @if (userRoles.Contains("Loan Submission"))
         {
             <NavLink class="expand-menu" href="/loansubmission">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Loan Submission
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> Loan Submission
             </NavLink>
         }
         @if (userRoles.Contains("Daily Collection"))
         {
             <NavLink class="expand-menu" href="/Dailycollection">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Daily Collection
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> Daily Collection
             </NavLink>
         }
         @if (userRoles.Contains("Missed Repayments"))
         {
             <NavLink class="expand-menu" href="/missedrepayments">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Missed Repayments
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> Missed Repayments
             </NavLink>
         }
         @if (userRoles.Contains("Passed Maturity Date Loans"))
         {
             <NavLink class="expand-menu" href="/passedmaturitydate">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Passed Maturity Date Loans
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> Passed Maturity Date Loans
             </NavLink>
         }
     }
@@ -227,7 +227,7 @@
     @if (userRoles.Contains("EXPENSES"))
     {
         <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu = 8;}">
-            <span class="oi oi-plus" aria-hidden="true"></span> EXPENSES
+            <span class="oi oi-credit-card" aria-hidden="true"></span> EXPENSES
         </NavLink>
     }
 
@@ -236,13 +236,13 @@
         @if (userRoles.Contains("View Expenses"))
         {
             <NavLink class="expand-menu" href="/viewexpenses">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Expenses
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> View Expenses
             </NavLink>
         }
         @if (userRoles.Contains("Add Expenses"))
         {
             <NavLink class="expand-menu" href="/addexpenses">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Expenses
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> Add Expenses
             </NavLink>
         }
     }
@@ -252,7 +252,7 @@
     @if (userRoles.Contains("OTHER INCOME"))
     {
         <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu = 9;}">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> OTHER INCOME
+            <span class="oi oi-dollar" aria-hidden="true"></span> OTHER INCOME
         </NavLink>
     }
 
@@ -261,13 +261,13 @@
         @if (userRoles.Contains("View Other Income"))
         {
             <NavLink class="expand-menu" href="/viewincome">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> View Other Income
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> View Other Income
             </NavLink>
         }
         @if (userRoles.Contains("Add Other Income"))
         {
             <NavLink class="expand-menu" href="/addincome">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Add Other Income
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> Add Other Income
             </NavLink>
         }
     }
@@ -305,7 +305,7 @@
     @if (userRoles.Contains("REPORTS"))
     {
         <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu = 11;}">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> REPORTS
+            <span class="oi oi-document" aria-hidden="true"></span> REPORTS
         </NavLink>
     }
 
@@ -314,13 +314,13 @@
         @if (userRoles.Contains("Sales Report - Syncfusion Demo"))
         {
             <NavLink class="expand-menu" href="/reporting">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Sales Report - Syncfusion Demo
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> Sales Report - Syncfusion Demo
             </NavLink>
         }
         @if (userRoles.Contains("Towns"))
         {
             <NavLink class="expand-menu" href="/reporting/Towns">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Towns
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> Towns
             </NavLink>
         }
     }
@@ -329,7 +329,7 @@
     @if (userRoles.Contains("SETTINGS"))
     {
         <NavLink class="nav-link" href="/home" @onclick="() => {expandSubMenu = !expandSubMenu; clickedMenu = 12;}">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> SETTINGS
+            <span class="oi oi-cog" aria-hidden="true"></span> SETTINGS
         </NavLink>
     }
 
@@ -338,13 +338,13 @@
         @if (userRoles.Contains("Administration"))
         {
             <NavLink class="expand-menu" href="/admin">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Administration
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> Administration
             </NavLink>
         }
         @if (userRoles.Contains("Report Designer"))
         {
             <NavLink class="expand-menu" href="/designer">
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-list-rich" aria-hidden="true"></span> Report Designer
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="oi oi-share" aria-hidden="true"></span> Report Designer
             </NavLink>
         }
     }

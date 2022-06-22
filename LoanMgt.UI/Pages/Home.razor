@@ -7,6 +7,9 @@
 @using Syncfusion.Blazor.Buttons
 @using Syncfusion.Blazor.Charts
 @using Syncfusion.Blazor.Grids
+@inject TransactionRepository tranRepo;
+@inject OtherIncomeRepository incomeRepo;
+@inject ExpenseRepository expenseRepo;
 @inject NavigationManager UriHelper
 @inject AuthenticationStateProvider GetAuthenticationStateAsync
 @inject SignInManager<IdentityUser> SignInManager
